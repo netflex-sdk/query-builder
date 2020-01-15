@@ -132,7 +132,7 @@ class Builder
 
     $scopedQuery  = (function ($builder, $callback) {
       $callback($builder);
-      return $builder->compileQuery(true);
+      return $builder->getQuery(true);
     })($builder, $callback);
 
     $compiledQuery = $this->compileQuery(true);
@@ -213,13 +213,15 @@ class Builder
   }
 
   /**
-   * Compiles the query and retrieves the query string
+   * Compiles the query and retrieves the query string.
+   * Used for debugging purposes.
    *
+   * @param bool $scoped Determines if the query shouls be compiled in a scoped context.
    * @return string
    */
-  public function getQuery()
+  public function getQuery($scoped = false)
   {
-    return $this->compileQuery();
+    return $this->compileQuery($scoped);
   }
 
   /**
