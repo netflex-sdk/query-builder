@@ -3,15 +3,18 @@
 namespace Netflex\Query;
 
 use Exception;
+use ReflectionMethod;
+use RuntimeException;
 
 use Netflex\API;
 
 class Builder
 {
-  const MAX_QUERY_SIZE = 10000;
+  /** @var int The minimum allowed results per query */
+  const MIN_QUERY_SIZE = 1;
 
-  /** @var API */
-  private $client;
+  /** @var int The maximum allowed results per query */
+  const MAX_QUERY_SIZE = 10000;
 
   /** @var array */
   protected $operators = ['=', '!=', '<=', '<', '>=', '>', 'like'];
@@ -20,7 +23,7 @@ class Builder
   protected $grammar = ['(', ')', ' AND ', ' OR '];
 
   /** @var array */
-  private $fields = [];
+  private $fields = null;
 
   /** @var array */
   private $relations = [];
@@ -30,9 +33,6 @@ class Builder
 
   /** @var int */
   private $size = self::MAX_QUERY_SIZE;
-
-  /** @var int */
-  private $page_size = 15;
 
   /** @var string */
   private $orderBy = null;
@@ -47,18 +47,14 @@ class Builder
   private $page = null;
 
   /** @var bool */
-  private $paginate = false;
-
-  /** @var bool */
   private $respectPublishingStatus = true;
 
-  /** @var array */
-  private $hits = [];
-
-  public function __construct(self $parent = null, $query = [], $respectPublishingStatus = true)
+  /**
+   * @param bool $respectPublishingStatus
+   * @param array $query
+   */
+  public function __construct($respectPublishingStatus = true, array $query = [])
   {
-    $this->client = API::getClient();
-    $this->parent = $parent;
     $this->query = $query;
     $this->respectPublishingStatus = $respectPublishingStatus;
   }
@@ -72,6 +68,11 @@ class Builder
     return in_array($relation, $this->relations);
   }
 
+  /**
+   * @param mixed $value
+   * @param string $operator
+   * @return mixed
+   */
   private function escapeValue($value, $operator = null)
   {
     if (is_string($value)) {
@@ -97,23 +98,37 @@ class Builder
     return $value;
   }
 
-  private function compileTermQuery($field, $value)
+  /**
+   * @param string $field
+   * @param mixed $value
+   * @return string
+   */
+  private function compileTermQuery(string $field, $value)
   {
     return "${field}:$value";
   }
 
+  /**
+   * @param string $field
+   * @return string
+   */
   private function compileNullQuery($field)
   {
     return "_exists_:{$field}";
   }
 
+  /**
+   * @param array $args
+   * @param string $operator
+   * @return string
+   */
   private function compileScopedQuery(array $args, string $operator = 'AND')
   {
     $callback = count($args) === 1 ? array_pop($args) : function (self $scope) use ($args) {
       return $scope->where(...$args);
     };
 
-    $builder = new static($this, [], false);
+    $builder = new static(false, []);
 
     $scopedQuery  = (function ($builder, $callback) {
       $callback($builder);
@@ -131,6 +146,12 @@ class Builder
     return "{$compiledQuery}{$operator}$scopedQuery";
   }
 
+  /**
+   * @param string $field
+   * @param string $operator|
+   * @param mixed $value
+   * @return string
+   */
   private function compileWhereQuery($field, $operator, $value)
   {
     $value = $this->escapeValue($value, $operator);
@@ -191,15 +212,35 @@ class Builder
     }
   }
 
-  public function getQuery () {
+  /**
+   * Compiles the query and retrieves the query string
+   *
+   * @return string
+   */
+  public function getQuery()
+  {
     return $this->compileQuery();
   }
 
-  public function raw($query)
+  /**
+   * Performs a raw Lucene query, use carefully.
+   *
+   * @param string $query
+   * @return static
+   */
+  public function raw(string $query)
   {
     $this->query[] = $query;
+    return $this;
   }
 
+  /**
+   * Sets the field which to order the results by
+   *
+   * @param string $field
+   * @param string $direction
+   * @return static
+   */
   public function orderBy($field, $direction = 'asc')
   {
     $this->orderBy = $field;
@@ -207,16 +248,34 @@ class Builder
     return $this;
   }
 
+  /**
+   * Sets the direction to order the results by
+   *
+   * @param string $direction
+   * @return static
+   */
   public function orderDirection($direction)
   {
     return $this->sortDirection($direction);
   }
 
+  /**
+   * @see \Netflex\Query\Builder::orderBy
+   * @param string $field
+   * @param string $direction
+   * @return static
+   */
   public function sortBy($field, $direction = 'asc')
   {
     return $this->orderBy($field, $direction);
   }
 
+  /**
+   * @see \Netflex\Query\Builder::orderDirection
+   * @param string $direction
+   * @throws Exception If an invalid $direction is passed
+   * @return static
+   */
   public function sortDirection($direction)
   {
     if (!in_array($direction, ['asc', 'desc'])) {
@@ -227,6 +286,13 @@ class Builder
     return $this;
   }
 
+  /**
+   * Sets the relation for the query
+   *
+   * @param string $relation
+   * @param int $relation_id
+   * @return static
+   */
   public function relation(string $relation, int $relation_id = null)
   {
     $this->relations[] = $relation;
@@ -235,12 +301,26 @@ class Builder
     return $this;
   }
 
+  /**
+   * Limits the results to $limit amount of hits
+   *
+   * @param int $limit
+   * @return static
+   */
   public function limit(int $limit)
   {
+    $limit = $limit > static::MAX_QUERY_SIZE ? static::MAX_QUERY_SIZE : $limit;
+    $limit = $limit < static::MIN_QUERY_SIZE ? static::MIN_QUERY_SIZE : $limit;
     $this->size = $limit;
     return $this;
   }
 
+  /**
+   * Sets which fields to retrieve (default: All fields)
+   *
+   * @param array $fields
+   * @return static
+   */
   public function fields(array $fields)
   {
     foreach ($fields as $field) {
@@ -250,13 +330,31 @@ class Builder
     return $this;
   }
 
+  /**
+   * Adds a field that should be retrieved
+   *
+   * @param string $field
+   * @return static
+   */
   public function field(string $field)
   {
+    $this->fields = $this->fields ?? [];
     $this->fields[] = $field;
     $this->fields = array_filter(array_unique($this->fields));
     return $this;
   }
 
+  /**
+   * Performs a 'where' query
+   *
+   * If a closure is passed as the only argument, a new query scope will be created.
+   * If $value is omitted, $operator is used as the $value, and the $operator will be set to '='.
+   *
+   * @param Closure|string $field
+   * @param string $operator
+   * @param mixed $value
+   * @return static
+   */
   public function where(...$args)
   {
     if (count($args) === 1) {
@@ -278,6 +376,17 @@ class Builder
     return $this;
   }
 
+  /**
+   * Performs a 'whereNot' query
+   *
+   * If a closure is passed as the only argument, a new query scope will be created.
+   * If $value is omitted, $operator is used as the $value, and the $operator will be set to '='.
+   *
+   * @param Closure|string $field
+   * @param string $operator
+   * @param mixed $value
+   * @return static
+   */
   public function whereNot(...$args)
   {
     if (count($args) === 1) {
@@ -299,37 +408,83 @@ class Builder
     return $this;
   }
 
+  /**
+   * Performs a 'orWhere' query
+   *
+   * If a closure is passed as the only argument, a new query scope will be created.
+   * If $value is omitted, $operator is used as the $value, and the $operator will be set to '='.
+   *
+   * @param Closure|string $field
+   * @param string $operator
+   * @param mixed $value
+   * @return static
+   */
   public function orWhere(...$args)
   {
     $this->query = [$this->compileScopedQuery($args, 'OR')];
     return $this;
   }
 
+  /**
+   * Performs a 'andWhere' query
+   *
+   * If a closure is passed as the only argument, a new query scope will be created.
+   * If $value is omitted, $operator is used as the $value, and the $operator will be set to '='.
+   *
+   * @param Closure|string $field
+   * @param string $operator
+   * @param mixed $value
+   * @return static
+   */
   public function andWhere(...$args)
   {
     $this->query = [$this->compileScopedQuery($args, 'AND')];
     return $this;
   }
 
+  /**
+   * Creates a paginated result
+   *
+   * @param int $size
+   * @param int $page
+   * @return Page
+   */
   public function paginate($size = 15, $page = 1)
   {
     return new Page($this, $this->fetch($page, $size));
   }
 
+  /**
+   * Retrieves the raw query result from the API
+   *
+   * @param int $page
+   * @param int $size
+   * @return object
+   */
   public function fetch($page = null, $size = null)
   {
+    $client = API::getClient();
     $this->page = $page ?? $this->page;
     $this->size = $size ?? $this->size;
 
-    return $this->client->get($this->compileRequest());
+    return $client->get($this->compileRequest());
   }
 
+  /**
+   * Retrieves the results of the query
+   *
+   * @return array
+   */
   public function get()
   {
     return $this->fetch()->data ?? [];
   }
 
-  public function compileQuery($scoped = false)
+  /**
+   * @param bool $scoped
+   * @return string
+   */
+  private function compileQuery($scoped = false)
   {
     $query = $this->query;
     $compiledQuery =  implode(' AND ', array_filter(array_map(function ($term) {
@@ -381,6 +536,9 @@ class Builder
     return $compiledQuery;
   }
 
+  /**
+   * @return string
+   */
   private function compileRequest()
   {
     $params = [

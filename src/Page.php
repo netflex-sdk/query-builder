@@ -17,6 +17,10 @@ class Page
   /** @var array */
   public $data;
 
+  /**
+   * @param Builder $query
+   * @param object $result
+   */
   public function __construct(Builder $query, $result = null)
   {
     $this->query = $query;
@@ -32,6 +36,9 @@ class Page
     }
   }
 
+  /**
+   * @return static|null
+   */
   public function previous()
   {
     $previous = $this->current_page - 1;
@@ -43,6 +50,9 @@ class Page
     return $this->query->paginate($this->per_page, $previous);
   }
 
+  /**
+   * @return static|null
+   */
   public function next()
   {
     $next = $this->current_page + 1;
