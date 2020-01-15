@@ -1,0 +1,32 @@
+{
+  "name": "netflex/query-builder",
+  "description": "Netflex QueryBuilder library",
+  "type": "library",
+  "license": "MIT",
+  "keywords": [
+    "netflex",
+    "query",
+    "lucene"
+  ],
+  "authors": [
+    {
+      "name": "Thomas Alrek",
+      "email": "thomas@apility.no"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Netflex\\Query\\": "src/"
+    }
+  },
+  "require": {
+    "php": "^7.3",
+    "netflex/api": "^2.0"
+  },
+  "config": {
+    "platform": {
+      "php": "7.3"
+    },
+    "sort-packages": true
+  }
+}
