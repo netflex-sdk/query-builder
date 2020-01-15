@@ -12,6 +12,30 @@ A library for building complex search queries for the Netflex API using a fluent
 composer require netflex/query-builder
 ```
 
+## Usage example
+
+```php
+<?php
+
+use Netflex\Query\Builder;
+
+$query = new Builder();
+$query->relation('entry', 10000)
+  ->where('id', '>=', 10100)
+  ->where('author', '!=', null)
+  ->orWhere(function ($query) {
+    $query->where('id', '<', 10100)
+      ->where('author', '=', 'John Doe');
+  });
+
+$items = $query->limit(100)
+  ->fields(['id', 'name', 'author'])
+  ->orderBy('name', 'desc')
+  ->get();
+
+$page = $query->paginate(25);
+```
+
 ## Contributing
 
 Thank you for considering contributing to the Netflex SDK! Please read the [contribution guide](CONTRIBUTING.md).
