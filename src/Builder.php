@@ -6,11 +6,12 @@ use DateTime;
 use Illuminate\Support\Collection;
 use Netflex\API;
 
+use Netflex\Query\Exception\InvalidAssignmentException;
 use Netflex\Query\Exception\InvalidOperatorException;
 use Netflex\Query\Exception\InvalidSortingDirectionException;
+use Netflex\Query\Exception\InvalidValueException;
 
 use Illuminate\Support\Str;
-use Netflex\Query\Exception\InvalidValueException;
 
 class Builder
 {
@@ -204,7 +205,7 @@ class Builder
    * @param string $operator|
    * @param null|array|boolean|integer|string|DateTime $value
    * @return string
-   * @throws \Netflex\Query\Exception\InvalidOperatorException If an invalid operator is passed
+   * @throws InvalidOperatorException If an invalid operator is passed
    */
   private function compileWhereQuery($field, $operator, $value)
   {
@@ -325,11 +326,12 @@ class Builder
    * @param string $field
    * @param string $direction
    * @return static
+   * @throws InvalidSortingDirectionException If an invalid $direction is passed
    */
   public function orderBy($field, $direction = 'asc')
   {
     $this->orderBy = $field;
-    $this->sortDirection($direction);
+    $this->orderDirection($direction);
     return $this;
   }
 
@@ -338,30 +340,9 @@ class Builder
    *
    * @param string $direction
    * @return static
+   * @throws InvalidSortingDirectionException If an invalid $direction is passed
    */
   public function orderDirection($direction)
-  {
-    return $this->sortDirection($direction);
-  }
-
-  /**
-   * @see \Netflex\Query\Builder::orderBy
-   * @param string $field
-   * @param string $direction
-   * @return static
-   */
-  public function sortBy($field, $direction = 'asc')
-  {
-    return $this->orderBy($field, $direction);
-  }
-
-  /**
-   * @see \Netflex\Query\Builder::orderDirection
-   * @param string $direction
-   * @throws * @throws \Netflex\Query\Exception\InvalidSortingDirectionException If an invalid $direction is passed
-   * @return static
-   */
-  public function sortDirection($direction)
   {
     if (!in_array($direction, static::SORTING_DIRS)) {
       throw new InvalidSortingDirectionException($direction);
@@ -545,9 +526,14 @@ class Builder
    * @param string $operator
    * @param null|array|boolean|integer|string|DateTime $value
    * @return static
+   * @throws InvalidAssignmentException If left hand side of query is not set
    */
   public function orWhere(...$args)
   {
+    if (!$this->query || !count($this->query)) {
+      throw new InvalidAssignmentException('orWhere');
+    }
+
     $this->query = [$this->compileScopedQuery($args, 'OR')];
     return $this;
   }
@@ -562,9 +548,14 @@ class Builder
    * @param string $operator
    * @param null|array|boolean|integer|string|DateTime $value
    * @return static
+   * @throws InvalidAssignmentException If left hand side of query is not set
    */
   public function andWhere(...$args)
   {
+    if (!$this->query || !count($this->query)) {
+      throw new InvalidAssignmentException('andWhere');
+    }
+
     $this->query = [$this->compileScopedQuery($args, 'AND')];
     return $this;
   }
