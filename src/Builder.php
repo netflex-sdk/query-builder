@@ -2,9 +2,9 @@
 
 namespace Netflex\Query;
 
-use Exception;
-
+use Illuminate\Support\Collection;
 use Netflex\API;
+
 use Netflex\Query\Exception\InvalidOperatorException;
 use Netflex\Query\Exception\InvalidSortingDirectionException;
 
@@ -434,7 +434,7 @@ class Builder
     $operator = $args[1] ?? null;
     $value = $args[2] ?? null;
 
-    if (is_null($value) && !is_null($operator) && !in_array($operator, $this->operators, true)) {
+    if (is_null($value) && !is_null($operator) && !in_array($operator, static::OPERATORS, true)) {
       $value = $operator;
       $operator = '=';
     }
@@ -466,7 +466,7 @@ class Builder
     $operator = $args[1] ?? null;
     $value = $args[2] ?? null;
 
-    if (is_null($value) && !is_null($operator) && !in_array($operator, $this->operators, true)) {
+    if (is_null($value) && !is_null($operator) && !in_array($operator, static::OPERATORS, true)) {
       $value = $operator;
       $operator = '=';
     }
@@ -540,11 +540,11 @@ class Builder
   /**
    * Retrieves the results of the query
    *
-   * @return array
+   * @return \Illuminate\Support\Collection
    */
   public function get()
   {
-    return $this->fetch()->data ?? [];
+    return new Collection($this->fetch()->data ?? []);
   }
 
   /**
@@ -556,8 +556,9 @@ class Builder
   {
     $size = $this->size;
     $this->size = 1;
-    $first = array_pop($this->get());
+    $first = $this->get()->first();
     $this->size = $size;
+
     return $first;
   }
 
@@ -665,7 +666,7 @@ class Builder
   private function compileRequest()
   {
     $params = [
-      'order' => $this->orderBy,
+      'sort' => $this->orderBy,
       'dir' => $this->sortDir,
       'relation' => $this->relations ? implode(',', $this->relations) : null,
       'fields' => $this->fields ? implode(',', $this->fields) : null,
