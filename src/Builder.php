@@ -8,6 +8,8 @@ use RuntimeException;
 
 use Netflex\API;
 
+use Illuminate\Support\Str;
+
 class Builder
 {
   /** @var int The minimum allowed results per query */
@@ -297,7 +299,8 @@ class Builder
    */
   public function relation(string $relation, int $relation_id = null)
   {
-    $this->relations[] = $relation;
+    $this->relations = $this->relations ?? [];
+    $this->relations[] = Str::singular($relation);
     $this->relation_id = $relation_id;
     $this->relations = array_filter(array_unique($this->relations));
     return $this;
