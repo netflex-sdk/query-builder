@@ -12,7 +12,7 @@ final class FieldTest extends TestCase
     $query->field('id');
 
     $this->assertSame(
-      'search?fields=id&size='.Builder::MAX_QUERY_SIZE,
+      'search?fields=id&size=' . Builder::MAX_QUERY_SIZE,
       $query->getRequest()
     );
   }
@@ -24,7 +24,7 @@ final class FieldTest extends TestCase
     $query->field('name');
 
     $this->assertSame(
-      'search?fields=id,name&size='.Builder::MAX_QUERY_SIZE,
+      'search?fields=id,name&size=' . Builder::MAX_QUERY_SIZE,
       $query->getRequest()
     );
   }
@@ -35,7 +35,7 @@ final class FieldTest extends TestCase
     $query->fields(['id', 'name']);
 
     $this->assertSame(
-      'search?fields=id,name&size='.Builder::MAX_QUERY_SIZE,
+      'search?fields=id,name&size=' . Builder::MAX_QUERY_SIZE,
       $query->getRequest()
     );
   }
