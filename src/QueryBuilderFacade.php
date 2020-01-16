@@ -1,6 +1,6 @@
 <?php
 
-namespace Netflex\Support\Facades;
+namespace Netflex\Query;
 
 use Illuminate\Support\Facades\Facade;
 
