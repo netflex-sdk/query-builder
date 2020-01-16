@@ -464,6 +464,36 @@ class Builder
   }
 
   /**
+   * Queries where field is between $from and $to
+   *
+   * @param string $field
+   * @param null|array|boolean|integer|string $from
+   * @param null|array|boolean|integer|string $to
+   * @return static
+   */
+  public function whereBetween(string $field, $from, $to, $operator = '=') {
+    $from = $this->escapeValue($from, $operator);
+    $to = $this->escapeValue($to, $operator);
+    $this->query[] =  "($field:[$from TO $to])";
+    return $this;
+  }
+
+  /**
+   * Queries where field is not between $from and $to
+   *
+   * @param string $field
+   * @param null|array|boolean|integer|string $from
+   * @param null|array|boolean|integer|string $to
+   * @return static
+   */
+  public function whereNotBetween(string $field, $from, $to, $operator = '=') {
+    $from = $this->escapeValue($from, $operator);
+    $to = $this->escapeValue($to, $operator);
+    $this->query[] =  "(NOT ($field:[$from TO $to]))";
+    return $this;
+  }
+
+  /**
    * Performs a 'whereNot' query
    *
    * If a closure is passed as the only argument, a new query scope will be created.
