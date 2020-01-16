@@ -51,4 +51,4 @@ The Netflex QueryBuilder is open-sourced software licensed under the [MIT licens
 
 <hr>
 
-Copyright &copy; 2009-2020 **[Apility AS](https://apility.no)**
+Copyright &copy; 2020 **[Apility AS](https://apility.no)**
