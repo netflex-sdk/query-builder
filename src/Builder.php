@@ -3,10 +3,10 @@
 namespace Netflex\Query;
 
 use Exception;
-use ReflectionMethod;
-use RuntimeException;
 
 use Netflex\API;
+use Netflex\Query\Exception\InvalidOperatorException;
+use Netflex\Query\Exception\InvalidSortingDirectionException;
 
 use Illuminate\Support\Str;
 
@@ -18,8 +18,49 @@ class Builder
   /** @var int The maximum allowed results per query */
   const MAX_QUERY_SIZE = 10000;
 
-  /** @var array */
-  protected $operators = ['=', '!=', '<=', '<', '>=', '>', 'like'];
+  /** @var string The ascending sort direction */
+  const DIR_ASC = 'asc';
+
+  /** @var string The decending sort direction */
+  const DIR_DESC = 'desc';
+
+  /** @var array The valid sorting directions */
+  const SORTING_DIRS = [
+    Builder::DIR_ASC,
+    Builder::DIR_DESC,
+  ];
+
+  /** @var string The equals operator */
+  const OP_EQ = '=';
+
+  /** @var string The not equals operator */
+  const OP_NEQ = '!=';
+
+  /** @var string The less than operator */
+  const OP_LT = '<';
+
+  /** @var string The less than or equals operator */
+  const OP_LTE = '<=';
+
+  /** @var string The greater than operator */
+  const OP_GT = '>';
+
+  /** @var string The greater than or equals operator */
+  const OP_GTE = '>=';
+
+  /** @var string The like operator */
+  const OP_LIKE = 'like';
+
+  /** @var array The valid operators */
+  const OPERATORS = [
+    Builder::OP_EQ,
+    Builder::OP_NEQ,
+    Builder::OP_LT,
+    Builder::OP_LTE,
+    Builder::OP_GT,
+    Builder::OP_GTE,
+    Builder::OP_LIKE
+  ];
 
   /** @var array */
   protected $grammar = ['(', ')', ' AND ', ' OR '];
@@ -28,7 +69,7 @@ class Builder
   private $fields = null;
 
   /** @var array */
-  private $relations = [];
+  private $relations = null;
 
   /** @var int */
   private $relation_id;
@@ -67,7 +108,7 @@ class Builder
    */
   private function hasRelation($relation)
   {
-    return in_array($relation, $this->relations);
+    return in_array(Str::singular($relation), $this->relations ?? []);
   }
 
   /**
@@ -153,6 +194,7 @@ class Builder
    * @param string $operator|
    * @param mixed $value
    * @return string
+   * @throws \Netflex\Query\Exception\InvalidOperatorException If an invalid operator is passed
    */
   private function compileWhereQuery($field, $operator, $value)
   {
@@ -160,11 +202,11 @@ class Builder
     $term = $value === null ? $this->compileNullQuery($field) : $this->compileTermQuery($field, $value);
 
     switch ($operator) {
-      case '=':
+      case static::OP_EQ:
         return $term;
-      case '!=':
+      case static::OP_NEQ:
         return "NOT $term";
-      case '>':
+      case static::OP_GT:
         if ($value === null) {
           return null;
         }
@@ -174,7 +216,7 @@ class Builder
         }
 
         return "$field:>$value";
-      case '>=':
+      case static::OP_GTE:
         if ($value === null) {
           $this->query = [$this->compileWhereQuery($field, '!=', null)];
           return null;
@@ -185,7 +227,7 @@ class Builder
         }
 
         return "$field:>=$value";
-      case '<':
+      case static::OP_LT:
         if ($value === null) {
           return null;
         }
@@ -195,7 +237,7 @@ class Builder
         }
 
         return "$field:<$value";
-      case '<=':
+      case static::OP_LTE:
         if ($value === null) {
           $this->query = [$this->compileWhereQuery($field, '=', null)];
           return null;
@@ -206,10 +248,10 @@ class Builder
         }
 
         return "$field:<=$value";
-      case 'like':
+      case static::OP_LIKE:
         return $term;
       default:
-        throw new Exception("Unexpected operator '$operator'");
+        throw new InvalidOperatorException($operator);
         break;
     }
   }
@@ -224,6 +266,18 @@ class Builder
   public function getQuery($scoped = false)
   {
     return $this->compileQuery($scoped);
+  }
+
+  /**
+   * Compiles the query and retrieves the query string.
+   * Used for debugging purposes.
+   *
+   * @param bool $scoped Determines if the query shouls be compiled in a scoped context.
+   * @return string
+   */
+  public function getRequest()
+  {
+    return $this->compileRequest();
   }
 
   /**
@@ -277,13 +331,13 @@ class Builder
   /**
    * @see \Netflex\Query\Builder::orderDirection
    * @param string $direction
-   * @throws Exception If an invalid $direction is passed
+   * @throws * @throws \Netflex\Query\Exception\InvalidSortingDirectionException If an invalid $direction is passed
    * @return static
    */
   public function sortDirection($direction)
   {
-    if (!in_array($direction, ['asc', 'desc'])) {
-      throw new Exception("Unexpected sortDirection '$direction'");
+    if (!in_array($direction, static::SORTING_DIRS)) {
+      throw new InvalidSortingDirectionException($direction);
     }
 
     $this->sortDir = $direction;
@@ -303,6 +357,15 @@ class Builder
     $this->relations[] = Str::singular($relation);
     $this->relation_id = $relation_id;
     $this->relations = array_filter(array_unique($this->relations));
+    return $this;
+  }
+
+  public function relations(array $relations)
+  {
+    foreach ($relations as $relation) {
+      $this->relation($relation);
+    }
+
     return $this;
   }
 
@@ -466,13 +529,12 @@ class Builder
    * @param int $size
    * @return object
    */
-  public function fetch($page = null, $size = null)
+  private function fetch($page = null, $size = null)
   {
     $client = API::getClient();
     $this->page = $page ?? $this->page;
     $this->size = $size ?? $this->size;
-
-    return $client->get($this->compileRequest());
+    return $client->get($this->compileRequest($size));
   }
 
   /**
@@ -483,6 +545,20 @@ class Builder
   public function get()
   {
     return $this->fetch()->data ?? [];
+  }
+
+  /**
+   * Retrieves the first result
+   *
+   * @return object|null
+   */
+  public function first()
+  {
+    $size = $this->size;
+    $this->size = 1;
+    $first = array_pop($this->get());
+    $this->size = $size;
+    return $first;
   }
 
   /**
@@ -549,8 +625,8 @@ class Builder
     $params = [
       'order' => $this->orderBy,
       'dir' => $this->sortDir,
-      'relation' => implode(',', $this->relations),
-      'fields' => count($this->fields) ? implode(',', $this->fields) : null,
+      'relation' => $this->relations ? implode(',', $this->relations) : null,
+      'fields' => $this->fields ? implode(',', $this->fields) : null,
       'relation_id' => $this->relation_id,
       'size' => $this->size,
       'page' => $this->page,
@@ -559,9 +635,7 @@ class Builder
 
     $params = array_filter(array_map(function ($key) use ($params) {
       if ($params[$key]) {
-        $key = urlencode($key);
-        $value = urlencode($params[$key]);
-        return "{$key}={$value}";
+        return "{$key}={$params[$key]}";
       }
     }, array_keys($params)));
 
