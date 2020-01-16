@@ -33,6 +33,16 @@
   "require-dev": {
     "phpunit/phpunit": "^8.5"
   },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Barryvdh\\Debugbar\\ServiceProvider"
+      ],
+      "aliases": {
+        "Debugbar": "Barryvdh\\Debugbar\\Facade"
+      }
+    }
+  },
   "scripts": {
     "tests": "vendor/bin/phpunit --testdox --colors=always"
   }
