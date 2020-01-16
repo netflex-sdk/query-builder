@@ -208,8 +208,8 @@ class Builder
    */
   private function compileWhereQuery($field, $operator, $value)
   {
-    if (is_object($value) && method_exists($value, '__toString')) {
-      $value = $value->__toString();
+    if (method_exists($value, '__toString')) {
+      $value = (string) $value;
     }
 
     if (!in_array(gettype($value), static::VALUE_TYPES) || (is_object($value) && !in_array(get_class($value), static::VALUE_TYPES))) {
