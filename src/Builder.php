@@ -479,7 +479,8 @@ class Builder
    * @param null|array|boolean|integer|string $to
    * @return static
    */
-  public function whereBetween(string $field, $from, $to, $operator = '=') {
+  public function whereBetween(string $field, $from, $to, $operator = '=')
+  {
     $from = $this->escapeValue($from, $operator);
     $to = $this->escapeValue($to, $operator);
     $this->query[] =  "($field:[$from TO $to])";
@@ -494,7 +495,8 @@ class Builder
    * @param null|array|boolean|integer|string $to
    * @return static
    */
-  public function whereNotBetween(string $field, $from, $to, $operator = '=') {
+  public function whereNotBetween(string $field, $from, $to, $operator = '=')
+  {
     $from = $this->escapeValue($from, $operator);
     $to = $this->escapeValue($to, $operator);
     $this->query[] =  "(NOT ($field:[$from TO $to]))";
@@ -742,5 +744,13 @@ class Builder
     $url = 'search?' . implode('&', $params);
 
     return $url;
+  }
+
+  /**
+   * @return string
+   */
+  public function __toString()
+  {
+    return $this->compileQuery();
   }
 }
