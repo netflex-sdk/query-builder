@@ -562,6 +562,48 @@ class Builder
   }
 
   /**
+   * Also include unpublished results
+   * Only applies to entry and page relations
+   *
+   * @return static
+   */
+  public function ignorePublishingStatus()
+  {
+    $this->respectPublishingStatus = false;
+    return $this;
+  }
+
+  /**
+   * Only include published results
+   * Only applies to entry and page relations
+   *
+   * @return static
+   */
+  public function respectPublishingStatus()
+  {
+    $this->respectPublishingStatus = true;
+    return $this;
+  }
+
+  /**
+   * Get the count of items matching the current query
+   *
+   * @return int
+   */
+  public function count()
+  {
+    $size = $this->size;
+    $fields = $this->fields;
+    $this->size = static::MAX_QUERY_SIZE;
+    $this->fields = ['id'];
+    $count = $this->get()->count();
+    $this->size = $size;
+    $this->fields = $fields;
+
+    return $count;
+  }
+
+  /**
    * @param bool $scoped
    * @return string
    */
