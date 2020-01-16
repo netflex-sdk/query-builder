@@ -1,10 +1,11 @@
 # Netflex QueryBuilder
 
-<a href="https://packagist.org/packages/netflex/query-builder/stats"><img src="https://img.shields.io/packagist/dm/netflex/query-builder" alt="Downloads"></a>
-<a href="https://packagist.org/packages/netflex/query-builder"><img src="https://img.shields.io/packagist/v/netflex/query-builder?label=latest" alt="Latest version"></a>
-<a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/github/license/netflex-sdk/query-builder.svg" alt="License: MIT"></a>
-
 A library for building complex search queries for the Netflex API using a fluent builder-pattern.
+
+<a href="https://circleci.com/gh/netflex-sdk/query-builder"><img src="https://circleci.com/gh/netflex-sdk/query-builder.svg?style=shield" alt="CircleCI"></a>
+<a href="https://packagist.org/packages/netflex/query-builder"><img src="https://img.shields.io/packagist/v/netflex/query-builder?label=stable" alt="Stable version"></a>
+<a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/github/license/netflex-sdk/query-builder.svg" alt="License: MIT"></a>
+<a href="https://packagist.org/packages/netflex/query-builder/stats"><img src="https://img.shields.io/packagist/dm/netflex/query-builder" alt="Downloads"></a>
 
 ## Installation
 
