@@ -23,7 +23,7 @@ final class OrderTest extends TestCase
     $query->orderBy('name');
 
     $this->assertSame(
-      'search?order=name&dir=asc&size='.Builder::MAX_QUERY_SIZE,
+      'search?sort=name&dir=asc&size='.Builder::MAX_QUERY_SIZE,
       $query->getRequest()
     );
   }
@@ -34,7 +34,7 @@ final class OrderTest extends TestCase
     $query->orderBy('name', Builder::DIR_DESC);
 
     $this->assertSame(
-      'search?order=name&dir=desc&size='.Builder::MAX_QUERY_SIZE,
+      'search?sort=name&dir=desc&size='.Builder::MAX_QUERY_SIZE,
       $query->getRequest()
     );
   }
@@ -46,7 +46,7 @@ final class OrderTest extends TestCase
     $query->orderDirection(Builder::DIR_DESC);
 
     $this->assertSame(
-      'search?order=name&dir=desc&size='.Builder::MAX_QUERY_SIZE,
+      'search?sort=name&dir=desc&size='.Builder::MAX_QUERY_SIZE,
       $query->getRequest()
     );
   }
