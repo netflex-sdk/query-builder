@@ -7,27 +7,28 @@ use Netflex\Contracts\ApiClient;
 use Netflex\Query\Builder;
 use Netflex\Query\PaginatedResult;
 use Netflex\Query\Traits\HasRelation;
+use Netflex\Query\Exceptions\NotQueryableException;
 
 trait Queryable
 {
   /**
    * @return Builder
+   * @throws NotQueryableException If object not queryable
    */
   protected static function makeQueryBuilder()
   {
-    $queryable = (new static);
-
-    $relation = null;
-    $relation_id = null;
-    $respectPublishingStatus = $queryable->respectPublishingStatus();
-
-    if (has_trait(static::class, HasRelation::class)) {
-      $relation = $queryable->getRelation();
-      $relation_id = $queryable->getRelationId();
+    if (!has_trait(static::class, HasRelation::class)) {
+      throw new NotQueryableException;
     }
 
+    $queryable = (new static);
+
+    $respectPublishingStatus = $queryable->respectPublishingStatus();
+    $relation = $queryable->getRelation();
+    $relationId = $queryable->getRelationId();
+
     return (new Builder($respectPublishingStatus, null, get_class($queryable)))
-      ->relation($relation, $relation_id);
+      ->relation($relation, $relationId);
   }
 
   /**
@@ -46,6 +47,7 @@ trait Queryable
    *
    * @param ApiClient $api
    * @return Builder
+   * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::setApiClient
    */
   public static function setApiClient(...$args)
@@ -58,6 +60,7 @@ trait Queryable
    *
    * @param string $field
    * @return Builder
+   * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::field
    */
   public static function field(...$args)
@@ -70,6 +73,7 @@ trait Queryable
    *
    * @param array $fields
    * @return Builder
+   * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::fields
    */
   public static function fields(...$args)
@@ -82,6 +86,7 @@ trait Queryable
    *
    * @param int $limit
    * @return Builder
+   * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::limit
    */
   public static function limit(...$args)
@@ -96,6 +101,7 @@ trait Queryable
    * @param string $direction
    * @return Builder
    * @throws InvalidSortingDirectionException If an invalid $direction is passed
+   * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::orderBy
    */
   public static function orderBy(...$args)
@@ -108,6 +114,7 @@ trait Queryable
    *
    * @param string $query
    * @return Builder
+   * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::raw
    */
   public static function raw(...$args)
@@ -125,6 +132,7 @@ trait Queryable
    * @param string $operator
    * @param null|array|boolean|integer|string|DateTime $value
    * @return Builder
+   * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::where
    */
   public static function where(...$args)
@@ -138,6 +146,7 @@ trait Queryable
    * @param string $field
    * @param array $values
    * @return Builder
+   * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::whereIn
    */
   public static function whereIn(...$args)
@@ -155,6 +164,7 @@ trait Queryable
    * @param string $operator
    * @param null|array|boolean|integer|string|DateTime $value
    * @return Builder
+   * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::whereNot
    */
   public static function whereNot(...$args)
@@ -169,6 +179,7 @@ trait Queryable
    * @param @param null|array|boolean|integer|string|DateTime $from
    * @param @param null|array|boolean|integer|string|DateTime $to
    * @return Builder
+   * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::whereBetween
    */
   public static function whereBetween(...$args)
@@ -183,6 +194,7 @@ trait Queryable
    * @param @param null|array|boolean|integer|string|DateTime $from
    * @param @param null|array|boolean|integer|string|DateTime $to
    * @return Builder
+   * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::whereNotBetween
    */
   public static function whereNotBetween(...$args)
@@ -196,6 +208,7 @@ trait Queryable
    * @param int $size
    * @param int $page
    * @return PaginatedResult
+   * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::paginate
    */
   public static function paginate(...$args)
@@ -207,6 +220,7 @@ trait Queryable
    * Get the count of items matching the current query
    *
    * @return int
+   * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::count
    */
   public static function count(...$args)

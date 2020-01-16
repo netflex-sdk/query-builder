@@ -31,7 +31,7 @@ trait Resolvable
    *
    * @param Closure $context
    * @return mixed
-   * @throws NotQueryableException If object not resolvable
+   * @throws NotQueryableException If object not queryable
    */
   protected static function resolvableContext(Closure $context)
   {
@@ -46,7 +46,7 @@ trait Resolvable
    * Retrieves the first instance
    *
    * @return static|null
-   * @throws NotQueryableException If object not resolvable
+   * @throws NotQueryableException If object not queryable
    */
   public static function first()
   {
@@ -61,7 +61,7 @@ trait Resolvable
    *
    * @return static
    * @throws NotFoundException
-   * @throws NotQueryableException If object not resolvable
+   * @throws NotQueryableException If object not queryable
    */
   public static function firstOrFail()
   {
@@ -76,7 +76,7 @@ trait Resolvable
    * Retrieves the latest instance
    *
    * @return static|null
-   * @throws NotQueryableException If object not resolvable
+   * @throws NotQueryableException If object not queryable
    */
   public static function last()
   {
@@ -90,7 +90,7 @@ trait Resolvable
    * Retrieves all instances
    *
    * @return LazyCollection
-   * @throws NotQueryableException If object not resolvable
+   * @throws NotQueryableException If object not queryable
    */
   public static function all()
   {
@@ -109,7 +109,7 @@ trait Resolvable
    *
    * @param mixed $resolveBy
    * @return static|Collection|null
-   * @throws NotQueryableException If object not resolvable
+   * @throws NotQueryableException If object not queryable
    */
   public static function resolve($resolveBy)
   {
@@ -126,7 +126,7 @@ trait Resolvable
    * @param mixed $resolveBy
    * @return static|Collection
    * @throws ResolutionFailedException If the instance(s) could not be resolved
-   * @throws NotQueryableException If object not resolvable
+   * @throws NotQueryableException If object not queryable
    */
   public static function resolveOrFail($resolveBy)
   {
@@ -142,7 +142,7 @@ trait Resolvable
    *
    * @param array $findBy
    * @return Collection
-   * @throws NotQueryableException If object not resolvable
+   * @throws NotQueryableException If object not queryable
    */
   public static function resolveMany(array $resolveBy)
   {
@@ -154,7 +154,7 @@ trait Resolvable
    *
    * @param mixed|array $findBy
    * @return static|Collection|null
-   * @throws NotQueryableException If object not resolvable
+   * @throws NotQueryableException If object not queryable
    */
   public static function find($findBy)
   {
@@ -170,7 +170,7 @@ trait Resolvable
    * @param mixed|array $findBy
    * @return static|Collection
    * @throws NotFoundException If the instance(s) could not be found
-   * @throws NotQueryableException If object not resolvable
+   * @throws NotQueryableException If object not queryable
    */
   public static function findOrFail($findBy)
   {
@@ -186,7 +186,7 @@ trait Resolvable
    *
    * @param array $findBy
    * @return Collection
-   * @throws NotQueryableException If object not resolvable
+   * @throws NotQueryableException If object not queryable
    */
   public static function findMany(array $findBy)
   {
