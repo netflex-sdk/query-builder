@@ -1,6 +1,6 @@
 <?php
 
-namespace Netflex\Query\Exception;
+namespace Netflex\Query\Exceptions;
 
 use Netflex\Query\Builder;
 

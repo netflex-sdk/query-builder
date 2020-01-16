@@ -1,6 +1,6 @@
 <?php
 
-namespace Netflex\Query\Exception;
+namespace Netflex\Query\Exceptions;
 
 class InvalidAssignmentException extends QueryBuilderException {
   public function __construct ($method) {

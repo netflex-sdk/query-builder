@@ -1,6 +1,6 @@
 <?php
 
-namespace Netflex\Query;
+namespace Netflex\Query\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
@@ -20,10 +20,11 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Netflex\Query\Builder relations(array $relations)
  * @method static \Netflex\Query\Builder respectPublishingStatus()
  * @method static \Netflex\Query\Builder where(string $field, string $operator, null|array|boolean|integer|string|\DateTime $value)
+ * @method static \Netflex\Query\Builder whereIn(string $field, array $values)
  * @method static \Netflex\Query\Builder whereNot(string $field, string $operator, null|array|boolean|integer|string|\DateTime $value)
  * @method static \Netflex\Query\Builder whereBetween(string $field, null|array|boolean|integer|string|\DateTime $from, null|array|boolean|integer|string|\DateTime, $to)
  * @method static \Netflex\Query\Builder whereNotBetween(string $field, null|array|boolean|integer|string|\DateTime $from, null|array|boolean|integer|string|\DateTime, $to)
- * @method static \Netflex\Query\Page paginate(int $size = 15, int $page = 1)
+ * @method static \Netflex\Query\PaginatedResult paginate(int $size = 15, int $page = 1)
  * @method static int count()
  * @method static string getQuery(bool $scoped = false)
  * @method static string getRequest()

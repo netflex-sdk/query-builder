@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "dbb3e8ab2f281d7dd8a02681a2c768cc",
+    "content-hash": "be37254645bf31552079ac972fd47675",
     "packages": [
         {
             "name": "doctrine/inflector",
@@ -443,19 +443,16 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/netflex-sdk/api.git",
-                "reference": "9b31d91e235287d9a355880d1df501b8e5d992ce"
+                "reference": "d1b88d758869466c24493b3dbbaad587fc55f7ee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/netflex-sdk/api/zipball/9b31d91e235287d9a355880d1df501b8e5d992ce",
-                "reference": "9b31d91e235287d9a355880d1df501b8e5d992ce",
+                "url": "https://api.github.com/repos/netflex-sdk/api/zipball/d1b88d758869466c24493b3dbbaad587fc55f7ee",
+                "reference": "d1b88d758869466c24493b3dbbaad587fc55f7ee",
                 "shasum": ""
             },
             "require": {
                 "guzzlehttp/guzzle": "^6.3"
-            },
-            "require-dev": {
-                "vlucas/phpdotenv": "^3.6"
             },
             "type": "library",
             "autoload": {
@@ -473,7 +470,8 @@
                     "email": "thomas@apility.no"
                 }
             ],
-            "time": "2020-01-10T14:01:31+00:00"
+            "description": "Netflex API library",
+            "time": "2020-01-16T21:37:02+00:00"
         },
         {
             "name": "psr/container",

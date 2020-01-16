@@ -86,7 +86,7 @@ use Illuminate\Support\Collection;
  * @method void offsetSet($key, $value)
  * @method void offsetUnset($key)
  */
-class Page
+class PaginatedResult
 {
   /** @var Builder */
   private $query;
