@@ -2,6 +2,7 @@
 
 namespace Netflex\Query;
 
+use DateTime;
 use Illuminate\Support\Collection;
 use Netflex\API;
 
@@ -31,7 +32,8 @@ class Builder
     'array',
     'boolean',
     'integer',
-    'string'
+    'string',
+    'DateTime'
   ];
 
   /** @var array The valid sorting directions */
@@ -122,7 +124,7 @@ class Builder
   }
 
   /**
-   * @param mixed $value
+   * @param null|array|boolean|integer|string|DateTime $value
    * @param string $operator
    * @return mixed
    */
@@ -140,12 +142,18 @@ class Builder
       return $value ? 1 : 0;
     }
 
+    if (is_object($value)) {
+      if ($value instanceof DateTime) {
+        return $this->escapeValue($value->format('Y-m-d h:i:s'), $operator);
+      }
+    }
+
     return $value;
   }
 
   /**
    * @param string $field
-   * @param mixed $value
+   * @param null|array|boolean|integer|string|DateTime $value
    * @return string
    */
   private function compileTermQuery(string $field, $value)
@@ -194,17 +202,17 @@ class Builder
   /**
    * @param string $field
    * @param string $operator|
-   * @param mixed $value
+   * @param null|array|boolean|integer|string|DateTime $value
    * @return string
    * @throws \Netflex\Query\Exception\InvalidOperatorException If an invalid operator is passed
    */
   private function compileWhereQuery($field, $operator, $value)
   {
-    if (method_exists($value, '__toString')) {
+    if (is_object($value) && method_exists($value, '__toString')) {
       $value = $value->__toString();
     }
 
-    if (!in_array(gettype($value), static::VALUE_TYPES)) {
+    if (!in_array(gettype($value), static::VALUE_TYPES) || (is_object($value) && !in_array(get_class($value), static::VALUE_TYPES))) {
       throw new InvalidValueException($value);
     }
 
@@ -439,7 +447,7 @@ class Builder
    *
    * @param Closure|string $field
    * @param string $operator
-   * @param mixed $value
+   * @param null|array|boolean|integer|string|DateTime $value
    * @return static
    */
   public function where(...$args)
@@ -501,7 +509,7 @@ class Builder
    *
    * @param Closure|string $field
    * @param string $operator
-   * @param mixed $value
+   * @param null|array|boolean|integer|string|DateTime $value
    * @return static
    */
   public function whereNot(...$args)
@@ -533,7 +541,7 @@ class Builder
    *
    * @param Closure|string $field
    * @param string $operator
-   * @param mixed $value
+   * @param null|array|boolean|integer|string|DateTime $value
    * @return static
    */
   public function orWhere(...$args)
@@ -550,7 +558,7 @@ class Builder
    *
    * @param Closure|string $field
    * @param string $operator
-   * @param mixed $value
+   * @param null|array|boolean|integer|string|DateTime $value
    * @return static
    */
   public function andWhere(...$args)
