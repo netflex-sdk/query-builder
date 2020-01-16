@@ -3,15 +3,17 @@
 namespace Netflex\Query;
 
 use DateTime;
-use Illuminate\Support\Collection;
-use Netflex\API;
 
-use Netflex\Query\Exception\InvalidAssignmentException;
-use Netflex\Query\Exception\InvalidOperatorException;
-use Netflex\Query\Exception\InvalidSortingDirectionException;
-use Netflex\Query\Exception\InvalidValueException;
+use Netflex\API;
+use Netflex\Contracts\ApiClient;
+
+use Netflex\Query\Exceptions\InvalidAssignmentException;
+use Netflex\Query\Exceptions\InvalidOperatorException;
+use Netflex\Query\Exceptions\InvalidSortingDirectionException;
+use Netflex\Query\Exceptions\InvalidValueException;
 
 use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
 
 class Builder
 {
@@ -79,10 +81,10 @@ class Builder
   protected $grammar = ['(', ')', ' AND ', ' OR '];
 
   /** @var array */
-  private $fields = null;
+  private $fields;
 
   /** @var array */
-  private $relations = null;
+  private $relations;
 
   /** @var int */
   private $relation_id;
@@ -91,28 +93,35 @@ class Builder
   private $size = self::MAX_QUERY_SIZE;
 
   /** @var string */
-  private $orderBy = null;
+  private $orderBy;
 
   /** @var string */
-  private $sortDir = null;
+  private $sortDir;
 
   /** @var array */
-  private $query = [];
+  private $query;
 
   /** @var int */
-  private $page = null;
+  private $page;
 
   /** @var bool */
   private $respectPublishingStatus = true;
+
+  /** @var string */
+  private $castResultsTo;
+
+  /** @@var ApiClient */
+  private $apiClient;
 
   /**
    * @param bool $respectPublishingStatus
    * @param array $query
    */
-  public function __construct($respectPublishingStatus = true, array $query = [])
+  public function __construct(?bool $respectPublishingStatus = true, ?array $query = null, ?string $castResultsTo = null)
   {
-    $this->query = $query;
-    $this->respectPublishingStatus = $respectPublishingStatus;
+    $this->query = $query ?? [];
+    $this->castResultsTo = $castResultsTo;
+    $this->respectPublishingStatus = $respectPublishingStatus ?? true;
   }
 
   /**
@@ -309,7 +318,7 @@ class Builder
   }
 
   /**
-   * Performs a raw Lucene query, use carefully.
+   * Performs a raw query, use carefully.
    *
    * @param string $query
    * @return static
@@ -359,12 +368,18 @@ class Builder
    * @param int $relation_id
    * @return static
    */
-  public function relation(string $relation, int $relation_id = null)
+  public function relation(?string $relation, ?int $relation_id = null)
   {
-    $this->relations = $this->relations ?? [];
-    $this->relations[] = Str::singular($relation);
-    $this->relation_id = $relation_id;
-    $this->relations = array_filter(array_unique($this->relations));
+    if ($relation) {
+      $this->relations = $this->relations ?? [];
+      $this->relations[] = Str::singular($relation);
+      $this->relations = array_filter(array_unique($this->relations));
+    }
+
+    if ($relation_id) {
+      $this->relation_id = $relation_id;
+    }
+
     return $this;
   }
 
@@ -453,11 +468,23 @@ class Builder
   }
 
   /**
+   * Queries where field exists in the values
+   *
+   * @param string $field
+   * @param array $values
+   * @return static
+   */
+  public function whereIn(string $field, array $values)
+  {
+    return $this->where($field, '=', $values);
+  }
+
+  /**
    * Queries where field is between $from and $to
    *
    * @param string $field
-   * @param null|array|boolean|integer|string $from
-   * @param null|array|boolean|integer|string $to
+   * @param null|array|boolean|integer|string|DateTime $from
+   * @param null|array|boolean|integer|string|DateTime $to
    * @return static
    */
   public function whereBetween(string $field, $from, $to, $operator = '=')
@@ -472,8 +499,8 @@ class Builder
    * Queries where field is not between $from and $to
    *
    * @param string $field
-   * @param null|array|boolean|integer|string $from
-   * @param null|array|boolean|integer|string $to
+   * @param null|array|boolean|integer|string|DateTime $from
+   * @param null|array|boolean|integer|string|DateTime $to
    * @return static
    */
   public function whereNotBetween(string $field, $from, $to, $operator = '=')
@@ -565,11 +592,34 @@ class Builder
    *
    * @param int $size
    * @param int $page
-   * @return Page
+   * @return PaginatedResult
    */
   public function paginate($size = 15, $page = 1)
   {
-    return new Page($this, $this->fetch($page, $size));
+    return new PaginatedResult($this, $this->fetch($page, $size));
+  }
+
+  /**
+   * Gets a ApiClient instance
+   *
+   * @return ApiClient
+   */
+  private function getApiClient()
+  {
+    return $this->apiClient ?? API::getClient();
+  }
+
+  /**
+   * Sets the internal API client.
+   * Can be used to inject a mock client for testing etc.
+   *
+   * @param ApiClient $api
+   * @return static
+   */
+  public function setApiClient(ApiClient $client)
+  {
+    $this->apiClient = $client;
+    return $this;
   }
 
   /**
@@ -581,10 +631,9 @@ class Builder
    */
   private function fetch($page = null, $size = null)
   {
-    $client = API::getClient();
     $this->page = $page ?? $this->page;
     $this->size = $size ?? $this->size;
-    return $client->get($this->compileRequest($size));
+    return $this->getApiClient()->get($this->compileRequest($size));
   }
 
   /**
@@ -594,7 +643,16 @@ class Builder
    */
   public function get()
   {
-    return new Collection($this->fetch()->data ?? []);
+    $results =  new Collection($this->fetch()->data ?? []);
+
+    if ($this->castResultsTo) {
+      $class = $this->castResultsTo;
+      $results = $results->map(function ($item) use ($class) {
+        return new $class($item);
+      });
+    }
+
+    return $results;
   }
 
   /**
@@ -716,7 +774,7 @@ class Builder
   private function compileRequest()
   {
     $params = [
-      'sort' => $this->orderBy,
+      'order' => $this->orderBy,
       'dir' => $this->sortDir,
       'relation' => $this->relations ? implode(',', $this->relations) : null,
       'fields' => $this->fields ? implode(',', $this->fields) : null,
