@@ -13,12 +13,13 @@ final class RawTest extends TestCase
     $query->raw($raw);
 
     $this->assertSame(
-      'search?size='.Builder::MAX_QUERY_SIZE.'&q='.$raw,
+      'search?size=' . Builder::MAX_QUERY_SIZE . '&q=' . $raw,
       $query->getRequest()
     );
   }
 
-  public function testCanPerformMultipleRawQueries(){
+  public function testCanPerformMultipleRawQueries()
+  {
     $queries = [
       '(id:1)',
       '(id:2)'
@@ -29,7 +30,7 @@ final class RawTest extends TestCase
     $query->raw($queries[1]);
 
     $this->assertSame(
-      'search?size='.Builder::MAX_QUERY_SIZE.'&q='.$queries[0].' AND '.$queries[1],
+      'search?size=' . Builder::MAX_QUERY_SIZE . '&q=' . $queries[0] . ' AND ' . $queries[1],
       $query->getRequest()
     );
   }

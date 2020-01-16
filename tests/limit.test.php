@@ -11,7 +11,7 @@ final class LimitTest extends TestCase
     $query = new Builder();
 
     $this->assertSame(
-      'search?size='.Builder::MAX_QUERY_SIZE,
+      'search?size=' . Builder::MAX_QUERY_SIZE,
       $query->getRequest()
     );
   }
@@ -33,7 +33,7 @@ final class LimitTest extends TestCase
     $query->limit(Builder::MAX_QUERY_SIZE + 1);
 
     $this->assertSame(
-      'search?size='.Builder::MAX_QUERY_SIZE,
+      'search?size=' . Builder::MAX_QUERY_SIZE,
       $query->getRequest()
     );
   }
@@ -44,7 +44,7 @@ final class LimitTest extends TestCase
     $query->limit(Builder::MIN_QUERY_SIZE - 1);
 
     $this->assertSame(
-      'search?size='.Builder::MIN_QUERY_SIZE,
+      'search?size=' . Builder::MIN_QUERY_SIZE,
       $query->getRequest()
     );
   }

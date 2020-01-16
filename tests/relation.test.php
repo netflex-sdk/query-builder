@@ -12,7 +12,7 @@ final class RelationTest extends TestCase
     $query->relation('entry');
 
     $this->assertSame(
-      'search?relation=entry&size='.Builder::MAX_QUERY_SIZE,
+      'search?relation=entry&size=' . Builder::MAX_QUERY_SIZE,
       $query->getRequest()
     );
   }
@@ -23,7 +23,7 @@ final class RelationTest extends TestCase
     $query->relation('entries');
 
     $this->assertSame(
-      'search?relation=entry&size='.Builder::MAX_QUERY_SIZE,
+      'search?relation=entry&size=' . Builder::MAX_QUERY_SIZE,
       $query->getRequest()
     );
   }
@@ -35,7 +35,7 @@ final class RelationTest extends TestCase
     $query->relation('page');
 
     $this->assertSame(
-      'search?relation=entry,page&size='.Builder::MAX_QUERY_SIZE,
+      'search?relation=entry,page&size=' . Builder::MAX_QUERY_SIZE,
       $query->getRequest()
     );
   }
@@ -47,7 +47,7 @@ final class RelationTest extends TestCase
     $query->relation('pages');
 
     $this->assertSame(
-      'search?relation=entry,page&size='.Builder::MAX_QUERY_SIZE,
+      'search?relation=entry,page&size=' . Builder::MAX_QUERY_SIZE,
       $query->getRequest()
     );
   }
@@ -58,7 +58,7 @@ final class RelationTest extends TestCase
     $query->relations(['entry', 'page']);
 
     $this->assertSame(
-      'search?relation=entry,page&size='.Builder::MAX_QUERY_SIZE,
+      'search?relation=entry,page&size=' . Builder::MAX_QUERY_SIZE,
       $query->getRequest()
     );
   }
@@ -69,7 +69,7 @@ final class RelationTest extends TestCase
     $query->relations(['entries', 'pages']);
 
     $this->assertSame(
-      'search?relation=entry,page&size='.Builder::MAX_QUERY_SIZE,
+      'search?relation=entry,page&size=' . Builder::MAX_QUERY_SIZE,
       $query->getRequest()
     );
   }
