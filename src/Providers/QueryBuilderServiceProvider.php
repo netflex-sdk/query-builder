@@ -1,6 +1,6 @@
 <?php
 
-namespace Netflex\Query;
+namespace Netflex\Query\Providers;
 
 use Netflex\Query\Builder;
 use Illuminate\Support\ServiceProvider;
