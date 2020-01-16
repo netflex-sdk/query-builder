@@ -9,6 +9,7 @@ use Netflex\Query\Exception\InvalidOperatorException;
 use Netflex\Query\Exception\InvalidSortingDirectionException;
 
 use Illuminate\Support\Str;
+use Netflex\Query\Exception\InvalidValueException;
 
 class Builder
 {
@@ -23,6 +24,15 @@ class Builder
 
   /** @var string The decending sort direction */
   const DIR_DESC = 'desc';
+
+  /** @var array The supported value types */
+  const VALUE_TYPES = [
+    'NULL',
+    'array',
+    'boolean',
+    'integer',
+    'string'
+  ];
 
   /** @var array The valid sorting directions */
   const SORTING_DIRS = [
@@ -130,14 +140,6 @@ class Builder
       return $value ? 1 : 0;
     }
 
-    if (is_array($value)) {
-      if (count($value) === 1) {
-        return $this->escapeValue(array_pop($value));
-      }
-
-      return '(' . implode(' ', array_map([$this, 'escapeValue'], $value)) . ')';
-    }
-
     return $value;
   }
 
@@ -198,6 +200,23 @@ class Builder
    */
   private function compileWhereQuery($field, $operator, $value)
   {
+    if (method_exists($value, '__toString')) {
+      $value = $value->__toString();
+    }
+
+    if (!in_array(gettype($value), static::VALUE_TYPES)) {
+      throw new InvalidValueException($value);
+    }
+
+    if (is_array($value)) {
+      $queries = [];
+      foreach ($value as $item) {
+        $queries[] = $this->compileWhereQuery($field, $operator, $item);
+      }
+
+      return '(' . implode(' OR ', $queries) . ')';
+    }
+
     $value = $this->escapeValue($value, $operator);
     $term = $value === null ? $this->compileNullQuery($field) : $this->compileTermQuery($field, $value);
 

@@ -11,6 +11,6 @@ class InvalidOperatorException extends QueryBuilderException
    */
   public function __construct($operator)
   {
-    parent::__construct("Unexpected operator $operator, expected: " . implode(',', Builder::OPERATORS));
+    parent::__construct("Unexpected operator $operator, expected one of: [" . implode(',', Builder::OPERATORS) . "]");
   }
 }

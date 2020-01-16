@@ -11,6 +11,6 @@ class InvalidSortingDirectionException extends QueryBuilderException
    */
   public function __construct($direction)
   {
-    parent::__construct("Unexpected sorting direction: $direction, expected: " . implode(',', Builder::SORTING_DIRS));
+    parent::__construct("Unexpected sorting direction: $direction, expected one of: [" . implode(',', Builder::SORTING_DIRS) . "]");
   }
 }
