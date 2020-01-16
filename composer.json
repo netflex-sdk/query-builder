@@ -36,10 +36,10 @@
   "extra": {
     "laravel": {
       "providers": [
-        "Barryvdh\\Debugbar\\ServiceProvider"
+        "Netflex\\Query\\QueryBuilderServiceProvider"
       ],
       "aliases": {
-        "Debugbar": "Barryvdh\\Debugbar\\Facade"
+        "QueryBuilder": "Netflex\\Query\\QueryBuilderFacade"
       }
     }
   },
