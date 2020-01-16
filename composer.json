@@ -23,7 +23,10 @@
   "autoload": {
     "psr-4": {
       "Netflex\\Query\\": "src/"
-    }
+    },
+    "files": [
+      "src/helpers.php"
+    ]
   },
   "require": {
     "php": "^7.3",
@@ -36,10 +39,10 @@
   "extra": {
     "laravel": {
       "providers": [
-        "Netflex\\Query\\QueryBuilderServiceProvider"
+        "Netflex\\Query\\Providers\\QueryBuilderServiceProvider"
       ],
       "aliases": {
-        "QueryBuilder": "Netflex\\Query\\QueryBuilderFacade"
+        "QueryBuilder": "Netflex\\Query\\Facades\\QueryBuilderFacade"
       }
     }
   },
