@@ -21,6 +21,6 @@ trait HasRelation
    */
   public function getRelationId()
   {
-    return $this->relation_id ?? null;
+    return $this->relationId ?? null;
   }
 }
