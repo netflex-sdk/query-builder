@@ -2,6 +2,7 @@
 
 namespace Netflex\Query;
 
+use Closure;
 use DateTime;
 
 use Netflex\API;
@@ -107,20 +108,23 @@ class Builder
   /** @var bool */
   private $respectPublishingStatus = true;
 
-  /** @var string */
-  private $castResultsTo;
+  /** @var Closure */
+  private $mapper;
 
-  /** @@var ApiClient */
+  /** @var ApiClient */
   private $apiClient;
+
+  /** var bool */
+  private $assoc = false;
 
   /**
    * @param bool $respectPublishingStatus
    * @param array $query
    */
-  public function __construct(?bool $respectPublishingStatus = true, ?array $query = null, ?string $castResultsTo = null)
+  public function __construct(?bool $respectPublishingStatus = true, ?array $query = null, ?Closure $mapper = null)
   {
     $this->query = $query ?? [];
-    $this->castResultsTo = $castResultsTo;
+    $this->mapper = $mapper;
     $this->respectPublishingStatus = $respectPublishingStatus ?? true;
   }
 
@@ -596,7 +600,7 @@ class Builder
    */
   public function paginate($size = 15, $page = 1)
   {
-    return new PaginatedResult($this, $this->fetch($page, $size));
+    return new PaginatedResult($this, (object) $this->fetch($page, $size));
   }
 
   /**
@@ -623,6 +627,18 @@ class Builder
   }
 
   /**
+   * Determines if we should return values as array or object
+   *
+   * @param bool $assoc
+   * @return static
+   */
+  public function assoc(bool $assoc)
+  {
+    $this->assoc = $assoc;
+    return $this;
+  }
+
+  /**
    * Retrieves the raw query result from the API
    *
    * @param int $page
@@ -633,7 +649,7 @@ class Builder
   {
     $this->page = $page ?? $this->page;
     $this->size = $size ?? $this->size;
-    return $this->getApiClient()->get($this->compileRequest($size));
+    return $this->getApiClient()->get($this->compileRequest($size), $this->assoc);
   }
 
   /**
@@ -643,13 +659,11 @@ class Builder
    */
   public function get()
   {
-    $results =  new Collection($this->fetch()->data ?? []);
+    $result = $this->fetch();
+    $hits = new Collection(($this->assoc ? $result['data'] : $result->data) ?? []);
 
-    if ($this->castResultsTo) {
-      $class = $this->castResultsTo;
-      $results = $results->map(function ($item) use ($class) {
-        return new $class($item);
-      });
+    if ($this->mapper) {
+      $results = $hits->map($this->mapper);
     }
 
     return $results;
