@@ -94,14 +94,14 @@ trait Resolvable
    */
   public static function all()
   {
-    $chunkSize = (new static)->chunkSize ?? 100;
+    $perPage = (new static)->perPage ?? 15;
 
-    if (static::count() <= $chunkSize) {
+    if (static::count() <= $perPage) {
       return Collection::make(static::raw('*')->get());
     }
 
-    return LazyCollection::make(function () {
-      $page = static::paginate(1);
+    return LazyCollection::make(function () use ($perPage) {
+      $page = static::paginate($perPage);
 
       while ($page && ($item = $page->first()) !== null) {
         yield $item;
