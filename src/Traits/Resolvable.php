@@ -89,11 +89,17 @@ trait Resolvable
   /**
    * Retrieves all instances
    *
-   * @return LazyCollection
+   * @return Collection|LazyCollection
    * @throws NotQueryableException If object not queryable
    */
   public static function all()
   {
+    $chunkSize = (new static)->chunkSize ?? 100;
+
+    if (static::count() <= $chunkSize) {
+      return Collection::make(static::raw('*')->get());
+    }
+
     return LazyCollection::make(function () {
       $page = static::paginate(1);
 

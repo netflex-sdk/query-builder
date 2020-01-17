@@ -3,6 +3,7 @@
 namespace Netflex\Query;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Traits\ForwardsCalls;
 
 /**
  * @method array all()
@@ -88,6 +89,8 @@ use Illuminate\Support\Collection;
  */
 class PaginatedResult
 {
+  use ForwardsCalls;
+
   /** @var Builder */
   private $query;
 
@@ -148,6 +151,6 @@ class PaginatedResult
 
   public function __call($method, $args)
   {
-    return $this->data->{$method}(...$args);
+    return $this->forwardCallTo($this->data, $method, $args);
   }
 }

@@ -7,6 +7,7 @@ use Netflex\Contracts\ApiClient;
 use Netflex\Query\Builder;
 use Netflex\Query\PaginatedResult;
 use Netflex\Query\Traits\HasRelation;
+use Netflex\Query\Traits\HasMapper;
 use Netflex\Query\Exceptions\NotQueryableException;
 
 trait Queryable
@@ -21,14 +22,20 @@ trait Queryable
       throw new NotQueryableException;
     }
 
+    if (!has_trait(static::class, HasMapper::class)) {
+      throw new NotQueryableException;
+    }
+
     $queryable = (new static);
 
     $respectPublishingStatus = $queryable->respectPublishingStatus();
     $relation = $queryable->getRelation();
     $relationId = $queryable->getRelationId();
+    $mapper = $queryable->getMapper();
 
-    return (new Builder($respectPublishingStatus, null, get_class($queryable)))
-      ->relation($relation, $relationId);
+    return (new Builder($respectPublishingStatus, null, $mapper))
+      ->relation($relation, $relationId)
+      ->assoc(true);
   }
 
   /**
@@ -213,6 +220,7 @@ trait Queryable
    */
   public static function paginate(...$args)
   {
+    $args[0] = $args[0] ?? (new static)->perPage ?? 15;
     return static::makeQueryBuilder()->paginate(...$args);
   }
 

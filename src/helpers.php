@@ -10,18 +10,6 @@ if (!function_exists('has_trait')) {
    */
   function has_trait(string $subject, string $trait)
   {
-    $reflector = new ReflectionClass($subject);
-    $traits = $reflector->getTraits();
-
-    while ($reflector) {
-      $traits = array_merge($traits, $reflector->getTraits());
-      $reflector = $reflector->getParentClass();
-    }
-
-    if ($hasTrait = array_key_exists($trait, $traits)) {
-      return $hasTrait;
-    }
-
-    return false;
+    return in_array($trait, class_uses_recursive($subject), true);
   }
 }
