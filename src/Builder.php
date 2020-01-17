@@ -181,7 +181,7 @@ class Builder
    */
   private function compileNullQuery($field)
   {
-    return "_exists_:{$field}";
+    return "(NOT _exists_:{$field})";
   }
 
   /**
