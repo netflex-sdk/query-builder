@@ -4,7 +4,7 @@ namespace Netflex\Query\Traits;
 
 use Closure;
 
-trait HasMapper
+trait ModelMapper
 {
   /**
    * @return Closure

@@ -79,9 +79,6 @@ class Builder
   ];
 
   /** @var array */
-  protected $grammar = ['(', ')', ' AND ', ' OR '];
-
-  /** @var array */
   private $fields;
 
   /** @var array */

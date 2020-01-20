@@ -22,20 +22,17 @@ trait Queryable
       throw new NotQueryableException;
     }
 
-    if (!has_trait(static::class, HasMapper::class)) {
-      throw new NotQueryableException;
-    }
-
     $queryable = (new static);
 
     $respectPublishingStatus = $queryable->respectPublishingStatus();
     $relation = $queryable->getRelation();
     $relationId = $queryable->getRelationId();
-    $mapper = $queryable->getMapper();
+    $hasMapper = method_exists($queryable, 'getMapper');
+    $mapper = $hasMapper ? $queryable->getMapper() : function ($item) { return $item; };
 
     return (new Builder($respectPublishingStatus, null, $mapper))
       ->relation($relation, $relationId)
-      ->assoc(true);
+      ->assoc($hasMapper);
   }
 
   /**
