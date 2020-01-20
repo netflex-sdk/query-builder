@@ -30,6 +30,7 @@
   },
   "require": {
     "php": "^7.3",
+    "illuminate/database": "^6.11",
     "illuminate/support": "^6.11",
     "netflex/api": "^2.0"
   },
@@ -42,7 +43,7 @@
         "Netflex\\Query\\Providers\\QueryBuilderServiceProvider"
       ],
       "aliases": {
-        "QueryBuilder": "Netflex\\Query\\Facades\\QueryBuilderFacade"
+        "Query": "Netflex\\Query\\Facades\\QueryBuilderFacade"
       }
     }
   },
