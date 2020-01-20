@@ -565,7 +565,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param  array  $attributes
    * @return $this
    *
-   * @throws \Illuminate\Database\Eloquent\MassAssignmentException
+   * @throws MassAssignmentException
    */
   public function fill(array $attributes)
   {
