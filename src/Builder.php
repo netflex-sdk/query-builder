@@ -99,9 +99,6 @@ class Builder
   /** @var array */
   private $query;
 
-  /** @var int */
-  private $page;
-
   /** @var bool */
   private $respectPublishingStatus = true;
 
@@ -458,9 +455,9 @@ class Builder
     $operator = $args[1] ?? null;
     $value = $args[2] ?? null;
 
-    if (is_null($value) && !is_null($operator) && !in_array($operator, static::OPERATORS, true)) {
-      $value = $operator;
-      $operator = '=';
+    if (!array_key_exists(2, $args)) {
+      $value = $args[1] ?? null;
+      $operator = static::OP_EQ;
     }
 
     $this->query[] = $this->compileWhereQuery($field, $operator, $value);
@@ -488,10 +485,10 @@ class Builder
    * @param null|array|boolean|integer|string|DateTime $to
    * @return static
    */
-  public function whereBetween(string $field, $from, $to, $operator = '=')
+  public function whereBetween(string $field, $from, $to)
   {
-    $from = $this->escapeValue($from, $operator);
-    $to = $this->escapeValue($to, $operator);
+    $from = $this->escapeValue($from, '=');
+    $to = $this->escapeValue($to, '=');
     $this->query[] =  "($field:[$from TO $to])";
     return $this;
   }
@@ -504,10 +501,10 @@ class Builder
    * @param null|array|boolean|integer|string|DateTime $to
    * @return static
    */
-  public function whereNotBetween(string $field, $from, $to, $operator = '=')
+  public function whereNotBetween(string $field, $from, $to)
   {
-    $from = $this->escapeValue($from, $operator);
-    $to = $this->escapeValue($to, $operator);
+    $from = $this->escapeValue($from, '=');
+    $to = $this->escapeValue($to, '=');
     $this->query[] =  "(NOT ($field:[$from TO $to]))";
     return $this;
   }
@@ -534,9 +531,9 @@ class Builder
     $operator = $args[1] ?? null;
     $value = $args[2] ?? null;
 
-    if (is_null($value) && !is_null($operator) && !in_array($operator, static::OPERATORS, true)) {
-      $value = $operator;
-      $operator = '=';
+    if (!array_key_exists(2, $args)) {
+      $value = $args[1] ?? null;
+      $operator = static::OP_EQ;
     }
 
     $this->query[] = '(NOT ' . $this->compileWhereQuery($field, $operator, $value) . ')';
@@ -597,7 +594,7 @@ class Builder
    */
   public function paginate($size = 15, $page = 1)
   {
-    return new PaginatedResult($this, (object) $this->fetch($page, $size));
+    return new PaginatedResult($this, (object) $this->fetch($size, $page, ));
   }
 
   /**
@@ -642,11 +639,9 @@ class Builder
    * @param int $size
    * @return object
    */
-  private function fetch($page = null, $size = null)
+  private function fetch($size = null,$page = null)
   {
-    $this->page = $page ?? $this->page;
-    $this->size = $size ?? $this->size;
-    return $this->getApiClient()->get($this->compileRequest($size), $this->assoc);
+    return $this->getApiClient()->get($this->compileRequest($size, $page), $this->assoc);
   }
 
   /**
@@ -782,7 +777,7 @@ class Builder
   /**
    * @return string
    */
-  private function compileRequest()
+  private function compileRequest($size = null, $page = null)
   {
     $params = [
       'order' => $this->orderBy,
@@ -790,8 +785,8 @@ class Builder
       'relation' => $this->relations ? implode(',', $this->relations) : null,
       'fields' => $this->fields ? implode(',', $this->fields) : null,
       'relation_id' => $this->relation_id,
-      'size' => $this->size,
-      'page' => $this->page,
+      'size' => $size ?? $this->size,
+      'page' => $page,
       'q' => $this->compileQuery()
     ];
 
