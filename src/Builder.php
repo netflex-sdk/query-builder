@@ -5,8 +5,7 @@ namespace Netflex\Query;
 use Closure;
 use DateTime;
 
-use Netflex\API;
-use Netflex\Contracts\ApiClient;
+use Netflex\API\Facades\API;
 
 use Netflex\Query\Exceptions\InvalidAssignmentException;
 use Netflex\Query\Exceptions\InvalidOperatorException;
@@ -104,9 +103,6 @@ class Builder
 
   /** @var Closure */
   private $mapper;
-
-  /** @var ApiClient */
-  private $apiClient;
 
   /** var bool */
   private $assoc = false;
@@ -598,29 +594,6 @@ class Builder
   }
 
   /**
-   * Gets a ApiClient instance
-   *
-   * @return ApiClient
-   */
-  private function getApiClient()
-  {
-    return $this->apiClient ?? API::getClient();
-  }
-
-  /**
-   * Sets the internal API client.
-   * Can be used to inject a mock client for testing etc.
-   *
-   * @param ApiClient $api
-   * @return static
-   */
-  public function setApiClient(ApiClient $client)
-  {
-    $this->apiClient = $client;
-    return $this;
-  }
-
-  /**
    * Determines if we should return values as array or object
    *
    * @param bool $assoc
@@ -641,7 +614,7 @@ class Builder
    */
   private function fetch($size = null,$page = null)
   {
-    return $this->getApiClient()->get($this->compileRequest($size, $page), $this->assoc);
+    return API::get($this->compileRequest($size, $page), $this->assoc);
   }
 
   /**
