@@ -23,6 +23,9 @@ class Builder
   /** @var int The maximum allowed results per query */
   const MAX_QUERY_SIZE = 10000;
 
+  /** @var array Special characters that must be escaped */
+  const SPECIAL_CHARS = ['"', '\\'];
+
   /** @var string The ascending sort direction */
   const DIR_ASC = 'asc';
 
