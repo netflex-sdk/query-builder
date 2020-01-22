@@ -335,10 +335,14 @@ class Builder
    * @return static
    * @throws InvalidSortingDirectionException If an invalid $direction is passed
    */
-  public function orderBy($field, $direction = 'asc')
+  public function orderBy($field, $direction = null)
   {
     $this->orderBy = $field;
-    $this->orderDirection($direction);
+
+    if ($direction) {
+      $this->orderDirection($direction);
+    }
+
     return $this;
   }
 
@@ -595,7 +599,7 @@ class Builder
    */
   public function paginate($size = 15, $page = 1)
   {
-    return new PaginatedResult($this, (object) $this->fetch($size, $page, ));
+    return new PaginatedResult($this, (object) $this->fetch($size, $page,));
   }
 
   /**
@@ -618,7 +622,7 @@ class Builder
    * @return object
    * @throws QueryException
    */
-  private function fetch($size = null,$page = null)
+  private function fetch($size = null, $page = null)
   {
     try {
       return API::get($this->compileRequest($size, $page), $this->assoc);
