@@ -722,16 +722,6 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
   }
 
   /**
-   * Perform any actions required before the model boots.
-   *
-   * @return void
-   */
-  protected static function booting()
-  {
-    //
-  }
-
-  /**
    * Bootstrap the model and its traits.
    *
    * @return void
@@ -799,16 +789,6 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
     foreach (static::$traitInitializers[static::class] as $method) {
       $this->{$method}();
     }
-  }
-
-  /**
-   * Perform any actions required after the model boots.
-   *
-   * @return void
-   */
-  protected static function booted()
-  {
-    //
   }
 
   /**
@@ -907,5 +887,31 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
   public function __wakeup()
   {
     $this->bootIfNotBooted();
+  }
+
+  /**
+   * Register a booting model event with the dispatcher.
+   *
+   * @param  \Closure|string  $callback
+   * @return void
+   */
+  protected static function booting($callback)
+  {
+    if (has_trait(static::class, HasEvents::class)) {
+      static::registerModelEvent('booting', $callback);
+    }
+  }
+
+  /**
+   * Register a booted model event with the dispatcher.
+   *
+   * @param  \Closure|string  $callback
+   * @return void
+   */
+  protected static function booted($callback)
+  {
+    if (has_trait(static::class, HasEvents::class)) {
+      static::registerModelEvent('booted', $callback);
+    }
   }
 }
