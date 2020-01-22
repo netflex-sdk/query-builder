@@ -7,7 +7,8 @@ use Netflex\Contracts\ApiClient;
 use Netflex\Query\Builder;
 use Netflex\Query\PaginatedResult;
 use Netflex\Query\Traits\HasRelation;
-use Netflex\Query\Traits\HasMapper;
+
+use Netflex\Query\Exceptions\QueryException;
 use Netflex\Query\Exceptions\NotQueryableException;
 
 trait Queryable
@@ -199,6 +200,7 @@ trait Queryable
    * @param int $page
    * @return PaginatedResult
    * @throws NotQueryableException If object not queryable
+   * @throws QueryException On invalid query
    * @see \Netflex\Query\Builder::paginate
    */
   public static function paginate(...$args)
@@ -212,6 +214,7 @@ trait Queryable
    *
    * @return int
    * @throws NotQueryableException If object not queryable
+   * @throws QueryException On invalid query
    * @see \Netflex\Query\Builder::count
    */
   public static function count(...$args)

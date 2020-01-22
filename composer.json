@@ -36,6 +36,8 @@
     "netflex/api": "^3.0"
   },
   "require-dev": {
+    "illuminate/cache": "^6.12",
+    "illuminate/filesystem": "^6.12",
     "phpunit/phpunit": "^8.5"
   },
   "extra": {

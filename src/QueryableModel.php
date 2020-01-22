@@ -18,6 +18,7 @@ use GuzzleHttp\Exception\GuzzleException;
 
 use Illuminate\Support\Arr;
 
+use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasEvents;
 use Illuminate\Database\Eloquent\Concerns\HidesAttributes;
 use Illuminate\Database\Eloquent\Concerns\HasTimestamps;
@@ -304,12 +305,29 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
   }
 
   /**
-   * @todo
+   * Retrieves the first matching model or creates it
    *
-   * @return void
+   * @param array $query
+   * @param array $with
+   * @return static
    */
-  public static function firstOrCreate()
+  public static function firstOrCreate(array $query, array $with = [])
   {
+    $builder = static::makeQueryBuilder();
+
+    foreach ($query as $key => $value) {
+      $builder = $builder->where($key, $value);
+    }
+
+    if ($model = $builder->first()) {
+      return $model;
+    }
+
+    $attributes = array_merge($query, $with);
+    $model = (new static)->newInstance($attributes, false);
+    $model->save();
+
+    return $model;
   }
 
   /**
@@ -436,9 +454,9 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
   }
 
   /**
-   * @todo
+   * Updates or stores the model
    *
-   * @return void
+   * @return bool
    */
   public function save()
   {
@@ -469,10 +487,6 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    */
   public function delete()
   {
-    if (is_null($this->getKeyName())) {
-      throw new Exception('No primary key defined on model.');
-    }
-
     if (!$this->exists) {
       return;
     }
@@ -488,6 +502,26 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
     }
 
     return false;
+  }
+
+  /**
+   * Destroys one or multiple instances by primary key
+   *
+   * @param mixed|array|Collection $identifiers
+   * @return bool
+   */
+  public static function destroy(...$identifiers)
+  {
+    $identifiers = Collection::make($identifiers)->flatten()->toArray();
+    $models = static::findMany($identifiers);
+
+    $destroyed = $models->map(function (QueryableModel $model) {
+      return $model->delete();
+    })->reduce(function ($carry, $wasDeleted) {
+      return $carry && $wasDeleted;
+    }, true);
+
+    return $destroyed && $models->count() === count($identifiers);
   }
 
   /**
@@ -542,28 +576,45 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
   }
 
   /**
-   * @todo
+   * Update the model
    *
-   * @return void
+   * @param array $attributes
+   * @return bool
    */
-  public static function destroy()
+  public function update(array $attributes = [])
   {
+    if (!$this->exists) {
+      return false;
+    }
+
+    return $this->fill($attributes)->save();
   }
 
   /**
-   * @todo
+   * Updates an exisisting model or creates it
    *
-   * @return void
+   * @param array $query
+   * @param array $with
+   * @return static
    */
-  public function update()
+  public static function updateOrCreate(array $query, array $with = [])
   {
-  }
+    $builder = static::makeQueryBuilder();
 
-  /**
-   * @todo
-   */
-  public static function updateOrCreate()
-  {
+    foreach ($query as $key => $value) {
+      $builder = $builder->where($key, $value);
+    }
+
+    if ($model = $builder->first()) {
+      $model->update($with);
+      return $model;
+    }
+
+    $attributes = array_merge($query, $with);
+    $model = (new static)->newInstance($attributes, false);
+    $model->save();
+
+    return $model;
   }
 
   /**
