@@ -720,9 +720,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
       static::$booted[static::class] = true;
       $this->fireModelEvent('booting', false);
 
-      static::booting();
       static::boot();
-      static::booted();
 
       $this->fireModelEvent('booted', false);
     }
