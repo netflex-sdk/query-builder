@@ -2,6 +2,9 @@
 
 use Netflex\Query\Builder;
 
+use Netflex\Query\Exceptions\InvalidValueException;
+use Netflex\Query\Exceptions\InvalidOperatorException;
+
 use PHPUnit\Framework\TestCase;
 
 final class WhereTest extends TestCase
@@ -26,6 +29,23 @@ final class WhereTest extends TestCase
     );
   }
 
+  public function testWhereInvalidOperatorThrowsException()
+  {
+    $query = new Builder(false);
+
+    $this->expectException(InvalidOperatorException::class);
+    $query->where('id', 'invalid_operator', 10000);
+  }
+
+  public function testWhereInvalidValueThrowsException()
+  {
+    $query = new Builder(false);
+
+    $this->expectException(InvalidValueException::class);
+    $query->where('id', '=', function () {
+    });
+  }
+
   public function testWhereEqualsNullQuery()
   {
     $query = new Builder(false);
@@ -37,7 +57,8 @@ final class WhereTest extends TestCase
     );
   }
 
-  public function testWhereEqualsBoolQuery() {
+  public function testWhereEqualsBoolQuery()
+  {
     $query = new Builder(false);
     $query->where('published', true);
 
@@ -55,7 +76,8 @@ final class WhereTest extends TestCase
     );
   }
 
-  public function testWhereEqualsStringQuery() {
+  public function testWhereEqualsStringQuery()
+  {
     $query = new Builder(false);
     $query->where('name', 'Test string');
 
@@ -76,7 +98,8 @@ final class WhereTest extends TestCase
     );
   }
 
-  public function testWhereNotEqualsQuery() {
+  public function testWhereNotEqualsQuery()
+  {
     $query = new Builder(false);
     $query->where('id', '!=', 10000);
 
@@ -97,7 +120,8 @@ final class WhereTest extends TestCase
     );
   }
 
-  public function testWhereNotEqualsBoolQuery() {
+  public function testWhereNotEqualsBoolQuery()
+  {
     $query = new Builder(false);
     $query->where('published', '!=', true);
 
@@ -115,7 +139,8 @@ final class WhereTest extends TestCase
     );
   }
 
-  public function testWhereNotEqualsStringQuery() {
+  public function testWhereNotEqualsStringQuery()
+  {
     $query = new Builder(false);
     $query->where('name', '!=', 'Test string');
 
@@ -136,7 +161,8 @@ final class WhereTest extends TestCase
     );
   }
 
-  public function testScopedWhereQuery () {
+  public function testScopedWhereQuery()
+  {
     $query = new Builder(false);
 
     $query->where('published', true);
