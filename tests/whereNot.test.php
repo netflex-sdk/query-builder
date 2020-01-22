@@ -2,6 +2,9 @@
 
 use Netflex\Query\Builder;
 
+use Netflex\Query\Exceptions\InvalidValueException;
+use Netflex\Query\Exceptions\InvalidOperatorException;
+
 use PHPUnit\Framework\TestCase;
 
 final class WhereNotTest extends TestCase
@@ -24,6 +27,23 @@ final class WhereNotTest extends TestCase
       $whereEqualsQuery,
       $query->getQuery()
     );
+  }
+
+  public function testWhereNotInvalidOperatorThrowsException()
+  {
+    $query = new Builder(false);
+
+    $this->expectException(InvalidOperatorException::class);
+    $query->whereNot('id', 'invalid_operator', 10000);
+  }
+
+  public function testWhereNotInvalidValueThrowsException()
+  {
+    $query = new Builder(false);
+
+    $this->expectException(InvalidValueException::class);
+    $query->whereNot('id', '=', function () {
+    });
   }
 
   public function testWhereNotEqualsNullQuery()
@@ -136,7 +156,7 @@ final class WhereNotTest extends TestCase
     );
   }
 
-  public function testScopedWhereQuery () {
+  public function testScopedWhereNotQuery () {
     $query = new Builder(false);
 
     $query->whereNot('published', true);

@@ -46,20 +46,6 @@ trait Queryable
   }
 
   /**
-   * Sets the internal API client.
-   * Can be used to inject a mock client for testing etc.
-   *
-   * @param ApiClient $api
-   * @return Builder
-   * @throws NotQueryableException If object not queryable
-   * @see \Netflex\Query\Builder::setApiClient
-   */
-  public static function setApiClient(...$args)
-  {
-    return static::makeQueryBuilder()->setApiClient(...$args);
-  }
-
-  /**
    * Adds a field that should be retrieved
    *
    * @param string $field
