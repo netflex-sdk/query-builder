@@ -14,6 +14,7 @@ use Netflex\Query\Exceptions\ResolutionFailedException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\LazyCollection;
 
+
 trait Resolvable
 {
   protected function getPrimaryField()
@@ -120,8 +121,7 @@ trait Resolvable
   public static function resolve($resolveBy)
   {
     return static::resolvableContext(function ($resolvable) use ($resolveBy) {
-      $query = static::where($resolvable->getResolvableField(), '=', $resolveBy);
-      print_r($query->getQuery());
+      $query = static::where($resolvable->getResolvableField(), Builder::OP_EQ, $resolveBy);
       return is_array($resolveBy) ? $query->get() : $query->first();
     });
   }
@@ -165,7 +165,7 @@ trait Resolvable
   public static function find($findBy)
   {
     return static::resolvableContext(function ($resolvable) use ($findBy) {
-      $query = static::where($resolvable->getPrimaryField(), '=', $findBy);
+      $query = static::where($resolvable->getPrimaryField(), Builder::OP_EQ, $findBy);
       return is_array($findBy) ? $query->get() : $query->first();
     });
   }
