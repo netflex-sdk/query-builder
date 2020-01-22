@@ -235,6 +235,8 @@ trait Queryable
   public static function paginate(...$args)
   {
     $args[0] = $args[0] ?? (new static)->perPage ?? 15;
+    $maxSize = Builder::MAX_QUERY_SIZE;
+    $args[0] = $args[0] < 0 ? ($maxSize + ($args[0] + 1)) : $args[0];
     return static::makeQueryBuilder()->paginate(...$args);
   }
 
