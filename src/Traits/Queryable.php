@@ -14,6 +14,20 @@ use Netflex\Query\Exceptions\NotQueryableException;
 trait Queryable
 {
   /**
+   * Determines the default field to order the query by
+   *
+   * @var string
+   */
+  protected $defaultOrderByField;
+
+  /**
+   * Determines the default direction to order the query by
+   *
+   * @var string
+   */
+  protected $defaultSortDirection;
+
+  /**
    * @return Builder
    * @throws NotQueryableException If object not queryable
    */
@@ -29,11 +43,26 @@ trait Queryable
     $relation = $queryable->getRelation();
     $relationId = $queryable->getRelationId();
     $hasMapper = method_exists($queryable, 'getMapper');
-    $mapper = $hasMapper ? $queryable->getMapper() : function ($item) { return $item; };
+    $defaultOrderByField = $queryable->defaultOrderByField;
+    $defaultSortDirection = $queryable->defaultSortDirection;
 
-    return (new Builder($respectPublishingStatus, null, $mapper))
+    $mapper = $hasMapper ? $queryable->getMapper() : function ($item) {
+      return $item;
+    };
+
+    $builder = (new Builder($respectPublishingStatus, null, $mapper))
       ->relation($relation, $relationId)
       ->assoc($hasMapper);
+
+    if ($defaultOrderByField) {
+      $builder->orderBy($defaultOrderByField);
+    }
+
+    if ($defaultSortDirection) {
+      $builder->orderDirection($defaultSortDirection);
+    }
+
+    return $builder;
   }
 
   /**
