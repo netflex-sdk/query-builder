@@ -4,9 +4,10 @@ namespace Netflex\Query;
 
 use Closure;
 use DateTime;
-
+use Exception;
 use Netflex\API\Facades\API;
 
+use Netflex\Query\Exceptions\QueryException;
 use Netflex\Query\Exceptions\InvalidAssignmentException;
 use Netflex\Query\Exceptions\InvalidOperatorException;
 use Netflex\Query\Exceptions\InvalidSortingDirectionException;
@@ -590,6 +591,7 @@ class Builder
    * @param int $size
    * @param int $page
    * @return PaginatedResult
+   * @throws QueryException
    */
   public function paginate($size = 15, $page = 1)
   {
@@ -614,16 +616,22 @@ class Builder
    * @param int $page
    * @param int $size
    * @return object
+   * @throws QueryException
    */
   private function fetch($size = null,$page = null)
   {
-    return API::get($this->compileRequest($size, $page), $this->assoc);
+    try {
+      return API::get($this->compileRequest($size, $page), $this->assoc);
+    } catch (Exception $e) {
+      throw new QueryException($this->getQuery(true));
+    }
   }
 
   /**
    * Retrieves the results of the query
    *
    * @return \Illuminate\Support\Collection
+   * @throws QueryException
    */
   public function get()
   {
@@ -641,6 +649,7 @@ class Builder
    * Retrieves the first result
    *
    * @return object|null
+   * @throws QueryException
    */
   public function first()
   {
@@ -680,6 +689,7 @@ class Builder
    * Get the count of items matching the current query
    *
    * @return int
+   * @throws QueryException
    */
   public function count()
   {
