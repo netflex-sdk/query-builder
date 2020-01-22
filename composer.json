@@ -30,6 +30,7 @@
   },
   "require": {
     "php": "^7.3",
+    "illuminate/contracts": "^6.12",
     "illuminate/database": "^6.12",
     "illuminate/support": "^6.12",
     "netflex/api": "^3.0"
