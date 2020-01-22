@@ -166,6 +166,13 @@ trait Resolvable
   {
     return static::resolvableContext(function ($resolvable) use ($findBy) {
       $query = static::where($resolvable->getPrimaryField(), Builder::OP_EQ, $findBy);
+
+      $query->limit = 1;
+
+      if (is_array($findBy)) {
+        $query->limit(count($findBy));
+      }
+
       return is_array($findBy) ? $query->get() : $query->first();
     });
   }
