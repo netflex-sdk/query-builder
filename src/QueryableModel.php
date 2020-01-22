@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Concerns\HasTimestamps;
 use Illuminate\Database\Eloquent\Concerns\HasAttributes;
 use Illuminate\Database\Eloquent\Concerns\GuardsAttributes;
 
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Routing\UrlRoutable;
@@ -129,6 +130,12 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @var bool
    */
   protected $autoPublishes = true;
+
+  /**
+   * The event dispatcher
+   * @var Dispatcher
+   */
+  protected static $dispatcher;
 
   /**
    * The name of the "created at" column.
