@@ -257,7 +257,7 @@ trait Queryable
   }
 
   /**
-   * Cache the results with the given key
+   * Cache the results with the given key if $shouldCache is true
    *
    * @param string $key
    * @param bool $shouldCache
@@ -266,13 +266,23 @@ trait Queryable
    */
   public static function maybeCacheResults($key, $shouldCache)
   {
-    $builder = static::makeQueryBuilder();
-
     if ($shouldCache) {
-      return $builder->cacheResultsWithKey($key);
+      return static::cacheResults($key);
     }
 
-    return $builder;
+    return static::makeQueryBuilder();
+  }
+
+  /**
+   * Cache the results with the given key
+   *
+   * @param string $key
+   * @return Builder
+   * @see \Netflex\Query\Builder::cacheResultsWithKey
+   */
+  public static function cacheResults($key)
+  {
+    return static::makeQueryBuilder()->cacheResultsWithKey($key);
   }
 
   /**
