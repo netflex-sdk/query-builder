@@ -260,12 +260,19 @@ trait Queryable
    * Cache the results with the given key
    *
    * @param string $key
+   * @param bool $shouldCache
    * @return Builder
-   * @see \Netflex\Query\Builder::shouldCacheResultsWithKey
+   * @see \Netflex\Query\Builder::cacheResultsWithKey
    */
-  public static function shouldCacheResultsWithKey(...$args)
+  public static function maybeCacheResults($key, $shouldCache)
   {
-    return static::makeQueryBuilder()->shouldCacheResultsWithKey(...$args);
+    $builder = static::makeQueryBuilder();
+
+    if ($shouldCache) {
+      return $builder->cacheResultsWithKey($key);
+    }
+
+    return $builder;
   }
 
   /**

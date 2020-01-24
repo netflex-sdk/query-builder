@@ -30,7 +30,7 @@ trait HasRelation
    * @param mixed $identifier
    * @return string
    */
-  protected function makeCacheKey($identifier = null)
+  protected function getCacheIdentifier($identifier = null)
   {
     $relation = $this->getRelation();
     $relationId = $this->getRelationId();

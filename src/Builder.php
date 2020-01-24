@@ -135,10 +135,11 @@ class Builder
    * @param string $key
    * @return static
    */
-  public function cacheResultsAs($key)
+  public function cacheResultsWithKey($key)
   {
     $this->shouldCache = true;
     $this->cacheKey = $key;
+
     return $this;
   }
 

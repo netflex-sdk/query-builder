@@ -139,6 +139,14 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
   protected static $dispatcher;
 
   /**
+   * Determines if we should cache some results.
+   * Specifically ::all() and ::find() queries
+   *
+   * @var bool
+   */
+  protected $cachesResults = true;
+
+  /**
    * The name of the "created at" column.
    *
    * @var string

@@ -101,8 +101,10 @@ trait Resolvable
   {
     return LazyCollection::make(static::resolvableContext(function ($resolvable) {
       return function () use ($resolvable) {
-        $page = static::cacheResultsAs($resolvable->makeCacheKey())
-          ->paginate($resolvable->perPage ?? 15);
+        $page = static::maybeCacheResults(
+          $resolvable->getCacheIdentifier(),
+          $resolvable->cachesResults
+        )->paginate($resolvable->perPage ?? 15);
 
         while ($page !== null) {
           while ($item = $page->shift()) {
@@ -179,8 +181,10 @@ trait Resolvable
     }
 
     return static::resolvableContext(function ($resolvable) use ($findBy) {
-      return static::cacheResultsAs($resolvable->makeCacheKey($findBy))
-        ->where($resolvable->getPrimaryField(), Builder::OP_EQ, $findBy)
+      return static::maybeCacheResults(
+        $resolvable->getCacheIdentifier($findBy),
+        $resolvable->cachesResults
+      )->where($resolvable->getPrimaryField(), Builder::OP_EQ, $findBy)
         ->limit(1)
         ->first();
     });
