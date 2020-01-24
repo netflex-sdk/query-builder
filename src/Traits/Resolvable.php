@@ -104,7 +104,7 @@ trait Resolvable
         $page = static::maybeCacheResults(
           $resolvable->getCacheIdentifier(),
           $resolvable->cachesResults
-        )->paginate($resolvable->perPage ?? 15);
+        )->paginate($resolvable->perPage ?? 100);
 
         while ($page !== null) {
           while ($item = $page->shift()) {

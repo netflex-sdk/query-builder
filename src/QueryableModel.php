@@ -39,7 +39,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    *
    * @var int
    */
-  protected $perPage;
+  protected $perPage = 100;
 
   /**
    * Indicates if the model exists.

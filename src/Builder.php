@@ -618,7 +618,7 @@ class Builder
    * @return PaginatedResult
    * @throws QueryException
    */
-  public function paginate($size = 15, $page = 1)
+  public function paginate($size = 100, $page = 1)
   {
     return new PaginatedResult($this, (object) $this->fetch($size, $page), $this->mapper);
   }
