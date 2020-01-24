@@ -2,6 +2,8 @@
 
 namespace Netflex\Query;
 
+use Closure;
+
 use Illuminate\Support\Collection;
 use Illuminate\Support\Traits\ForwardsCalls;
 
@@ -107,8 +109,9 @@ class PaginatedResult
   /**
    * @param Builder $query
    * @param object $result
+   * @param Closure $mapper
    */
-  public function __construct(Builder $query, $result = null)
+  public function __construct(Builder $query, $result = null, Closure $mapper = null)
   {
     $this->query = $query;
 
@@ -119,6 +122,10 @@ class PaginatedResult
     $this->from = $result ? ($result->from ?? 0) : 0;
     $this->to = $result ? ($result->to ?? 0) : 0;
     $this->data = new Collection($result ? $result->data ?? [] : []);
+
+    if ($mapper) {
+      $this->data = $this->data->map($mapper);
+    }
   }
 
   /**
