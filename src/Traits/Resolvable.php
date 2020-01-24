@@ -15,7 +15,6 @@ use Netflex\Query\Exceptions\ResolutionFailedException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\LazyCollection;
 
-
 trait Resolvable
 {
   protected function getPrimaryField()
@@ -94,26 +93,28 @@ trait Resolvable
   /**
    * Retrieves all instances
    *
-   * @return Collection|LazyCollection
+   * @return LazyCollection
    * @throws NotQueryableException If object not queryable
    * @throws QueryException On invalid query
    */
   public static function all()
   {
-    $perPage = (new static)->perPage ?? 15;
+    return LazyCollection::make(static::resolvableContext(function ($resolvable) {
+      return function () use ($resolvable) {
+        $page = static::maybeCacheResults(
+          $resolvable->getCacheIdentifier(),
+          $resolvable->cachesResults
+        )->paginate($resolvable->perPage ?? 100);
 
-    if (static::count() <= $perPage) {
-      return Collection::make(static::raw('*')->get());
-    }
+        while ($page !== null) {
+          while ($item = $page->shift()) {
+            yield $item;
+          }
 
-    return LazyCollection::make(function () use ($perPage) {
-      $page = static::paginate($perPage);
-
-      while ($page && ($item = $page->first()) !== null) {
-        yield $item;
-        $page = $page->next();
-      }
-    });
+          $page = $page->next();
+        }
+      };
+    }));
   }
 
   /**
@@ -166,23 +167,26 @@ trait Resolvable
   /**
    * Finds an instance by its primary field
    *
-   * @param mixed|array $findBy
+   * @param mixed|array|Collection $findBy
    * @return static|Collection|null
    * @throws NotQueryableException If object not queryable
    * @throws QueryException On invalid query
    */
   public static function find($findBy)
   {
+    if (is_array($findBy) || $findBy instanceof Collection) {
+      return Collection::make($findBy)->flatten()->map(function ($findBy) {
+        return static::find($findBy);
+      });
+    }
+
     return static::resolvableContext(function ($resolvable) use ($findBy) {
-      $query = static::where($resolvable->getPrimaryField(), Builder::OP_EQ, $findBy);
-
-      $query->limit = 1;
-
-      if (is_array($findBy)) {
-        $query->limit(count($findBy));
-      }
-
-      return is_array($findBy) ? $query->get() : $query->first();
+      return static::maybeCacheResults(
+        $resolvable->getCacheIdentifier($findBy),
+        $resolvable->cachesResults
+      )->where($resolvable->getPrimaryField(), Builder::OP_EQ, $findBy)
+        ->limit(1)
+        ->first();
     });
   }
 

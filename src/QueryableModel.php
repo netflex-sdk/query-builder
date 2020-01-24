@@ -39,7 +39,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    *
    * @var int
    */
-  protected $perPage;
+  protected $perPage = 100;
 
   /**
    * Indicates if the model exists.
@@ -137,6 +137,14 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @var Dispatcher
    */
   protected static $dispatcher;
+
+  /**
+   * Determines if we should cache some results.
+   * Specifically ::all() and ::find() queries
+   *
+   * @var bool
+   */
+  protected $cachesResults = true;
 
   /**
    * The name of the "created at" column.

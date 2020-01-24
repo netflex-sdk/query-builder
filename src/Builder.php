@@ -15,6 +15,7 @@ use Netflex\Query\Exceptions\InvalidValueException;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class Builder
 {
@@ -82,34 +83,40 @@ class Builder
   ];
 
   /** @var array */
-  private $fields;
+  protected $fields;
 
   /** @var array */
-  private $relations;
+  protected $relations;
 
   /** @var int */
-  private $relation_id;
+  protected $relation_id;
 
   /** @var int */
-  private $size = self::MAX_QUERY_SIZE;
+  protected $size = self::MAX_QUERY_SIZE;
 
   /** @var string */
-  private $orderBy;
+  protected $orderBy;
 
   /** @var string */
-  private $sortDir;
+  protected $sortDir;
 
   /** @var array */
-  private $query;
+  protected $query;
 
   /** @var bool */
-  private $respectPublishingStatus = true;
+  protected $respectPublishingStatus = true;
 
   /** @var Closure */
-  private $mapper;
+  protected $mapper;
 
-  /** var bool */
-  private $assoc = false;
+  /** @var bool */
+  protected $assoc = false;
+
+  /** @var bool */
+  protected $shouldCache = false;
+
+  /** @var string */
+  protected $cacheKey;
 
   /**
    * @param bool $respectPublishingStatus
@@ -123,10 +130,24 @@ class Builder
   }
 
   /**
+   * Cache the results with the given key
+   *
+   * @param string $key
+   * @return static
+   */
+  public function cacheResultsWithKey($key)
+  {
+    $this->shouldCache = true;
+    $this->cacheKey = $key;
+
+    return $this;
+  }
+
+  /**
    * @param string $relation
    * @return bool
    */
-  private function hasRelation($relation)
+  protected function hasRelation($relation)
   {
     return in_array(Str::singular($relation), $this->relations ?? []);
   }
@@ -136,7 +157,7 @@ class Builder
    * @param string $operator
    * @return mixed
    */
-  private function escapeValue($value, $operator = null)
+  protected function escapeValue($value, $operator = null)
   {
     if (is_string($value)) {
       if ($operator !== 'like') {
@@ -164,7 +185,7 @@ class Builder
    * @param null|array|boolean|integer|string|DateTime $value
    * @return string
    */
-  private function compileTermQuery(string $field, $value)
+  protected function compileTermQuery(string $field, $value)
   {
     return "${field}:$value";
   }
@@ -173,7 +194,7 @@ class Builder
    * @param string $field
    * @return string
    */
-  private function compileNullQuery($field)
+  protected function compileNullQuery($field)
   {
     return "(NOT _exists_:{$field})";
   }
@@ -183,7 +204,7 @@ class Builder
    * @param string $operator
    * @return string
    */
-  private function compileScopedQuery(array $args, string $operator = 'AND')
+  protected function compileScopedQuery(array $args, string $operator = 'AND')
   {
     $callback = count($args) === 1 ? array_pop($args) : function (self $scope) use ($args) {
       return $scope->where(...$args);
@@ -214,7 +235,7 @@ class Builder
    * @return string
    * @throws InvalidOperatorException If an invalid operator is passed
    */
-  private function compileWhereQuery($field, $operator, $value)
+  protected function compileWhereQuery($field, $operator, $value)
   {
     if (method_exists($value, '__toString')) {
       $value = (string) $value;
@@ -597,9 +618,9 @@ class Builder
    * @return PaginatedResult
    * @throws QueryException
    */
-  public function paginate($size = 15, $page = 1)
+  public function paginate($size = 100, $page = 1)
   {
-    return new PaginatedResult($this, (object) $this->fetch($size, $page,));
+    return new PaginatedResult($this, (object) $this->fetch($size, $page), $this->mapper);
   }
 
   /**
@@ -622,10 +643,18 @@ class Builder
    * @return object
    * @throws QueryException
    */
-  private function fetch($size = null, $page = null)
+  protected function fetch($size = null, $page = null)
   {
     try {
-      return API::get($this->compileRequest($size, $page), $this->assoc);
+      $fetch = function () use ($size, $page) {
+        return API::get($this->compileRequest($size, $page), $this->assoc);
+      };
+
+      if ($this->shouldCache) {
+        return Cache::rememberForever($this->cacheKey, $fetch);
+      }
+
+      return $fetch();
     } catch (Exception $e) {
       throw new QueryException($this->getQuery(true));
     }
@@ -712,7 +741,7 @@ class Builder
    * @param bool $scoped
    * @return string
    */
-  private function compileQuery($scoped = false)
+  protected function compileQuery($scoped = false)
   {
     $query = $this->query;
     $compiledQuery =  implode(' AND ', array_filter(array_map(function ($term) {
@@ -767,7 +796,7 @@ class Builder
   /**
    * @return string
    */
-  private function compileRequest($size = null, $page = null)
+  protected function compileRequest($size = null, $page = null)
   {
     $params = [
       'order' => $this->orderBy,

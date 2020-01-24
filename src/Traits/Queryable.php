@@ -6,7 +6,10 @@ use Netflex\Contracts\ApiClient;
 
 use Netflex\Query\Builder;
 use Netflex\Query\PaginatedResult;
+use Netflex\Query\QueryableModel;
+
 use Netflex\Query\Traits\HasRelation;
+
 
 use Netflex\Query\Exceptions\QueryException;
 use Netflex\Query\Exceptions\NotQueryableException;
@@ -37,6 +40,7 @@ trait Queryable
       throw new NotQueryableException;
     }
 
+    /** @var QueryableModel */
     $queryable = (new static);
 
     $respectPublishingStatus = $queryable->respectPublishingStatus();
@@ -45,6 +49,7 @@ trait Queryable
     $hasMapper = method_exists($queryable, 'getMapper');
     $defaultOrderByField = $queryable->defaultOrderByField;
     $defaultSortDirection = $queryable->defaultSortDirection;
+    $size = $queryable->perPage ?? null;
 
     $mapper = $hasMapper ? $queryable->getMapper() : function ($item) {
       return $item;
@@ -53,6 +58,17 @@ trait Queryable
     $builder = (new Builder($respectPublishingStatus, null, $mapper))
       ->relation($relation, $relationId)
       ->assoc($hasMapper);
+
+    if ($size) {
+      $minSize = Builder::MIN_QUERY_SIZE;
+      $maxSize = Builder::MAX_QUERY_SIZE;
+
+      $size = $size < 0 ? ($maxSize + ($size + 1)) : $size;
+      $size = $size > $maxSize ? $maxSize : $size;
+      $size = $size < $minSize ? $minSize : $size;
+
+      $builder->limit($size);
+    }
 
     if ($defaultOrderByField) {
       $builder->orderBy($defaultOrderByField);
@@ -234,10 +250,39 @@ trait Queryable
    */
   public static function paginate(...$args)
   {
-    $args[0] = $args[0] ?? (new static)->perPage ?? 15;
+    $args[0] = $args[0] ?? (new static)->perPage ?? 100;
     $maxSize = Builder::MAX_QUERY_SIZE;
     $args[0] = $args[0] < 0 ? ($maxSize + ($args[0] + 1)) : $args[0];
     return static::makeQueryBuilder()->paginate(...$args);
+  }
+
+  /**
+   * Cache the results with the given key if $shouldCache is true
+   *
+   * @param string $key
+   * @param bool $shouldCache
+   * @return Builder
+   * @see \Netflex\Query\Builder::cacheResultsWithKey
+   */
+  public static function maybeCacheResults($key, $shouldCache)
+  {
+    if ($shouldCache) {
+      return static::cacheResults($key);
+    }
+
+    return static::makeQueryBuilder();
+  }
+
+  /**
+   * Cache the results with the given key
+   *
+   * @param string $key
+   * @return Builder
+   * @see \Netflex\Query\Builder::cacheResultsWithKey
+   */
+  public static function cacheResults($key)
+  {
+    return static::makeQueryBuilder()->cacheResultsWithKey($key);
   }
 
   /**

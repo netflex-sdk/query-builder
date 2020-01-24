@@ -23,4 +23,20 @@ trait HasRelation
   {
     return $this->relationId ?? null;
   }
+
+  /**
+   * Creates a cacheKey
+   *
+   * @param mixed $identifier
+   * @return string
+   */
+  protected function getCacheIdentifier($identifier = null)
+  {
+    $relation = $this->getRelation();
+    $relationId = $this->getRelationId();
+
+    $cacheKey = array_filter([$relation, $relationId, $identifier]);
+
+    return implode('/', $cacheKey);
+  }
 }
