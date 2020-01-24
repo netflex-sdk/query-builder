@@ -16,6 +16,7 @@ use Netflex\Query\Exceptions\InvalidValueException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Facade;
 
 class Builder
 {
@@ -651,7 +652,9 @@ class Builder
       };
 
       if ($this->shouldCache) {
-        return Cache::rememberForever($this->cacheKey, $fetch);
+        if (Facade::getFacadeApplication() && Facade::getFacadeApplication()->has('cache')) {
+          return Cache::rememberForever($this->cacheKey, $fetch);
+        }
       }
 
       return $fetch();
