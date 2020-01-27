@@ -4,7 +4,6 @@ namespace Netflex\Query;
 
 use Closure;
 use DateTime;
-use Exception;
 use Netflex\API\Facades\API;
 
 use Netflex\Query\Exceptions\QueryException;
@@ -17,6 +16,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Facade;
+
+use GuzzleHttp\Exception\GuzzleException;
 
 class Builder
 {
@@ -658,7 +659,7 @@ class Builder
       }
 
       return $fetch();
-    } catch (Exception $e) {
+    } catch (GuzzleException $e) {
       throw new QueryException($this->getQuery(true));
     }
   }
