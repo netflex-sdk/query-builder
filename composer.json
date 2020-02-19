@@ -30,15 +30,15 @@
   },
   "require": {
     "php": "^7.3",
-    "illuminate/contracts": "^6.12",
-    "illuminate/database": "^6.12",
-    "illuminate/support": "^6.12",
+    "illuminate/contracts": "^6.16",
+    "illuminate/database": "^6.16",
+    "illuminate/support": "^6.16",
     "larapack/dd": "1.1",
-    "netflex/api": "^3.0"
+    "netflex/api": "^2.0.0-RC1"
   },
   "require-dev": {
-    "illuminate/cache": "^6.12",
-    "illuminate/filesystem": "^6.12",
+    "illuminate/cache": "^6.16",
+    "illuminate/filesystem": "^6.16",
     "phpunit/phpunit": "^8.5"
   },
   "extra": {
