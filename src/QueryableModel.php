@@ -978,4 +978,15 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
       static::registerModelEvent('booted', $callback);
     }
   }
+
+  /**
+   * Shim to make model compatible with HasAttributes trait
+   *
+   * @param string $key
+   * @return bool
+   */
+  protected function relationLoaded($key)
+  {
+    return false;
+  }
 }
