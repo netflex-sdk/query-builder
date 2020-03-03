@@ -29,6 +29,19 @@ final class WhereTest extends TestCase
     );
   }
 
+  public function testWhereSpecialEntitiesQuery()
+  {
+    $query = new Builder(false);
+    $query->where('should-encode', 10000);
+    $whereEqualsQuery = $query->getQuery();
+
+
+    $this->assertSame(
+      'should##D##encode:10000',
+      $whereEqualsQuery
+    );
+  }
+
   public function testWhereInvalidOperatorThrowsException()
   {
     $query = new Builder(false);

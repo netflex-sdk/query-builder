@@ -41,6 +41,21 @@ final class OrWhereTest extends TestCase
     );
   }
 
+  public function testOrWhereSpecialEntitiesQuery()
+  {
+    $query = new Builder(false);
+    $query->where('id', 10000)
+      ->orWhere('should-encode', 10001);
+
+    $orWhereEqualsQuery = $query->getQuery();
+
+
+    $this->assertSame(
+      '(id:10000) OR (should##D##encode:10001)',
+      $orWhereEqualsQuery
+    );
+  }
+
   public function testOrWhereInvalidOperatorThrowsException()
   {
     $query = new Builder(false);

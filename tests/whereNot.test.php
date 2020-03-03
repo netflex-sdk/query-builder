@@ -29,6 +29,19 @@ final class WhereNotTest extends TestCase
     );
   }
 
+  public function testWhereNotSpecialEntitiesQuery()
+  {
+    $query = new Builder(false);
+    $query->whereNot('should-encode', 10000);
+    $whereEqualsQuery = $query->getQuery();
+
+
+    $this->assertSame(
+      '(NOT should##D##encode:10000)',
+      $whereEqualsQuery
+    );
+  }
+
   public function testWhereNotInvalidOperatorThrowsException()
   {
     $query = new Builder(false);

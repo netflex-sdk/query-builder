@@ -381,7 +381,7 @@ class Builder
    */
   public function orderBy($field, $direction = null)
   {
-    $this->orderBy = $field;
+    $this->orderBy = $this->compileField($field);
 
     if ($direction) {
       $this->orderDirection($direction);
