@@ -817,7 +817,7 @@ class Builder
       ])) . ')';
     }
 
-    return $compiledQuery;
+    return urlencode($compiledQuery);
   }
 
   /**
