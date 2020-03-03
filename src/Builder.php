@@ -817,7 +817,7 @@ class Builder
       ])) . ')';
     }
 
-    return urlencode($compiledQuery);
+    return $compiledQuery;
   }
 
   /**
@@ -833,7 +833,7 @@ class Builder
       'relation_id' => $this->relation_id,
       'size' => $size ?? $this->size,
       'page' => $page,
-      'q' => $this->compileQuery()
+      'q' => urlencode($this->compileQuery())
     ];
 
     $params = array_filter(array_map(function ($key) use ($params) {
