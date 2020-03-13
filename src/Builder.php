@@ -699,10 +699,10 @@ class Builder
     $hits = new Collection(($this->assoc ? $result['data'] : $result->data) ?? []);
 
     if ($this->mapper) {
-      $results = $hits->map($this->mapper);
+      return $hits->map($this->mapper);
     }
 
-    return $results;
+    return $hits;
   }
 
   /**
