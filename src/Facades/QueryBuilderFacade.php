@@ -41,4 +41,17 @@ class QueryBuilderFacade extends Facade
   {
     return 'QueryBuilder';
   }
+
+  /**
+   * Resolve the facade root instance from the container.
+   *
+   * @param  object|string  $name
+   * @return mixed
+   */
+  protected static function resolveFacadeInstance($name)
+  {
+    if (static::$app) {
+      return static::$resolvedInstance[$name] = static::$app[$name];
+    }
+  }
 }
