@@ -47,7 +47,8 @@
         "Netflex\\Query\\Providers\\QueryBuilderServiceProvider"
       ],
       "aliases": {
-        "Query": "Netflex\\Query\\Facades\\QueryBuilderFacade"
+        "Query": "Netflex\\Query\\Facades\\QueryBuilderFacade",
+        "QueryAssoc": "Netflex\\Query\\Facades\\QueryBuilderFacade"
       }
     }
   },
