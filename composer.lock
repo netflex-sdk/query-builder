@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "fc49f40cc49560ec8954715a3ff8f95c",
+    "content-hash": "226a563e86808e1e345e14e54522acc4",
     "packages": [
         {
             "name": "doctrine/inflector",
@@ -264,16 +264,16 @@
         },
         {
             "name": "illuminate/container",
-            "version": "v7.0.8",
+            "version": "v7.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/container.git",
-                "reference": "d11bae50ad72a4522c13d8c46a24f83f6e7beec4"
+                "reference": "15bb16f216d36aa974b14e4a7aa550ffb02ce64a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/container/zipball/d11bae50ad72a4522c13d8c46a24f83f6e7beec4",
-                "reference": "d11bae50ad72a4522c13d8c46a24f83f6e7beec4",
+                "url": "https://api.github.com/repos/illuminate/container/zipball/15bb16f216d36aa974b14e4a7aa550ffb02ce64a",
+                "reference": "15bb16f216d36aa974b14e4a7aa550ffb02ce64a",
                 "shasum": ""
             },
             "require": {
@@ -304,20 +304,20 @@
             ],
             "description": "The Illuminate Container package.",
             "homepage": "https://laravel.com",
-            "time": "2020-03-02T15:52:51+00:00"
+            "time": "2020-03-10T18:02:27+00:00"
         },
         {
             "name": "illuminate/contracts",
-            "version": "v7.0.8",
+            "version": "v7.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/contracts.git",
-                "reference": "d806109dfee7b44b3633d0562aa4575c1365e0b1"
+                "reference": "10eb9fd5014e80296d254ae38ff1afe52d515a66"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/contracts/zipball/d806109dfee7b44b3633d0562aa4575c1365e0b1",
-                "reference": "d806109dfee7b44b3633d0562aa4575c1365e0b1",
+                "url": "https://api.github.com/repos/illuminate/contracts/zipball/10eb9fd5014e80296d254ae38ff1afe52d515a66",
+                "reference": "10eb9fd5014e80296d254ae38ff1afe52d515a66",
                 "shasum": ""
             },
             "require": {
@@ -348,20 +348,20 @@
             ],
             "description": "The Illuminate Contracts package.",
             "homepage": "https://laravel.com",
-            "time": "2020-03-06T01:34:22+00:00"
+            "time": "2020-03-09T13:23:43+00:00"
         },
         {
             "name": "illuminate/database",
-            "version": "v7.0.8",
+            "version": "v7.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/database.git",
-                "reference": "9dbb13cac80b0321998b97c82f0db06e98bb549a"
+                "reference": "a3d3978106f2d4dc4f9b1906f6aba96c48bd96c7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/database/zipball/9dbb13cac80b0321998b97c82f0db06e98bb549a",
-                "reference": "9dbb13cac80b0321998b97c82f0db06e98bb549a",
+                "url": "https://api.github.com/repos/illuminate/database/zipball/a3d3978106f2d4dc4f9b1906f6aba96c48bd96c7",
+                "reference": "a3d3978106f2d4dc4f9b1906f6aba96c48bd96c7",
                 "shasum": ""
             },
             "require": {
@@ -409,20 +409,20 @@
                 "orm",
                 "sql"
             ],
-            "time": "2020-03-06T13:35:47+00:00"
+            "time": "2020-03-10T12:57:36+00:00"
         },
         {
             "name": "illuminate/support",
-            "version": "v7.0.8",
+            "version": "v7.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/support.git",
-                "reference": "826782d01ec7a0befe26b106713822df5933ee69"
+                "reference": "ca1af56ffbac9361da042e6ee0ad4ebcbbbae515"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/support/zipball/826782d01ec7a0befe26b106713822df5933ee69",
-                "reference": "826782d01ec7a0befe26b106713822df5933ee69",
+                "url": "https://api.github.com/repos/illuminate/support/zipball/ca1af56ffbac9361da042e6ee0ad4ebcbbbae515",
+                "reference": "ca1af56ffbac9361da042e6ee0ad4ebcbbbae515",
                 "shasum": ""
             },
             "require": {
@@ -471,7 +471,7 @@
             ],
             "description": "The Illuminate Support package.",
             "homepage": "https://laravel.com",
-            "time": "2020-03-06T19:50:43+00:00"
+            "time": "2020-03-12T12:48:26+00:00"
         },
         {
             "name": "larapack/dd",
@@ -1278,16 +1278,16 @@
         },
         {
             "name": "voku/portable-ascii",
-            "version": "1.4.9",
+            "version": "1.4.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/voku/portable-ascii.git",
-                "reference": "9fd2b224c71448b5f84aef9d499a1428d79776a2"
+                "reference": "240e93829a5f985fab0984a6e55ae5e26b78a334"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/voku/portable-ascii/zipball/9fd2b224c71448b5f84aef9d499a1428d79776a2",
-                "reference": "9fd2b224c71448b5f84aef9d499a1428d79776a2",
+                "url": "https://api.github.com/repos/voku/portable-ascii/zipball/240e93829a5f985fab0984a6e55ae5e26b78a334",
+                "reference": "240e93829a5f985fab0984a6e55ae5e26b78a334",
                 "shasum": ""
             },
             "require": {
@@ -1323,7 +1323,7 @@
                 "clean",
                 "php"
             ],
-            "time": "2020-03-06T02:47:42+00:00"
+            "time": "2020-03-13T01:23:26+00:00"
         }
     ],
     "packages-dev": [
@@ -1385,16 +1385,16 @@
         },
         {
             "name": "illuminate/cache",
-            "version": "v7.0.8",
+            "version": "v7.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/cache.git",
-                "reference": "0bde84cb6a166f835558510456bd206e811ab57c"
+                "reference": "babc18be417aaa2b8a71fdabbb818a818ede0970"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/cache/zipball/0bde84cb6a166f835558510456bd206e811ab57c",
-                "reference": "0bde84cb6a166f835558510456bd206e811ab57c",
+                "url": "https://api.github.com/repos/illuminate/cache/zipball/babc18be417aaa2b8a71fdabbb818a818ede0970",
+                "reference": "babc18be417aaa2b8a71fdabbb818a818ede0970",
                 "shasum": ""
             },
             "require": {
@@ -1432,11 +1432,11 @@
             ],
             "description": "The Illuminate Cache package.",
             "homepage": "https://laravel.com",
-            "time": "2020-03-06T13:35:47+00:00"
+            "time": "2020-03-09T13:23:43+00:00"
         },
         {
             "name": "illuminate/filesystem",
-            "version": "v7.0.8",
+            "version": "v7.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/filesystem.git",
@@ -2998,11 +2998,9 @@
         }
     ],
     "aliases": [],
-    "minimum-stability": "stable",
-    "stability-flags": {
-        "netflex/api": 5
-    },
-    "prefer-stable": false,
+    "minimum-stability": "dev",
+    "stability-flags": [],
+    "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^7.3"
