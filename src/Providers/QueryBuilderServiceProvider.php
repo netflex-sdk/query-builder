@@ -15,6 +15,7 @@ class QueryBuilderServiceProvider extends ServiceProvider
   {
     $this->app->bind('QueryBuilder', function () {
       return (new Builder(false))
+        ->assoc(true)
         ->orderBy('id'); // Not all indexes has the default 'created' field
     });
   }
