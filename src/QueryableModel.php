@@ -1004,4 +1004,13 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
   {
     return false;
   }
+
+  /**
+   * @param string $key
+   * @return bool
+   */
+  public function __isset($key)
+  {
+    return $this->__get($key) !== null;
+  }
 }
