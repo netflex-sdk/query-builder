@@ -17,6 +17,17 @@ final class FieldTest extends TestCase
     );
   }
 
+  public function testSetSpecialEntityField()
+  {
+    $query = new Builder(false);
+    $query->field('should-encode');
+
+    $this->assertSame(
+      'search?fields=should##D##encode&size=' . Builder::MAX_QUERY_SIZE,
+      $query->getRequest()
+    );
+  }
+
   public function testSetMultipleFields()
   {
     $query = new Builder(false);

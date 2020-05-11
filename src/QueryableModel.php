@@ -18,6 +18,7 @@ use GuzzleHttp\Exception\GuzzleException;
 
 use Illuminate\Support\Arr;
 
+use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasEvents;
 use Illuminate\Database\Eloquent\Concerns\HidesAttributes;
@@ -714,12 +715,26 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * Retrieve the model for a bound value.
    *
    * @param  mixed  $value
+   * @param  string|null $field
    * @return \Illuminate\Database\Eloquent\Model|null
    */
-  public function resolveRouteBinding($value)
+  public function resolveRouteBinding($value, $field = null)
   {
-    return static::resolve($value);
+    return static::resolve($value, $field);
   }
+
+    /**
+     * Retrieve the child model for a bound value.
+     *
+     * @param  string   $childType
+     * @param  mixed   $value
+     * @param  string|null  $field
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
+    public function resolveChildRouteBinding($childType, $value, $field)
+    {
+      return $this->{Str::plural($childType)}()->where($field, $value)->first();
+    }
 
   /**
    * Get the value indicating whether the IDs are incrementing.
@@ -977,5 +992,25 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
     if (has_trait(static::class, HasEvents::class)) {
       static::registerModelEvent('booted', $callback);
     }
+  }
+
+  /**
+   * Shim to make model compatible with HasAttributes trait
+   *
+   * @param string $key
+   * @return bool
+   */
+  protected function relationLoaded($key)
+  {
+    return false;
+  }
+
+  /**
+   * @param string $key
+   * @return bool
+   */
+  public function __isset($key)
+  {
+    return $this->__get($key) !== null;
   }
 }

@@ -28,6 +28,17 @@ final class OrderTest extends TestCase
     );
   }
 
+  public function testCanOrderBySpecialEntitiesField()
+  {
+    $query = new Builder();
+    $query->orderBy('should-encode');
+
+    $this->assertSame(
+      'search?order=should##D##encode&size=' . Builder::MAX_QUERY_SIZE,
+      $query->getRequest()
+    );
+  }
+
   public function testCanSetSortingDirection()
   {
     $query = new Builder();

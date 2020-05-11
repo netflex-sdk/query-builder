@@ -41,6 +41,29 @@ final class AndWhereTest extends TestCase
     );
   }
 
+  public function testAndWhereSpecialEntitiesQuery()
+  {
+    $query = new Builder(false);
+    $query->where('id', 10000)
+      ->andWhere('should-encode', 10001);
+
+    $orWhereEqualsQuery = $query->getQuery();
+
+    $this->assertSame(
+      '(id:10000) AND (should##D##encode:10001)',
+      $orWhereEqualsQuery
+    );
+
+    $query = new Builder(false);
+    $query->where('id', '=', 10000)
+      ->andWhere('should-encode', '=', 10001);
+
+    $this->assertSame(
+      $orWhereEqualsQuery,
+      $query->getQuery()
+    );
+  }
+
   public function testAndWhereInvalidOperatorThrowsException()
   {
     $query = new Builder(false);

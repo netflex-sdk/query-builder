@@ -2,8 +2,6 @@
 
 namespace Netflex\Query\Facades;
 
-use Illuminate\Support\Facades\Facade;
-
 /**
  * @method static ?object first()
  * @method static \Illuminate\Support\Collection get()
@@ -30,8 +28,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static string getRequest()
  * @see \Netflex\Query\Builder
  */
-class QueryBuilderFacade extends Facade
-{
+class QueryBuilderAssocFacade extends QueryBuilderFacade {
   /**
    * Get the registered name of the component.
    *
@@ -39,19 +36,6 @@ class QueryBuilderFacade extends Facade
    */
   protected static function getFacadeAccessor()
   {
-    return 'QueryBuilder';
-  }
-
-  /**
-   * Resolve the facade root instance from the container.
-   *
-   * @param  object|string  $name
-   * @return mixed
-   */
-  protected static function resolveFacadeInstance($name)
-  {
-    if (static::$app) {
-      return static::$resolvedInstance[$name] = static::$app[$name];
-    }
+    return 'QueryBuilder.assoc';
   }
 }

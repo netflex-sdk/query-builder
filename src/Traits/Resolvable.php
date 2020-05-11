@@ -121,14 +121,15 @@ trait Resolvable
    * Resolves an instance
    *
    * @param mixed $resolveBy
+   * @param  string|null $field
    * @return static|Collection|null
    * @throws NotQueryableException If object not queryable
    * @throws QueryException On invalid query
    */
-  public static function resolve($resolveBy)
+  public static function resolve($resolveBy, $field = null)
   {
-    return static::resolvableContext(function ($resolvable) use ($resolveBy) {
-      $query = static::where($resolvable->getResolvableField(), Builder::OP_EQ, $resolveBy);
+    return static::resolvableContext(function ($resolvable) use ($resolveBy, $field) {
+      $query = static::where($field ?? $resolvable->getResolvableField(), Builder::OP_EQ, $resolveBy);
       return is_array($resolveBy) ? $query->get() : $query->first();
     });
   }

@@ -46,6 +46,10 @@ class Builder
     'DateTime'
   ];
 
+  const REPLACEMENT_ENTITIES = [
+    '-' => '##D##'
+  ];
+
   /** @var array The valid sorting directions */
   const SORTING_DIRS = [
     Builder::DIR_ASC,
@@ -231,6 +235,21 @@ class Builder
   }
 
   /**
+   * Compiles the field name into something ES can understand
+   *
+   * @param string $field
+   * @return string
+   */
+  protected function compileField($field)
+  {
+    foreach (static::REPLACEMENT_ENTITIES as $entity => $replacement) {
+      $field = str_replace($entity, $replacement, $field);
+    }
+
+    return $field;
+  }
+
+  /**
    * @param string $field
    * @param string $operator|
    * @param null|array|boolean|integer|string|DateTime $value
@@ -239,6 +258,8 @@ class Builder
    */
   protected function compileWhereQuery($field, $operator, $value)
   {
+    $field = $this->compileField($field);
+
     if (method_exists($value, '__toString')) {
       $value = (string) $value;
     }
@@ -360,7 +381,7 @@ class Builder
    */
   public function orderBy($field, $direction = null)
   {
-    $this->orderBy = $field;
+    $this->orderBy = $this->compileField($field);
 
     if ($direction) {
       $this->orderDirection($direction);
@@ -455,7 +476,7 @@ class Builder
   public function field(string $field)
   {
     $this->fields = $this->fields ?? [];
-    $this->fields[] = $field;
+    $this->fields[] = $this->compileField($field);
     $this->fields = array_filter(array_unique($this->fields));
     return $this;
   }
@@ -514,6 +535,7 @@ class Builder
    */
   public function whereBetween(string $field, $from, $to)
   {
+    $field = $this->compileField($field);
     $from = $this->escapeValue($from, '=');
     $to = $this->escapeValue($to, '=');
     $this->query[] =  "($field:[$from TO $to])";
@@ -530,6 +552,7 @@ class Builder
    */
   public function whereNotBetween(string $field, $from, $to)
   {
+    $field = $this->compileField($field);
     $from = $this->escapeValue($from, '=');
     $to = $this->escapeValue($to, '=');
     $this->query[] =  "(NOT ($field:[$from TO $to]))";
@@ -676,10 +699,10 @@ class Builder
     $hits = new Collection(($this->assoc ? $result['data'] : $result->data) ?? []);
 
     if ($this->mapper) {
-      $results = $hits->map($this->mapper);
+      return $hits->map($this->mapper);
     }
 
-    return $results;
+    return $hits;
   }
 
   /**
@@ -810,7 +833,7 @@ class Builder
       'relation_id' => $this->relation_id,
       'size' => $size ?? $this->size,
       'page' => $page,
-      'q' => $this->compileQuery()
+      'q' => urlencode($this->compileQuery())
     ];
 
     $params = array_filter(array_map(function ($key) use ($params) {
