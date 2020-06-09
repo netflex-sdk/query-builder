@@ -787,8 +787,8 @@ class Builder
                   ->where(function ($query) {
                     return $query->where('start', '!=', null)
                       ->where('stop', '!=', null)
-                      ->where('start', '>=', date('Y-m-d H:i:s', time()))
-                      ->where('stop', '<=', date('Y-m-d H:i:s', time()));
+                      ->where('start', '<=', date('Y-m-d H:i:s', time()))
+                      ->where('stop', '>=', date('Y-m-d H:i:s', time()));
                   })->orWhere(function ($query) {
                     return $query->where('start', '!=', null)
                       ->where('stop', '=', null)
