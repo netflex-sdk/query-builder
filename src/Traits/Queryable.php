@@ -2,7 +2,9 @@
 
 namespace Netflex\Query\Traits;
 
-use Netflex\Contracts\ApiClient;
+use Closure;
+
+use Illuminate\Support\Facades\Cache;
 
 use Netflex\Query\Builder;
 use Netflex\Query\PaginatedResult;
@@ -254,6 +256,23 @@ trait Queryable
     $maxSize = Builder::MAX_QUERY_SIZE;
     $args[0] = $args[0] < 0 ? ($maxSize + ($args[0] + 1)) : $args[0];
     return static::makeQueryBuilder()->paginate(...$args);
+  }
+
+  /**
+   * Perform an action and mutate the given key if $shouldCache is true
+   *
+   * @param string $key
+   * @param bool $shouldCache
+   * @param Closure $action
+   * @return mixed
+   */
+  public static function maybeMutatesCache($key, $shouldCache, Closure $action)
+  {
+    if ($shouldCache) {
+      Cache::forget($key);
+    }
+
+    $result = $action();
   }
 
   /**

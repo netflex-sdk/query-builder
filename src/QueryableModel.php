@@ -365,22 +365,29 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
       return false;
     }
 
-    $dirty = $this->getDirty();
-    $dirty['revision_publish'] = true;
+    static::maybeMutatesCache(
+      $this->getCacheIdentifier($this->getKey()),
+      $this->cachesResults,
+      function () {
+        $dirty = $this->getDirty();
 
-    if ($this->autoPublishes) {
-      $dirty['published'] = true;
-    }
+        if (count($dirty) > 0) {
+          $dirty['revision_publish'] = true;
 
-    if (count($dirty) > 0) {
-      $this->performUpdateRequest($this->getRelationId(), $this->getKey(), $dirty);
+          if ($this->autoPublishes) {
+            $dirty['published'] = true;
+          }
 
-      $this->withIgnoredPublishingStatus(function () {
-        $this->attributes = $this->performRetrieveRequest($this->getRelationId(), $this->getKey());
-      });
+          $this->performUpdateRequest($this->getRelationId(), $this->getKey(), $dirty);
+        }
 
-      $this->fireModelEvent('updated', false);
-    }
+        $this->withIgnoredPublishingStatus(function () {
+          $this->attributes = $this->performRetrieveRequest($this->getRelationId(), $this->getKey());
+        });
+      }
+    );
+
+    $this->fireModelEvent('updated', false);
 
     return true;
   }
@@ -723,18 +730,18 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
     return static::resolve($value, $field);
   }
 
-    /**
-     * Retrieve the child model for a bound value.
-     *
-     * @param  string   $childType
-     * @param  mixed   $value
-     * @param  string|null  $field
-     * @return \Illuminate\Database\Eloquent\Model|null
-     */
-    public function resolveChildRouteBinding($childType, $value, $field)
-    {
-      return $this->{Str::plural($childType)}()->where($field, $value)->first();
-    }
+  /**
+   * Retrieve the child model for a bound value.
+   *
+   * @param  string   $childType
+   * @param  mixed   $value
+   * @param  string|null  $field
+   * @return \Illuminate\Database\Eloquent\Model|null
+   */
+  public function resolveChildRouteBinding($childType, $value, $field)
+  {
+    return $this->{Str::plural($childType)}()->where($field, $value)->first();
+  }
 
   /**
    * Get the value indicating whether the IDs are incrementing.

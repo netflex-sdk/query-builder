@@ -101,18 +101,12 @@ trait Resolvable
   {
     return LazyCollection::make(static::resolvableContext(function ($resolvable) {
       return function () use ($resolvable) {
-        $page = static::maybeCacheResults(
-          $resolvable->getCacheIdentifier(),
-          $resolvable->cachesResults
-        )->paginate($resolvable->perPage ?? 100);
-
-        while ($page !== null) {
+        $page = static::paginate($resolvable->perPage ?? 100);
+        do {
           while ($item = $page->shift()) {
             yield $item;
           }
-
-          $page = $page->next();
-        }
+        } while ($page = $page->next());
       };
     }));
   }
