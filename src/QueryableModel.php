@@ -30,6 +30,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Routing\UrlRoutable;
+use Netflex\Query\Exceptions\NotFoundException;
 
 abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonSerializable, UrlRoutable
 {
@@ -724,10 +725,15 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param  mixed  $value
    * @param  string|null $field
    * @return \Illuminate\Database\Eloquent\Model|null
+   * @throws NotFoundException
    */
   public function resolveRouteBinding($value, $field = null)
   {
-    return static::resolve($value, $field);
+    if ($model = static::where($field ?? $this->getResolvableField(), $value)->first()) {
+      return $model;
+    }
+
+    throw new NotFoundException;
   }
 
   /**

@@ -2,10 +2,8 @@
 
 namespace Netflex\Query\Exceptions;
 
-class NotFoundException extends QueryBuilderException
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+
+class NotFoundException extends ModelNotFoundException
 {
-  public function __construct()
-  {
-    parent::__construct('Not found');
-  }
 }
