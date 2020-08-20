@@ -729,7 +729,11 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    */
   public function resolveRouteBinding($value, $field = null)
   {
-    if ($model = static::where($field ?? $this->getResolvableField(), $value)->first()) {
+    $field = $field ?? $this->getResolvableField();
+    $operator = $field === $this->getKey() ? '=' : 'like';
+    $value = $operator === 'like' ? "*$value*" : $value;
+
+    if ($model = static::where($field, $operator, $value)->first()) {
       return $model;
     }
 
