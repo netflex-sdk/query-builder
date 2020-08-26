@@ -722,24 +722,28 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
   /**
    * Retrieve the model for a bound value.
    *
-   * @param  mixed  $value
+   * @param  mixed  $rawValue
    * @param  string|null $field
    * @return \Illuminate\Database\Eloquent\Model|null
    * @throws NotFoundException
    */
-  public function resolveRouteBinding($value, $field = null)
+  public function resolveRouteBinding($rawValue, $field = null)
   {
     $field = $field ?? $this->getResolvableField();
-    $operator = $field === $this->getKey() ? '=' : 'like';
-    $value = $operator === 'like' ? "*$value*" : $value;
+    $value = "*$rawValue*";
 
-    if ($model = static::where($field, $operator, $value)->first()) {
-      return $model;
+    $query = static::where($field, 'like', $value)
+      ->orWhere($field, '=', $rawValue);
+
+    /** @var static */
+    if ($model = $query->first()) {
+      if ($model->{$model->getResolvableField()} == $rawValue) {
+        return $model;
+      }
     }
 
     throw new NotFoundException;
   }
-
   /**
    * Retrieve the child model for a bound value.
    *
