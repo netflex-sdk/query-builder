@@ -36,12 +36,10 @@
     "larapack/dd": "1.1",
     "netflex/api": "^3.0"
   },
-  "minimum-stability": "dev",
-  "prefer-stable": true,
   "require-dev": {
     "illuminate/cache": "^8.0",
     "illuminate/filesystem": "^8.0",
-    "phpunit/phpunit": "^8.5"
+    "phpunit/phpunit": "^9.0"
   },
   "extra": {
     "laravel": {
