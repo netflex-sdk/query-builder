@@ -737,13 +737,20 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
 
     /** @var static */
     if ($model = $query->first()) {
-      if ($model->{$model->getResolvableField()} == $rawValue) {
+      $value = $model->{$field};
+
+      if (is_string($value) && Str::replaceLast('/', '', $value) == $rawValue) {
+        return $model;
+      }
+
+      if ($value == $rawValue) {
         return $model;
       }
     }
 
     throw new NotFoundException;
   }
+  
   /**
    * Retrieve the child model for a bound value.
    *
