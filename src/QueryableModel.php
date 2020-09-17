@@ -737,10 +737,16 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
 
     /** @var static */
     if ($model = $query->first()) {
-      $value = $model->{$field};
+      $value = $model->getRawOriginal($field);
 
-      if (is_string($value) && Str::replaceLast('/', '', $value) == $rawValue) {
-        return $model;
+      if (is_string($value)) {
+        $mutatedValue = $value;
+        $mutatedValue = !Str::startsWith($rawValue, '/') ? ltrim($mutatedValue, '/') : $mutatedValue;
+        $mutatedValue = !Str::endsWith($rawValue, '/') ? rtrim($mutatedValue, '/') : $mutatedValue;
+
+        if ($mutatedValue == $rawValue) {
+          return $model;
+        }
       }
 
       if ($value == $rawValue) {
@@ -750,7 +756,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
 
     throw new NotFoundException;
   }
-  
+
   /**
    * Retrieve the child model for a bound value.
    *
