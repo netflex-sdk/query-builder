@@ -4,9 +4,11 @@ namespace Netflex\Query;
 
 use Closure;
 use DateTime;
+use GuzzleHttp\Exception\BadResponseException;
 use Netflex\API\Facades\API;
 
 use Netflex\Query\Exceptions\QueryException;
+use Netflex\Query\Exceptions\IndexNotFoundException;
 use Netflex\Query\Exceptions\InvalidAssignmentException;
 use Netflex\Query\Exceptions\InvalidOperatorException;
 use Netflex\Query\Exceptions\InvalidSortingDirectionException;
@@ -16,8 +18,6 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Facade;
-
-use GuzzleHttp\Exception\GuzzleException;
 
 class Builder
 {
@@ -666,7 +666,7 @@ class Builder
    * @param int $page
    * @param int $size
    * @return object
-   * @throws QueryException
+   * @throws IndexNotFoundException|QueryException
    */
   protected function fetch($size = null, $page = null)
   {
@@ -682,8 +682,18 @@ class Builder
       }
 
       return $fetch();
-    } catch (GuzzleException $e) {
-      throw new QueryException($this->getQuery(true));
+    } catch (BadResponseException $e) {
+      $response = $e->getResponse();
+      $index = $this->relations ? implode(',', $this->relations) : null;
+      $index .= $this->relation_id ? ('_' . $this->relation_id) : null;
+
+      if ($response->getStatusCode() === 500) {
+        throw new IndexNotFoundException($index);
+      }
+
+      $error = json_decode($e->getResponse()->getBody());
+      
+      throw new QueryException($this->getQuery(true), $error);
     }
   }
 
