@@ -316,4 +316,17 @@ trait Queryable
   {
     return static::makeQueryBuilder()->count(...$args);
   }
+
+  /**
+   * Picks random items
+   * 
+   * @param int $amount
+   * @return static|Collection
+   */
+  public static function random(int $amount = 1)
+  {
+    $result = static::makeQueryBuilder()->random($amount);
+
+    return $amount === 1 ? $result->first() : $result;
+  }
 }

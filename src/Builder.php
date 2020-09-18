@@ -692,7 +692,7 @@ class Builder
       }
 
       $error = json_decode($e->getResponse()->getBody());
-      
+
       throw new QueryException($this->getQuery(true), $error);
     }
   }
@@ -731,6 +731,53 @@ class Builder
     return $first;
   }
 
+  /**
+   * Returns random results for the given query
+   * @param int|null $amount If not provided, will use the current query limit
+   * @return Collection
+   * @throws QueryException
+   */
+  public function random($amount = null)
+  {
+    $size = $this->size;
+    $fields = $this->fields;
+    $query = $this->query;
+
+    $amount = $amount ?? $this->sizeHasBeenExplicitlySet ? $size : 1;
+
+    $this->size = $amount;
+    $this->fields = ['id'];
+
+    $result = array_map(function ($result) {
+      return $result['id'];
+    }, $this->fetch()['data']);
+
+    $random = [];
+
+    if (count($result)) {
+      $keys = array_rand($result, min($amount, count($result)));
+      $keys = !is_array($keys) ? [$keys] : $keys;
+      $keys = array_values($keys);
+
+      foreach ($keys as $key) {
+        $random[] = $result[$key];
+      }
+    }
+
+    $this->fields = $fields;
+    $this->query = [];
+
+    $orderBy = $this->orderBy;
+    $this->orderBy = null;
+
+    $result = $this->where('id', $random)->get();
+
+    $this->query = $query;
+    $this->size = $size;
+    $this->orderBy = $orderBy;
+
+    return $result->shuffle()->values();
+  }
   /**
    * Also include unpublished results
    * Only applies to entry and page relations
