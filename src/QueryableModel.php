@@ -795,7 +795,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    */
   public function offsetGet($offset)
   {
-    $this->getAttribute($offset);
+    return $this->getAttribute($offset);
   }
 
   /**
