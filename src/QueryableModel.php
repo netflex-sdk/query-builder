@@ -758,6 +758,21 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
   }
 
   /**
+   * Resolves an instance
+   *
+   * @param mixed $resolveBy
+   * @param  string|null $field
+   * @return static|Collection|null
+   * @throws NotQueryableException If object not queryable
+   * @throws QueryException On invalid query
+   */
+  public static function resolve ($rawValue, $field = null)
+  {
+    return with(new static)
+      ->resolveRouteBinding($rawValue, $field);
+  }
+
+  /**
    * Retrieve the child model for a bound value.
    *
    * @param  string   $childType
