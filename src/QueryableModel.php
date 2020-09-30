@@ -737,13 +737,41 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
 
     /** @var static */
     if ($model = $query->first()) {
-      if ($model->{$model->getResolvableField()} == $rawValue) {
+      $value = $model->getRawOriginal($field);
+
+      if (is_string($value)) {
+        $mutatedValue = $value;
+        $mutatedValue = !Str::startsWith($rawValue, '/') ? ltrim($mutatedValue, '/') : $mutatedValue;
+        $mutatedValue = !Str::endsWith($rawValue, '/') ? rtrim($mutatedValue, '/') : $mutatedValue;
+
+        if ($mutatedValue == $rawValue) {
+          return $model;
+        }
+      }
+
+      if ($value == $rawValue) {
         return $model;
       }
     }
 
     throw new NotFoundException;
   }
+
+  /**
+   * Resolves an instance
+   *
+   * @param mixed $resolveBy
+   * @param  string|null $field
+   * @return static|Collection|null
+   * @throws NotQueryableException If object not queryable
+   * @throws QueryException On invalid query
+   */
+  public static function resolve ($rawValue, $field = null)
+  {
+    return with(new static)
+      ->resolveRouteBinding($rawValue, $field);
+  }
+  
   /**
    * Retrieve the child model for a bound value.
    *
