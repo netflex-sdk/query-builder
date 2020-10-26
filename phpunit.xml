@@ -14,7 +14,7 @@
   verbose="true"
 >
   <testsuites>
-    <testsuite name="Netflex QueruBuilder tests">
+    <testsuite name="Netflex QueryBuilder tests">
       <directory suffix=".test.php">
         tests
       </directory>

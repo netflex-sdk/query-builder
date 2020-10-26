@@ -65,7 +65,7 @@ final class WhereTest extends TestCase
     $query->where('id', null);
 
     $this->assertSame(
-      '(NOT _exists_:id)',
+      '((NOT _exists_:id) OR id:0)',
       $query->getQuery()
     );
   }
@@ -106,7 +106,7 @@ final class WhereTest extends TestCase
     $query->where('id', [1, null, 'Test string', true, [1, null, 'Test string']]);
 
     $this->assertSame(
-      '(id:1 OR (NOT _exists_:id) OR id:"Test string" OR id:1 OR (id:1 OR (NOT _exists_:id) OR id:"Test string"))',
+      '(id:1 OR ((NOT _exists_:id) OR id:0) OR id:"Test string" OR id:1 OR (id:1 OR ((NOT _exists_:id) OR id:0) OR id:"Test string"))',
       $query->getQuery()
     );
   }
@@ -128,7 +128,7 @@ final class WhereTest extends TestCase
     $query->where('id', '!=', null);
 
     $this->assertSame(
-      'NOT (NOT _exists_:id)',
+      'NOT ((NOT _exists_:id) OR id:0)',
       $query->getQuery()
     );
   }
@@ -169,7 +169,7 @@ final class WhereTest extends TestCase
     $query->where('id', '!=', [1, null, 'Test string', true, [1, null, 'Test string']]);
 
     $this->assertSame(
-      '(NOT id:1 OR NOT (NOT _exists_:id) OR NOT id:"Test string" OR NOT id:1 OR (NOT id:1 OR NOT (NOT _exists_:id) OR NOT id:"Test string"))',
+      '(NOT id:1 OR NOT ((NOT _exists_:id) OR id:0) OR NOT id:"Test string" OR NOT id:1 OR (NOT id:1 OR NOT ((NOT _exists_:id) OR id:0) OR NOT id:"Test string"))',
       $query->getQuery()
     );
   }
