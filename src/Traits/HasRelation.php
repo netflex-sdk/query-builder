@@ -2,6 +2,8 @@
 
 namespace Netflex\Query\Traits;
 
+use Illuminate\Support\Str;
+
 trait HasRelation
 {
   /**
@@ -28,6 +30,7 @@ trait HasRelation
    * Creates a cacheKey
    *
    * @param mixed $identifier
+   * @param string $prefix = null
    * @return string
    */
   protected function getCacheIdentifier($identifier = null)
@@ -37,6 +40,17 @@ trait HasRelation
 
     $cacheKey = array_filter([$relation, $relationId, $identifier]);
 
+    return implode('/', $cacheKey);
+  }
+
+  protected function getAllCacheIdentifier()
+  {
+    $relation = $this->getRelation();
+    $relation = $relation ? Str::plural($relation) : $relation;
+    $relationId = $this->getRelationId();
+
+    $cacheKey = array_filter([$relation, $relationId]);
+    
     return implode('/', $cacheKey);
   }
 }

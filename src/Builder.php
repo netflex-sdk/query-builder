@@ -202,7 +202,7 @@ class Builder
    */
   protected function compileNullQuery($field)
   {
-    return "(NOT _exists_:{$field})";
+    return "((NOT _exists_:{$field}) OR {$field}:0)";
   }
 
   /**
