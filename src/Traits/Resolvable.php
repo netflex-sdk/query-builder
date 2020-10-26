@@ -99,16 +99,34 @@ trait Resolvable
    */
   public static function all()
   {
-    return LazyCollection::make(static::resolvableContext(function ($resolvable) {
-      return function () use ($resolvable) {
-        $page = static::paginate($resolvable->perPage ?? 100);
-        do {
-          while ($item = $page->shift()) {
-            yield $item;
-          }
-        } while ($page = $page->next());
-      };
-    }));
+    return static::resolvableContext(function ($resolvable) {
+      if ($resolvable->useChunking) {
+        return static::chunked();
+      }
+
+      return static::maybeCacheResults(
+        $resolvable->getAllCacheIdentifier(),
+        $resolvable->cachesResults
+      )
+      ->raw('*')
+      ->get();
+    });
+  }
+
+  public static function chunked($chunkSize = null)
+  {
+    return static::resolvableContext(function ($resolvable) use ($chunkSize) {
+      $chunkSize = $chunkSize ?? $resolvable->perPage ?? 100;
+      return LazyCollection::make(function () use ($chunkSize) {
+          $page = static::paginate($chunkSize);
+          do {
+            while ($item = $page->shift()) {
+              yield $item;
+            }
+          } while ($page = $page->next());
+        }
+      );
+    });
   }
 
   /**
