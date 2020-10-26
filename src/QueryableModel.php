@@ -730,30 +730,12 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
   public function resolveRouteBinding($rawValue, $field = null)
   {
     $field = $field ?? $this->getResolvableField();
-    $value = "*$rawValue*";
-
-    $query = static::where($field, 'like', $value)
-      ->orWhere($field, '=', $rawValue);
-
+    $query = static::where($field, $rawValue)
+      ->orWhere($field, $rawValue . '/');
     /** @var static */
     if ($model = $query->first()) {
-      $value = $model->getRawOriginal($field);
-
-      if (is_string($value)) {
-        $mutatedValue = $value;
-        $mutatedValue = !Str::startsWith($rawValue, '/') ? ltrim($mutatedValue, '/') : $mutatedValue;
-        $mutatedValue = !Str::endsWith($rawValue, '/') ? rtrim($mutatedValue, '/') : $mutatedValue;
-
-        if ($mutatedValue == $rawValue) {
-          return $model;
-        }
-      }
-
-      if ($value == $rawValue) {
-        return $model;
-      }
+      return $model;
     }
-
     throw new NotFoundException;
   }
 
@@ -766,7 +748,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @throws NotQueryableException If object not queryable
    * @throws QueryException On invalid query
    */
-  public static function resolve ($rawValue, $field = null)
+  public static function resolve($rawValue, $field = null)
   {
     return with(new static)
       ->resolveRouteBinding($rawValue, $field);
