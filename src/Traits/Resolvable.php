@@ -93,7 +93,7 @@ trait Resolvable
   /**
    * Retrieves all instances
    *
-   * @return LazyCollection
+   * @return Collection|LazyCollection Returns LazyCollection if chunking is enabled on the model.
    * @throws NotQueryableException If object not queryable
    * @throws QueryException On invalid query
    */
