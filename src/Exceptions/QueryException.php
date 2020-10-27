@@ -5,6 +5,7 @@ namespace Netflex\Query\Exceptions;
 use Facade\IgnitionContracts\ProvidesSolution;
 use Facade\IgnitionContracts\Solution;
 use Facade\IgnitionContracts\BaseSolution;
+use Netflex\Query\Builder;
 
 class QueryException extends QueryBuilderException implements ProvidesSolution
 {
@@ -18,6 +19,11 @@ class QueryException extends QueryBuilderException implements ProvidesSolution
   {
     $this->query = $query;
     $this->error = $error;
+
+    foreach (Builder::REPLACEMENT_ENTITIES as $original => $replacement)
+    {
+      $this->query = str_replace($replacement, $original, $this->query);
+    }
 
     $message = ucfirst(implode(' ', explode('_', $this->error->message)));
     $reason = ucfirst(implode(' ', explode('_', $this->error->reason)));

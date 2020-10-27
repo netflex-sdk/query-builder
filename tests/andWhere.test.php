@@ -91,7 +91,7 @@ final class AndWhereTest extends TestCase
       ->andWhere('id', null);
 
     $this->assertSame(
-      '(id:10000) AND (((NOT _exists_:id) OR id:0))',
+      '(id:10000) AND ((NOT _exists_:id))',
       $query->getQuery()
     );
   }
@@ -140,7 +140,7 @@ final class AndWhereTest extends TestCase
       ->andWhere('id', [1, null, 'Test string', true, [1, null, 'Test string']]);
 
     $this->assertSame(
-      '(id:10000) AND ((id:1 OR ((NOT _exists_:id) OR id:0) OR id:"Test string" OR id:1 OR (id:1 OR ((NOT _exists_:id) OR id:0) OR id:"Test string")))',
+      '(id:10000) AND ((id:1 OR (NOT _exists_:id) OR id:"Test string" OR id:1 OR (id:1 OR (NOT _exists_:id) OR id:"Test string")))',
       $query->getQuery()
     );
   }
@@ -166,7 +166,7 @@ final class AndWhereTest extends TestCase
       ->andWhere('id', '!=', null);
 
     $this->assertSame(
-      '(id:10000) AND (NOT ((NOT _exists_:id) OR id:0))',
+      '(id:10000) AND (NOT (NOT _exists_:id))',
       $query->getQuery()
     );
   }
@@ -215,7 +215,7 @@ final class AndWhereTest extends TestCase
       ->andWhere('id', '!=', [1, null, 'Test string', true, [1, null, 'Test string']]);
 
     $this->assertSame(
-      '(id:10000) AND ((NOT id:1 OR NOT ((NOT _exists_:id) OR id:0) OR NOT id:"Test string" OR NOT id:1 OR (NOT id:1 OR NOT ((NOT _exists_:id) OR id:0) OR NOT id:"Test string")))',
+      '(id:10000) AND ((NOT id:1 OR NOT (NOT _exists_:id) OR NOT id:"Test string" OR NOT id:1 OR (NOT id:1 OR NOT (NOT _exists_:id) OR NOT id:"Test string")))',
       $query->getQuery()
     );
   }

@@ -124,6 +124,9 @@ class Builder
   /** @var string */
   protected $cacheKey;
 
+  /** @var bool */
+  protected $debug = false;
+
   /**
    * @param bool $respectPublishingStatus
    * @param array $query
@@ -202,7 +205,7 @@ class Builder
    */
   protected function compileNullQuery($field)
   {
-    return "((NOT _exists_:{$field}) OR {$field}:0)";
+    return "(NOT _exists_:{$field})";
   }
 
   /**
@@ -333,6 +336,18 @@ class Builder
         throw new InvalidOperatorException($operator);
         break;
     }
+  }
+
+  /**
+   * Sets the debug flag of the query
+   * Making the API reflect the compiled query in the output
+   * 
+   * @return static
+   */
+  public function debug()
+  {
+    $this->debug = true;
+    return $this;
   }
 
   /**
@@ -890,8 +905,12 @@ class Builder
       'relation_id' => $this->relation_id,
       'size' => $size ?? $this->size,
       'page' => $page,
-      'q' => urlencode($this->compileQuery())
+      'q' => urlencode($this->compileQuery()),
     ];
+
+    if ($this->debug) {
+      $params['debug'] = 1;
+    }
 
     $params = array_filter(array_map(function ($key) use ($params) {
       if ($params[$key]) {
