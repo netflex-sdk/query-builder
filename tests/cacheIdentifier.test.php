@@ -20,7 +20,7 @@ final class CacheIdentifierTest extends TestCase
     $this->assertSame('pages', $model->proxy('getAllCacheIdentifier'));
   }
 
-  public function testRelationId ()
+  public function testRelationId (): self
   {
     $model = new class extends QueryableModel {
       protected $relation = 'entry';
@@ -33,5 +33,7 @@ final class CacheIdentifierTest extends TestCase
 
     $this->assertSame('entry/10000/12345', $model->proxy('getCacheIdentifier', 12345));
     $this->assertSame('entries/10000', $model->proxy('getAllCacheIdentifier'));
+
+    return $this;
   }
 }
