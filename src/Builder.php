@@ -808,12 +808,14 @@ class Builder
   /**
    * Only include published results
    * Only applies to entry and page relations
+   * 
+   * @param bool
    *
    * @return static
    */
-  public function respectPublishingStatus()
+  public function respectPublishingStatus($respect = true)
   {
-    $this->respectPublishingStatus = true;
+    $this->respectPublishingStatus = $respect;
     return $this;
   }
 

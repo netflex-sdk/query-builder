@@ -94,6 +94,18 @@ trait Queryable
   }
 
   /**
+   * Override the publishing status for the model
+   * 
+   * @param bool $disregarding
+   * @return Builder
+   */
+  public static function disregardingPublishingStatus($disregarding = true)
+  {
+    return static::makeQueryBuilder()
+      ->respectPublishingStatus(!$disregarding);
+  }
+
+  /**
    * Adds a field that should be retrieved
    *
    * @param string $field
