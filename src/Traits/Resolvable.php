@@ -140,10 +140,14 @@ trait Resolvable
    */
   public static function resolve($resolveBy, $field = null)
   {
-    return static::resolvableContext(function ($resolvable) use ($resolveBy, $field) {
-      $query = static::where($field ?? $resolvable->getResolvableField(), Builder::OP_EQ, $resolveBy);
-      return is_array($resolveBy) ? $query->get() : $query->first();
-    });
+    try {
+      return static::resolvableContext(function ($resolvable) use ($resolveBy, $field) {
+        $query = static::where($field ?? $resolvable->getResolvableField(), Builder::OP_EQ, $resolveBy);
+        return is_array($resolveBy) ? $query->get() : $query->first();
+      });
+    } catch (ResolutionFailedException $e) {
+      return null;
+    }
   }
 
   /**

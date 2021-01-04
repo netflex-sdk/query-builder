@@ -31,6 +31,7 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Routing\UrlRoutable;
 use Netflex\Query\Exceptions\NotFoundException;
+use Netflex\Query\Exceptions\ResolutionFailedException;
 
 abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonSerializable, UrlRoutable
 {
@@ -758,8 +759,14 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    */
   public static function resolve($rawValue, $field = null)
   {
-    return with(new static)
-      ->resolveRouteBinding($rawValue, $field);
+    try {
+      return with(new static)
+        ->resolveRouteBinding($rawValue, $field);
+    } catch (NotFoundException $e) {
+      return null;
+    } catch (ResolutionFailedException $e) {
+      return null;
+    }
   }
 
   /**
