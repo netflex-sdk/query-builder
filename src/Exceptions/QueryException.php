@@ -25,8 +25,8 @@ class QueryException extends QueryBuilderException implements ProvidesSolution
       $this->query = str_replace($replacement, $original, $this->query);
     }
 
-    $message = ucfirst(implode(' ', explode('_', $this->error->message)));
-    $reason = ucfirst(implode(' ', explode('_', $this->error->reason)));
+    $message = isset($this->error->message) ? (ucfirst(implode(' ', explode('_', $this->error->message)))) : 'QueryExcception';
+    $reason = isset($this->error->reason) ? (ucfirst(implode(' ', explode('_', $this->error->reason)))) : $this->error->status ?? 'Unknown';
 
     parent::__construct("Query exception: " . $message . ' - ' . $reason);
   }
