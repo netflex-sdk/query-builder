@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Traits;
+namespace Netflex\Query\Traits;
 
 use Closure;
 use Netflex\Query\Builder;
