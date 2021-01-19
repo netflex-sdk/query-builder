@@ -108,8 +108,8 @@ trait Resolvable
         $resolvable->getAllCacheIdentifier(),
         $resolvable->cachesResults
       )
-      ->raw('*')
-      ->get();
+        ->raw('*')
+        ->get();
     });
   }
 
@@ -117,7 +117,8 @@ trait Resolvable
   {
     return static::resolvableContext(function ($resolvable) use ($chunkSize) {
       $chunkSize = $chunkSize ?? $resolvable->perPage ?? 100;
-      return LazyCollection::make(function () use ($chunkSize) {
+      return LazyCollection::make(
+        function () use ($chunkSize) {
           $page = static::paginate($chunkSize);
           do {
             while ($item = $page->shift()) {

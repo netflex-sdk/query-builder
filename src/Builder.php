@@ -18,9 +18,13 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Facade;
+use Illuminate\Support\Traits\Macroable;
+use Netflex\Query\Exceptions\NotFoundException;
 
 class Builder
 {
+  use Macroable;
+
   /** @var int The minimum allowed results per query */
   const MIN_QUERY_SIZE = 1;
 
@@ -127,15 +131,19 @@ class Builder
   /** @var bool */
   protected $debug = false;
 
+  /** @var callable[] */
+  protected $appends = [];
+
   /**
    * @param bool $respectPublishingStatus
    * @param array $query
    */
-  public function __construct(?bool $respectPublishingStatus = true, ?array $query = null, ?Closure $mapper = null)
+  public function __construct(?bool $respectPublishingStatus = true, ?array $query = null, ?Closure $mapper = null, $appends = [])
   {
     $this->query = $query ?? [];
     $this->mapper = $mapper;
     $this->respectPublishingStatus = $respectPublishingStatus ?? true;
+    $this->appends = $appends;
   }
 
   /**
@@ -747,6 +755,36 @@ class Builder
   }
 
   /**
+   * Retrieves the first result
+   *
+   * @return object|null
+   * @throws NotFoundException
+   * @throws QueryException
+   */
+  public function firstOrFail()
+  {
+    if ($model = $this->first()) {
+      return $model;
+    }
+
+    throw new NotFoundException;
+  }
+
+  /**
+   * Retrives all results for the given query, ignoring the query limit
+   * @return Collection
+   */
+  public function all()
+  {
+    $size = $this->size;
+    $this->size = static::MAX_QUERY_SIZE;
+    $results = $this->get();
+    $this->size = $size;
+
+    return $results;
+  }
+
+  /**
    * Returns random results for the given query
    * @param int|null $amount If not provided, will use the current query limit
    * @return Collection
@@ -844,6 +882,10 @@ class Builder
    */
   protected function compileQuery($scoped = false)
   {
+    foreach ($this->appends as $append) {
+      $append($this, $scoped);
+    }
+
     $query = $this->query;
     $compiledQuery =  implode(' AND ', array_filter(array_map(function ($term) {
       return trim($term) === '()' ? null : $term;

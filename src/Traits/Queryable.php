@@ -33,10 +33,11 @@ trait Queryable
   protected $defaultSortDirection;
 
   /**
+   * @param Closure[]
    * @return Builder
    * @throws NotQueryableException If object not queryable
    */
-  protected static function makeQueryBuilder()
+  protected static function makeQueryBuilder($appends = [])
   {
     if (!has_trait(static::class, HasRelation::class)) {
       throw new NotQueryableException;
@@ -57,7 +58,7 @@ trait Queryable
       return $item;
     };
 
-    $builder = (new Builder($respectPublishingStatus, null, $mapper))
+    $builder = (new Builder($respectPublishingStatus, null, $mapper, $appends))
       ->relation($relation, $relationId)
       ->assoc($hasMapper);
 
