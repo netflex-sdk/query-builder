@@ -32,10 +32,11 @@ use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Routing\UrlRoutable;
 use Netflex\Query\Exceptions\NotFoundException;
 use Netflex\Query\Exceptions\ResolutionFailedException;
+use Illuminate\Support\Traits\Macroable;
 
 abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonSerializable, UrlRoutable
 {
-  use GuardsAttributes, HasAttributes, HasEvents, HasRelation, HasTimestamps, HidesAttributes, ModelMapper, Queryable, Resolvable;
+  use GuardsAttributes, HasAttributes, HasEvents, HasRelation, HasTimestamps, HidesAttributes, ModelMapper, Queryable, Resolvable, Macroable;
 
   /**
    * The number of models to return for pagination.
