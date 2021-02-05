@@ -810,7 +810,8 @@ class Builder
     $random = [];
 
     if (count($result)) {
-      $keys = array_rand($result, min($amount, count($result)));
+      $amount = min(($amount ?? count($result)), count($result));
+      $keys = array_rand($result, $amount);
       $keys = !is_array($keys) ? [$keys] : $keys;
       $keys = array_values($keys);
 
