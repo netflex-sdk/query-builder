@@ -793,7 +793,7 @@ class Builder
   public function random($amount = null)
   {
     if ($amount) {
-      $this->limit = $amount;
+      $this->limit($amount);
     }
 
     $size = $this->size;
