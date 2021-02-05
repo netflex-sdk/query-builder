@@ -792,11 +792,13 @@ class Builder
    */
   public function random($amount = null)
   {
+    if ($amount) {
+      $this->limit = $amount;
+    }
+
     $size = $this->size;
     $fields = $this->fields;
     $query = $this->query;
-
-    $amount = $amount ?? $this->sizeHasBeenExplicitlySet ? $size : 1;
 
     $this->size = $amount;
     $this->fields = ['id'];
