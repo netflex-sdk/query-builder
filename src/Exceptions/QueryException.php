@@ -36,7 +36,7 @@ class QueryException extends QueryBuilderException implements ProvidesSolution
     $type = 'Invalid query';
     $reason = $this->query;
 
-    if (count($this->error->stack)) {
+    if (isset($this->error->stack) && count($this->error->stack)) {
       $type = implode(', ', array_unique(array_map(function ($stack) {
         return $stack->type;
       }, $this->error->stack)));
