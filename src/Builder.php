@@ -21,6 +21,8 @@ use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Traits\Macroable;
 use Netflex\Query\Exceptions\NotFoundException;
 
+use Netflex\Query\Traits\HasRelation;
+
 class Builder
 {
   use Macroable;
@@ -263,7 +265,7 @@ class Builder
   /**
    * @param string $field
    * @param string $operator|
-   * @param null|array|boolean|integer|string|DateTime $value
+   * @param null|array|Collection|boolean|integer|string|DateTime $value
    * @return string
    * @throws InvalidOperatorException If an invalid operator is passed
    */
@@ -279,7 +281,7 @@ class Builder
       throw new InvalidValueException($value);
     }
 
-    if (is_array($value)) {
+    if (is_array($value) || $value instanceof Collection) {
       $queries = [];
       foreach ($value as $item) {
         $queries[] = $this->compileWhereQuery($field, $operator, $item);
@@ -428,6 +430,14 @@ class Builder
 
     $this->sortDir = $direction;
     return $this;
+  }
+
+  public function model(string $model) {
+    /** @var QueryableModel */
+    $instance = new $model;
+    if (in_array(HasRelation::class, class_uses_recursive($instance))) {
+      $this->relations
+    }
   }
 
   /**
