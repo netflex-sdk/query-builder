@@ -4,7 +4,9 @@ namespace Netflex\Query;
 
 use Closure;
 use DateTime;
+
 use GuzzleHttp\Exception\BadResponseException;
+
 use Netflex\API\Facades\API;
 
 use Netflex\Query\Exceptions\QueryException;
@@ -13,15 +15,13 @@ use Netflex\Query\Exceptions\InvalidAssignmentException;
 use Netflex\Query\Exceptions\InvalidOperatorException;
 use Netflex\Query\Exceptions\InvalidSortingDirectionException;
 use Netflex\Query\Exceptions\InvalidValueException;
+use Netflex\Query\Exceptions\NotFoundException;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Traits\Macroable;
-use Netflex\Query\Exceptions\NotFoundException;
-
-use Netflex\Query\Traits\HasRelation;
 
 class Builder
 {
@@ -265,7 +265,7 @@ class Builder
   /**
    * @param string $field
    * @param string $operator|
-   * @param null|array|Collection|boolean|integer|string|DateTime $value
+   * @param null|array|Collection|boolean|integer|QueryableModel|string|DateTime $value
    * @return string
    * @throws InvalidOperatorException If an invalid operator is passed
    */
@@ -273,15 +273,29 @@ class Builder
   {
     $field = $this->compileField($field);
 
-    if (method_exists($value, '__toString')) {
-      $value = (string) $value;
+    if (is_object($value) && $value instanceof Collection) {
+      /** @var Collection */
+      $value = $value;
+      $value = $value->toArray();
+    }
+
+    if (is_object($value) && $value instanceof QueryableModel) {
+      /** @var QueryableModel */
+      $value = $value;
+      $value = $value->getKey();
+    }
+
+    if (is_object($value) && method_exists($value, '__toString')) {
+      /** @var object */
+      $value = $value;
+      $value = $value->__toString();
     }
 
     if (!in_array(gettype($value), static::VALUE_TYPES) || (is_object($value) && !in_array(get_class($value), static::VALUE_TYPES))) {
       throw new InvalidValueException($value);
     }
 
-    if (is_array($value) || $value instanceof Collection) {
+    if (is_array($value)) {
       $queries = [];
       foreach ($value as $item) {
         $queries[] = $this->compileWhereQuery($field, $operator, $item);
