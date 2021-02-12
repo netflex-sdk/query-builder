@@ -432,14 +432,6 @@ class Builder
     return $this;
   }
 
-  public function model(string $model) {
-    /** @var QueryableModel */
-    $instance = new $model;
-    if (in_array(HasRelation::class, class_uses_recursive($instance))) {
-      $this->relations
-    }
-  }
-
   /**
    * Sets the relation for the query
    *
