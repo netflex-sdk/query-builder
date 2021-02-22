@@ -969,6 +969,7 @@ class Builder
       'size' => $size ?? $this->size,
       'page' => $page,
       'q' => urlencode($this->compileQuery()),
+      'scores' => $this->orderBy === '_score' ? 1 : false
     ];
 
     if ($this->debug) {

@@ -342,4 +342,13 @@ trait Queryable
 
     return $amount === 1 ? $result->first() : $result;
   }
+
+  /**
+   * @param string $query 
+   * @return Builder 
+   * @throws NotQueryableException 
+   */
+  public static function query($query = '*') {
+    return static::raw($query);
+  }
 }
