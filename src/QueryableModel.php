@@ -172,15 +172,19 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    */
   const UPDATED_AT = 'updated';
 
-
   /**
    * @param array $attributes
+   * @param bool $boot Should this model boot it's bootable traits and emit events?
    */
-  public function __construct(array $attributes = [])
+  public function __construct(array $attributes = [], $boot = true)
   {
     $this->dateFormat = 'Y-m-d H:i:s';
-    $this->bootIfNotBooted();
-    $this->initializeTraits();
+
+    if ($boot) {
+      $this->bootIfNotBooted();
+      $this->initializeTraits();
+    }
+
     $this->fill($attributes);
   }
 
