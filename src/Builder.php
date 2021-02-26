@@ -988,6 +988,31 @@ class Builder
   }
 
   /**
+   * Conditional query
+   *
+   * @param boolean|Closure $clause 
+   * @param Closure $then 
+   * @param null|Closure $else 
+   * @return static
+   */
+  public function if($clause, Closure $then, ?Closure $else = null)
+  {
+    if (is_callable($clause)) {
+      $clause = $clause();
+    }
+
+    if ($clause) {
+      $then($this);
+    } else {
+      if (is_callable($else)) {
+        $else($this);
+      }
+    }
+
+    return $this;
+  }
+
+  /**
    * @return string
    */
   public function __toString()
