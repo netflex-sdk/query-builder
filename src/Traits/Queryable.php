@@ -7,14 +7,13 @@ use Closure;
 use Illuminate\Support\Facades\Cache;
 
 use Netflex\Query\Builder;
-use Netflex\Query\PaginatedResult;
 use Netflex\Query\QueryableModel;
 
 use Netflex\Query\Traits\HasRelation;
 
-
 use Netflex\Query\Exceptions\QueryException;
 use Netflex\Query\Exceptions\NotQueryableException;
+use Illuminate\Contracts\Pagination\Paginator;
 
 trait Queryable
 {
@@ -258,7 +257,7 @@ trait Queryable
    *
    * @param int $size
    * @param int $page
-   * @return PaginatedResult
+   * @return Paginator
    * @throws NotQueryableException If object not queryable
    * @throws QueryException On invalid query
    * @see \Netflex\Query\Builder::paginate
