@@ -31,9 +31,10 @@
   "require": {
     "php": "^7.3",
     "facade/ignition-contracts": "^1.0",
-    "illuminate/contracts": "^8.27",
-    "illuminate/database": "^8.27",
-    "illuminate/support": "^8.27",
+    "illuminate/contracts": "^8.0",
+    "illuminate/database": "^8.0",
+    "illuminate/pagination": "^8.0",
+    "illuminate/support": "^8.0",
     "larapack/dd": "1.1",
     "netflex/api": "^3.0"
   },

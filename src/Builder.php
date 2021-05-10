@@ -22,6 +22,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Traits\Macroable;
+use Illuminate\Contracts\Pagination\Paginator;
 
 class Builder
 {
@@ -679,12 +680,16 @@ class Builder
    *
    * @param int $size
    * @param int $page
-   * @return PaginatedResult
+   * @return Paginator
    * @throws QueryException
    */
   public function paginate($size = 100, $page = 1)
   {
-    return new PaginatedResult($this, (object) $this->fetch($size, $page), $this->mapper);
+    $originalSize = $this->size;
+    $this->size = $size;
+    $paginator =  PaginatedResult::fromBuilder($this, $page);
+    $this->size = $originalSize;
+    return $paginator;
   }
 
   /**
@@ -707,7 +712,7 @@ class Builder
    * @return object
    * @throws IndexNotFoundException|QueryException
    */
-  protected function fetch($size = null, $page = null)
+  public function fetch($size = null, $page = null)
   {
     try {
       $fetch = function () use ($size, $page) {
@@ -752,6 +757,11 @@ class Builder
     }
 
     return $hits;
+  }
+
+  public function getMapper()
+  {
+    return $this->mapper;
   }
 
   /**
@@ -1018,5 +1028,10 @@ class Builder
   public function __toString()
   {
     return $this->compileQuery();
+  }
+
+  public function getSize()
+  {
+    return $this->size;
   }
 }
