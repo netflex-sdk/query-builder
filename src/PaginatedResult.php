@@ -7,6 +7,9 @@ use Closure;
 use Illuminate\Support\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
+/**
+ * @method void setPath(string $path)
+ */
 class PaginatedResult extends LengthAwarePaginator
 {
   /**
