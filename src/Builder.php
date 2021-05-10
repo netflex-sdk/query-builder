@@ -680,7 +680,7 @@ class Builder
    *
    * @param int $size
    * @param int $page
-   * @return Paginator
+   * @return PaginatedResult
    * @throws QueryException
    */
   public function paginate($size = 100, $page = 1)
