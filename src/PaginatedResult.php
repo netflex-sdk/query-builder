@@ -16,6 +16,7 @@ class PaginatedResult extends LengthAwarePaginator
    */
   protected function __construct($data, $total, $per_page, $current_page, $onEachSide = 0)
   {
+    static::useBootstrap();
     parent::__construct($data, $total, $per_page, $current_page);
     $this->onEachSide($onEachSide);
   }
@@ -23,10 +24,10 @@ class PaginatedResult extends LengthAwarePaginator
   public static function fromBuilder(Builder $query, $page = 1, $onEachSide = 0)
   {
     $result = $query->fetch($query->getSize(), $page);
-    $total = $result ? ($result->total ?? 1) : 1;
-    $per_page = $query->getSize();
-    $current_page = $result ? ($result->current_page ?? 1) : 1;
-    $data = new Collection($result ? $result->data ?? [] : []);
+    $total = $result['total'] ?? 0;
+    $per_page = $result['per_page'] ?? 0;
+    $current_page = $result['current_page'] ?? 1;
+    $data = new Collection($result['data'] ?? []);
 
     if ($mapper = $query->getMapper()) {
       $data = $data->map($mapper);
