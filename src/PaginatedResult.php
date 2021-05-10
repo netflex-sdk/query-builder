@@ -24,7 +24,7 @@ class PaginatedResult extends LengthAwarePaginator
   {
     $result = $query->fetch($query->getSize(), $page);
     $total = $result ? ($result->total ?? 1) : 1;
-    $per_page = $result ? ($result->per_page ?? 0) : 0;
+    $per_page = $query->getSize();
     $current_page = $result ? ($result->current_page ?? 1) : 1;
     $data = new Collection($result ? $result->data ?? [] : []);
 
