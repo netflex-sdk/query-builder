@@ -7,11 +7,28 @@ use Closure;
 use Illuminate\Support\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
+use JsonSerializable;
+use Illuminate\Contracts\Support\Jsonable;
+
 /**
  * @method void setPath(string $path)
  */
 class PaginatedResult extends LengthAwarePaginator
 {
+  /**
+   * The default pagination view.
+   *
+   * @var string
+   */
+  public static $defaultView = 'pagination::bootstrap-4';
+
+  /**
+   * The default "simple" pagination view.
+   *
+   * @var string
+   */
+  public static $defaultSimpleView = 'pagination::simple-bootstrap-4';
+
   /**
    * @param Builder $query
    * @param object $result
@@ -19,7 +36,6 @@ class PaginatedResult extends LengthAwarePaginator
    */
   protected function __construct($data, $total, $per_page, $current_page, $onEachSide = 0)
   {
-    static::useBootstrap();
     parent::__construct($data, $total, $per_page, $current_page);
     $this->onEachSide($onEachSide);
   }
