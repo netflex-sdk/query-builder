@@ -61,6 +61,8 @@ trait Queryable
       ->relation($relation, $relationId)
       ->assoc($hasMapper);
 
+    $builder->setModel(static::class);
+
     if ($size) {
       $minSize = Builder::MIN_QUERY_SIZE;
       $maxSize = Builder::MAX_QUERY_SIZE;
@@ -347,7 +349,8 @@ trait Queryable
    * @return Builder 
    * @throws NotQueryableException 
    */
-  public static function query($query = '*') {
+  public static function query($query = '*')
+  {
     return static::raw($query);
   }
 }

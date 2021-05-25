@@ -137,6 +137,9 @@ class Builder
   /** @var callable[] */
   protected $appends = [];
 
+  /** @var string */
+  protected $model;
+
   /**
    * @param bool $respectPublishingStatus
    * @param array $query
@@ -147,6 +150,23 @@ class Builder
     $this->mapper = $mapper;
     $this->respectPublishingStatus = $respectPublishingStatus ?? true;
     $this->appends = $appends;
+  }
+
+  /**
+   * @param string $model
+   * @return void
+   */
+  public function setModel($model)
+  {
+    $this->model = $model;
+  }
+
+  /**
+   * @return string|null
+   */
+  public function getModel()
+  {
+    return $this->model;
   }
 
   /**
@@ -793,7 +813,13 @@ class Builder
       return $model;
     }
 
-    throw new NotFoundException;
+    $e = new NotFoundException;
+
+    if ($model = $this->getModel()) {
+      $e->setModel($model);
+    }
+
+    throw $e;
   }
 
   /**
