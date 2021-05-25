@@ -746,11 +746,16 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
     $field = $field ?? $this->getResolvableField();
     $query = static::where($field, $rawValue)
       ->orWhere($field, $rawValue . '/');
+
     /** @var static */
     if ($model = $query->first()) {
       return $model;
     }
-    throw new NotFoundException;
+
+    $e = new NotFoundException;
+    $e->setModel(static::class, [$rawValue]);
+
+    throw $e;
   }
 
   /**

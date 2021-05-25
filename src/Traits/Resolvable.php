@@ -72,7 +72,10 @@ trait Resolvable
       return $first;
     }
 
-    throw new NotFoundException;
+    $e = new NotFoundException;
+    $e->setModel(static::class);
+
+    throw $e;
   }
 
   /**
@@ -223,7 +226,10 @@ trait Resolvable
       return $found;
     }
 
-    throw new NotFoundException;
+    $e = new NotFoundException;
+    $e->setModel(static::class, collect($findBy)->flatten()->toArray());
+
+    throw $e;
   }
 
   /**
