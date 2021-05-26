@@ -720,7 +720,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    */
   public function getRouteKey()
   {
-    return $this->getAttribute($this->getRouteKeyName());
+    return trim($this->getAttribute($this->getRouteKeyName()), '/');
   }
 
   /**
