@@ -153,6 +153,18 @@ class Builder
   }
 
   /**
+   * Append a query modifier
+   *
+   * @param Closure $callback
+   * @return static
+   */
+  public function append($callback)
+  {
+    $this->appends[] = $callback;
+    return $this;
+  }
+
+  /**
    * @param string $model
    * @return void
    */
