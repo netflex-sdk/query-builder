@@ -34,7 +34,7 @@ final class OrderTest extends TestCase
     $query->orderBy('should-encode');
 
     $this->assertSame(
-      'search?order=should##D##encode&size=' . Builder::MAX_QUERY_SIZE,
+      'search?order=should%23%23D%23%23encode&size=' . Builder::MAX_QUERY_SIZE,
       $query->getRequest()
     );
   }

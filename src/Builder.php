@@ -1009,7 +1009,7 @@ class Builder
   protected function compileRequest($size = null, $page = null)
   {
     $params = [
-      'order' => $this->orderBy,
+      'order' => urlencode($this->orderBy),
       'dir' => $this->sortDir,
       'relation' => $this->relations ? implode(',', $this->relations) : null,
       'fields' => $this->fields ? implode(',', $this->fields) : null,
