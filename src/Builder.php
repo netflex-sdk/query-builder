@@ -159,9 +159,15 @@ class Builder
    * @param string|null $connection
    * @return static
    */
-  public function setConnectionName ($connection) {
+  public function setConnectionName ($connection)
+  {
     $this->connection = $connection;
     return $this;
+  }
+
+  public function getConnectionName ()
+  {
+    return $this->connection ?? 'default';
   }
 
   /**
@@ -169,7 +175,7 @@ class Builder
    */
   public function getConnection (): APIClient
   {
-    return APIClientConnectionResolver::resolve($this->connection ?? 'default');
+    return APIClientConnectionResolver::resolve($this->getConnectionName());
   }
 
   /**
