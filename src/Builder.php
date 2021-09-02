@@ -7,7 +7,8 @@ use DateTime;
 
 use GuzzleHttp\Exception\BadResponseException;
 
-use Netflex\API\Facades\API;
+use Netflex\API\Contracts\APIClient;
+use Netflex\API\Facades\APIClientConnectionResolver;
 
 use Netflex\Query\Exceptions\QueryException;
 use Netflex\Query\Exceptions\IndexNotFoundException;
@@ -22,7 +23,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Traits\Macroable;
-use Illuminate\Contracts\Pagination\Paginator;
 
 class Builder
 {
@@ -95,6 +95,9 @@ class Builder
     Builder::OP_LIKE
   ];
 
+  /** @var APIClient */
+  protected $connection;
+
   /** @var array */
   protected $fields;
 
@@ -150,6 +153,23 @@ class Builder
     $this->mapper = $mapper;
     $this->respectPublishingStatus = $respectPublishingStatus ?? true;
     $this->appends = $appends;
+  }
+
+  /**
+   * @param string|null $connection
+   * @return static
+   */
+  public function setConnectionName ($connection) {
+    $this->connection = $connection;
+    return $this;
+  }
+
+  /**
+   * @return APIClient
+   */
+  public function getConnection (): APIClient
+  {
+    return APIClientConnectionResolver::resolve($this->connection ?? 'default');
   }
 
   /**
@@ -748,7 +768,8 @@ class Builder
   {
     try {
       $fetch = function () use ($size, $page) {
-        return API::get($this->compileRequest($size, $page), $this->assoc);
+        return $this->getConnection()
+          ->get($this->compileRequest($size, $page), $this->assoc);
       };
 
       if ($this->shouldCache) {

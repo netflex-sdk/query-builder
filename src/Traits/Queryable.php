@@ -62,6 +62,7 @@ trait Queryable
       ->assoc($hasMapper);
 
     $builder->setModel(static::class);
+    $builder->setConnection($queryable->getConnectionName());
 
     if ($size) {
       $minSize = Builder::MIN_QUERY_SIZE;
