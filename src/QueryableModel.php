@@ -33,10 +33,20 @@ use Illuminate\Contracts\Routing\UrlRoutable;
 use Netflex\Query\Exceptions\NotFoundException;
 use Netflex\Query\Exceptions\ResolutionFailedException;
 use Illuminate\Support\Traits\Macroable;
+use Netflex\API\Contracts\APIClient;
+use Netflex\API\Facades\API;
+use Netflex\API\Facades\APIClientConnectionResolver;
 
 abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonSerializable, UrlRoutable
 {
   use GuardsAttributes, HasAttributes, HasEvents, HasRelation, HasTimestamps, HidesAttributes, ModelMapper, Queryable, Resolvable, Macroable;
+
+  /**
+   * The connection name for the model.
+   *
+   * @var string|null
+   */
+  protected $connection;
 
   /**
    * The number of models to return for pagination.
@@ -186,6 +196,39 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
     }
 
     $this->fill($attributes);
+  }
+
+  /**
+   * Get the api connection for the model.
+   *
+   * @return APIClient
+   */
+  public function getConnection()
+  {
+    return APIClientConnectionResolver::resolve($this->getConnectionName());
+  }
+
+  /**
+   * Get the current connection name for the model.
+   *
+   * @return string|null
+   */
+  public function getConnectionName()
+  {
+    return $this->connection ?? 'default';
+  }
+
+  /**
+   * Set the connection associated with the model.
+   *
+   * @param  string|null  $name
+   * @return $this
+   */
+  public function setConnection($name)
+  {
+    $this->connection = $name;
+
+    return $this;
   }
 
   /**
