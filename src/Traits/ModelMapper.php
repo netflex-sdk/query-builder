@@ -11,6 +11,8 @@ trait ModelMapper
    */
   protected function getMapper()
   {
+    /** @var QueryableModel $this */
+
     return function ($attributes) {
       return (new static)->newFromBuilder($attributes);
     };
