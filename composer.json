@@ -36,7 +36,7 @@
     "illuminate/pagination": "^8.0",
     "illuminate/support": "^8.0",
     "larapack/dd": "1.1",
-    "netflex/api": "^3.3"
+    "netflex/api": "^3.4"
   },
   "require-dev": {
     "illuminate/cache": "^8.0",
