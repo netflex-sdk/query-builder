@@ -891,7 +891,7 @@ class Builder
     $fields = $this->fields;
     $query = $this->query;
 
-    $this->size = $amount;
+    $this->size = static::MAX_QUERY_SIZE;
     $this->fields = ['id'];
 
     $result = array_map(function ($result) {
@@ -911,6 +911,7 @@ class Builder
       }
     }
 
+    $this->size = $size;
     $this->fields = $fields;
     $this->query = [];
 
@@ -925,6 +926,7 @@ class Builder
 
     return $result->shuffle()->values();
   }
+
   /**
    * Also include unpublished results
    * Only applies to entry and page relations
