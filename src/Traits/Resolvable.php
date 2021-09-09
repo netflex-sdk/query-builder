@@ -19,11 +19,13 @@ trait Resolvable
 {
   protected function getPrimaryField()
   {
+    /** @var QueryableModel $this */
     return $this->primaryField ?? 'id';
   }
 
   protected function getResolvableField()
   {
+    /** @var QueryableModel $this */
     return $this->resolvableField ?? 'url';
   }
 

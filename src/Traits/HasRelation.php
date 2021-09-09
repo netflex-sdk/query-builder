@@ -3,6 +3,7 @@
 namespace Netflex\Query\Traits;
 
 use Illuminate\Support\Str;
+use Netflex\Query\QueryableModel;
 
 trait HasRelation
 {
@@ -13,6 +14,7 @@ trait HasRelation
    */
   public function getRelation()
   {
+    /** @var QueryableModel $this */
     return $this->relation ?? null;
   }
 
@@ -23,6 +25,7 @@ trait HasRelation
    */
   public function getRelationId()
   {
+    /** @var QueryableModel $this */
     return $this->relationId ?? null;
   }
 
@@ -35,21 +38,35 @@ trait HasRelation
    */
   protected function getCacheIdentifier($identifier = null)
   {
+    /** @var QueryableModel $this */
+
+    $prefix = null;
     $relation = $this->getRelation();
     $relationId = $this->getRelationId();
 
-    $cacheKey = array_filter([$relation, $relationId, $identifier]);
+    if (method_exists($this, 'getConnectionName') && $this->getConnectionName() !== 'default') {
+      $prefix = $this->getConnectionName();
+    }
+
+    $cacheKey = array_filter([$prefix, $relation, $relationId, $identifier]);
 
     return implode('/', $cacheKey);
   }
 
   protected function getAllCacheIdentifier()
   {
+    /** @var QueryableModel $this */
+
+    $prefix = null;
     $relation = $this->getRelation();
     $relation = $relation ? Str::plural($relation) : $relation;
     $relationId = $this->getRelationId();
 
-    $cacheKey = array_filter([$relation, $relationId]);
+    if (method_exists($this, 'getConnectionName') && $this->getConnectionName() !== 'default') {
+      $prefix = $this->getConnectionName();
+    }
+
+    $cacheKey = array_filter([$prefix, $relation, $relationId]);
     
     return implode('/', $cacheKey);
   }

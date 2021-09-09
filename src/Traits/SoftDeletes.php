@@ -101,6 +101,8 @@ trait SoftDeletes
      */
     public function initializeSoftDeletes()
     {
+        /** @var QueryableModel $this */
+
         if (!isset($this->casts[$this->getDeletedAtColumn()])) {
             $this->casts[$this->getDeletedAtColumn()] = 'datetime';
         }
@@ -113,6 +115,8 @@ trait SoftDeletes
      */
     public function forceDelete()
     {
+        /** @var QueryableModel $this */
+
         $this->forceDeleting = true;
 
         return tap($this->delete(), function ($deleted) {
@@ -131,6 +135,8 @@ trait SoftDeletes
      */
     protected function performDeleteOnModel()
     {
+        /** @var QueryableModel $this */
+
         if ($this->forceDeleting) {
             $this->exists = false;
 
@@ -147,6 +153,8 @@ trait SoftDeletes
      */
     protected function runSoftDelete()
     {
+        /** @var QueryableModel $this */
+
         $this->attributes[$this->getDeletedAtColumn()] = $this->freshTimestamp();
         return (bool) $this->save();
     }
@@ -158,6 +166,8 @@ trait SoftDeletes
      */
     public function restore()
     {
+        /** @var QueryableModel $this */
+
         if ($this->exists) {
             // If the restoring event does not return false, we will proceed with this
             // restore operation. Otherwise, we bail out so the developer will stop
@@ -190,6 +200,7 @@ trait SoftDeletes
      */
     public function trashed()
     {
+        /** @var QueryableModel $this */
         return !!($this->attributes[$this->getDeletedAtColumn()] ?? false);
     }
 
@@ -233,6 +244,7 @@ trait SoftDeletes
      */
     public function isForceDeleting()
     {
+        /** @var QueryableModel $this */
         return $this->forceDeleting;
     }
 
@@ -243,6 +255,7 @@ trait SoftDeletes
      */
     public function getDeletedAtColumn()
     {
+        /** @var QueryableModel $this */
         return defined('static::DELETED_AT') ? static::DELETED_AT : 'deleted_at';
     }
 }

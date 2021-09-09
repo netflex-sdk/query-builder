@@ -38,6 +38,8 @@ trait Queryable
    */
   protected static function makeQueryBuilder($appends = [])
   {
+    /** @var QueryableModel $this */
+
     if (!has_trait(static::class, HasRelation::class)) {
       throw new NotQueryableException;
     }
@@ -93,6 +95,7 @@ trait Queryable
    */
   public function respectPublishingStatus()
   {
+    /** @var QueryableModel $this */
     return $this->respectPublishingStatus ?? true;
   }
 
