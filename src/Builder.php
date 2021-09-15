@@ -850,6 +850,16 @@ class Builder
   }
 
   /**
+   * @param callable $mapper
+   * @return static
+   */
+  public function setMapper (callable $mapper)
+  {
+    $this->mapper = $mapper;
+    return $this;
+  }
+
+  /**
    * Retrieves the first result
    *
    * @return object|null
