@@ -156,6 +156,15 @@ class Builder
   }
 
   /**
+   * @param string|null $name
+   * @return static
+   */
+  public function connection ($name)
+  {
+    return $this->setConnectionName($name);
+  }
+
+  /**
    * @param string|null $connection
    * @return static
    */
