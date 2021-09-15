@@ -34,7 +34,6 @@ use Netflex\Query\Exceptions\NotFoundException;
 use Netflex\Query\Exceptions\ResolutionFailedException;
 use Illuminate\Support\Traits\Macroable;
 use Netflex\API\Contracts\APIClient;
-use Netflex\API\Facades\API;
 use Netflex\API\Facades\APIClientConnectionResolver;
 
 abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonSerializable, UrlRoutable

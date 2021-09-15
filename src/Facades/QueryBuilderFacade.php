@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Facade;
 
 /**
  * @method static ?object first()
+ * @method static \Netflex\Query\Builder connection(string $connection)
  * @method static \Illuminate\Support\Collection get()
  * @method static \Netflex\Query\Builder andWhere(string $field, string $operator, null|array|boolean|integer|string|\DateTime $value)
  * @method static \Netflex\Query\Builder field(string $field)
