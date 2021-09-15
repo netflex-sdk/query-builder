@@ -61,6 +61,8 @@ class SearchServiceProvider extends ServiceProvider
 
                 return $defaultMapper ? $defaultMapper($item) : $item;
             });
+
+        return $search;
     });
   }   
 }
