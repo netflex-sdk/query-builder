@@ -30,30 +30,22 @@ class SearchServiceProvider extends ServiceProvider
                 $class = null;
 
                 if (isset($item['group_id']) && isset($item['mail'])) {
-                    $customerClass = Config::get('auth.providers.users.model', Customer::class);
-                    
-                    if (class_exists($customerClass)) {
-                        $class = $customerClass;
-                    }
+                    $class = Config::get('auth.providers.users.model', Customer::class);
                 }
 
                 if (isset($item['directory_id']) && class_exists(Structure::class)) {
-                    $entryClass = Structure::resolveModel($item['directory_id']);
-                    
-                    if (class_exists($entryClass)) {
-                        $class = $entryClass;
-                    }
+                    $class = Structure::resolveModel($item['directory_id']);
                 }
 
-                if (isset($item['group_id']) && isset($item['content']) && class_exists(Page::class)) {
+                if (isset($item['group_id']) && isset($item['content'])) {
                     $class = Page::class;
                 }
 
-                if (isset($item['status']) && isset($item['secret']) && class_exists(Order::class)) {
+                if (isset($item['status']) && isset($item['secret'])) {
                     $class = Order::class;
                 }
 
-                if ($class && class_exists($class)) {
+                if ($class) {
                     /** @var QueryableModel $model */
                     $model = new $class;
                     return $model->newFromBuilder($item);
