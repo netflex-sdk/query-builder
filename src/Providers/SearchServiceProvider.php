@@ -7,6 +7,9 @@ use Illuminate\Support\ServiceProvider;
 
 use Netflex\Query\Builder;
 
+use Netflex\Structure\File;
+use Netflex\Structure\Image;
+
 use Netflex\Customers\Customer;
 use Netflex\Structure\Structure;
 
@@ -39,6 +42,14 @@ class SearchServiceProvider extends ServiceProvider
 
                 if (isset($item['group_id']) && isset($item['content'])) {
                     $class = Page::class;
+                }
+
+                if (isset($item['folder_id']) && isset($item['path'])) {
+                    $class = File::class;
+
+                    if (isset($item['img_width'])) {
+                        $class = Image::class;
+                    }
                 }
 
                 if (isset($item['status']) && isset($item['secret'])) {
