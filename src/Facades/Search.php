@@ -1,9 +1,12 @@
 <?php
 
-namespace Netflex\Query\Facades;
+namespace Netflex\Query\Search;
+
+use Netflex\Query\QueryableModel;
+use Illuminate\Support\Facades\Facade;
 
 /**
- * @method static ?object first()
+ * @method static QueryableModel|null first()
  * @method static \Netflex\Query\Builder connection(string $connection)
  * @method static \Illuminate\Support\Collection get()
  * @method static \Netflex\Query\Builder andWhere(string $field, string $operator, null|array|boolean|integer|string|\DateTime $value)
@@ -29,7 +32,8 @@ namespace Netflex\Query\Facades;
  * @method static string getRequest()
  * @see \Netflex\Query\Builder
  */
-class QueryBuilderAssocFacade extends QueryBuilderFacade {
+class Search extends Facade
+{
   /**
    * Get the registered name of the component.
    *
@@ -37,6 +41,6 @@ class QueryBuilderAssocFacade extends QueryBuilderFacade {
    */
   protected static function getFacadeAccessor()
   {
-    return 'QueryBuilder.assoc';
+    return 'Search';
   }
 }

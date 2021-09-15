@@ -18,6 +18,9 @@ use Netflex\Query\Exceptions\InvalidSortingDirectionException;
 use Netflex\Query\Exceptions\InvalidValueException;
 use Netflex\Query\Exceptions\NotFoundException;
 
+use Netflex\Structure\Model;
+use Netflex\Structure\Structure;
+
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -153,6 +156,15 @@ class Builder
     $this->mapper = $mapper;
     $this->respectPublishingStatus = $respectPublishingStatus ?? true;
     $this->appends = $appends;
+  }
+
+  /**
+   * @param string|null $name
+   * @return static
+   */
+  public function connection ($name)
+  {
+    return $this->setConnectionName($name);
   }
 
   /**
@@ -514,6 +526,20 @@ class Builder
    */
   public function relation(?string $relation, ?int $relation_id = null)
   {
+    if (class_exists($relation)) {
+      /** @var QueryableModel $model */
+      $model = new $relation;
+
+      if ($model instanceof QueryableModel) {
+        $relation = $model->getRelation();
+        $relation_id = $model->getRelationId();
+
+        if (class_exists(Structure::class) && $model instanceof Model) {
+          Structure::registerModel(get_class($model));
+        }
+      }
+    }
+
     if ($relation) {
       $this->relations = $this->relations ?? [];
       $this->relations[] = Str::singular($relation);
@@ -821,6 +847,16 @@ class Builder
   public function getMapper()
   {
     return $this->mapper;
+  }
+
+  /**
+   * @param callable $mapper
+   * @return static
+   */
+  public function setMapper (callable $mapper)
+  {
+    $this->mapper = $mapper;
+    return $this;
   }
 
   /**
