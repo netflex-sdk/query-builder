@@ -1,6 +1,6 @@
 <?php
 
-namespace Netflex\Query\Search;
+namespace Netflex\Query\Facades;
 
 use Netflex\Query\QueryableModel;
 use Illuminate\Support\Facades\Facade;
