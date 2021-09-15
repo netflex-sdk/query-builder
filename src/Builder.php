@@ -18,6 +18,9 @@ use Netflex\Query\Exceptions\InvalidSortingDirectionException;
 use Netflex\Query\Exceptions\InvalidValueException;
 use Netflex\Query\Exceptions\NotFoundException;
 
+use Netflex\Structure\Model;
+use Netflex\Structure\Structure;
+
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -523,6 +526,20 @@ class Builder
    */
   public function relation(?string $relation, ?int $relation_id = null)
   {
+    if (class_exists($relation)) {
+      /** @var QueryableModel $model */
+      $model = new $relation;
+
+      if ($model instanceof QueryableModel) {
+        $relation = $model->getRelation();
+        $relation_id = $model->getRelationId();
+
+        if (class_exists(Structure::class) && $model instanceof Model) {
+          Structure::registerModel(get_class($model));
+        }
+      }
+    }
+
     if ($relation) {
       $this->relations = $this->relations ?? [];
       $this->relations[] = Str::singular($relation);
