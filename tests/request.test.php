@@ -46,7 +46,7 @@ final class RequestTest extends TestCase
     $query->relation('entry', 10000);
 
     $this->assertSame(
-      'search?relation=entry&relation_id=10000&size=' . Builder::MAX_QUERY_SIZE,
+      'search?relation=entry&relation_id=10000&size=' . Builder::MAX_QUERY_SIZE . '&q=' . urlencode('directory_id:10000'),
       $query->getRequest()
     );
 
