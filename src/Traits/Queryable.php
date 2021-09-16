@@ -182,6 +182,19 @@ trait Queryable
   }
 
   /**
+   * Performs a 'publishedAt' query
+   *
+   * @param string|DateTimeInterface|null $date
+   * @return Builder
+   * @throws NotQueryableException If object not queryable
+   * @see \Netflex\Query\Builder::publishedAt
+   */
+  public static function publishedAt(...$args)
+  {
+    return static::makeQueryBuilder()->publishedAt(...$args);
+  }
+
+  /**
    * Performs a 'where' query
    *
    * If a closure is passed as the only argument, a new query scope will be created.
@@ -189,7 +202,7 @@ trait Queryable
    *
    * @param Closure|string $field
    * @param string $operator
-   * @param null|array|boolean|integer|string|DateTime $value
+   * @param null|array|boolean|integer|string|DateTimeInterface $value
    * @return Builder
    * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::where
@@ -221,7 +234,7 @@ trait Queryable
    *
    * @param Closure|string $field
    * @param string $operator
-   * @param null|array|boolean|integer|string|DateTime $value
+   * @param null|array|boolean|integer|string|DateTimeInterface $value
    * @return Builder
    * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::whereNot
@@ -235,8 +248,8 @@ trait Queryable
    * Queries where field is between $from and $to
    *
    * @param string $field
-   * @param @param null|array|boolean|integer|string|DateTime $from
-   * @param @param null|array|boolean|integer|string|DateTime $to
+   * @param @param null|array|boolean|integer|string|DateTimeInterface $from
+   * @param @param null|array|boolean|integer|string|DateTimeInterface $to
    * @return Builder
    * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::whereBetween
@@ -250,8 +263,8 @@ trait Queryable
    * Queries where field is not between $from and $to
    *
    * @param string $field
-   * @param @param null|array|boolean|integer|string|DateTime $from
-   * @param @param null|array|boolean|integer|string|DateTime $to
+   * @param @param null|array|boolean|integer|string|DateTimeInterface $from
+   * @param @param null|array|boolean|integer|string|DateTimeInterface $to
    * @return Builder
    * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::whereNotBetween

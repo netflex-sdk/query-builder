@@ -8,7 +8,7 @@ final class LimitTest extends TestCase
 {
   public function testDefaultLimit()
   {
-    $query = new Builder();
+    $query = new Builder(false);
 
     $this->assertSame(
       'search?size=' . Builder::MAX_QUERY_SIZE,
