@@ -9,7 +9,7 @@ final class RawTest extends TestCase
   public function testCanPerformRawQuery()
   {
     $raw = '(id:1)';
-    $query = new Builder();
+    $query = new Builder(false);
     $query->raw($raw);
 
     $this->assertSame(
@@ -25,7 +25,7 @@ final class RawTest extends TestCase
       '(id:2)'
     ];
 
-    $query = new Builder();
+    $query = new Builder(false);
     $query->raw($queries[0]);
     $query->raw($queries[1]);
 

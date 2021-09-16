@@ -9,7 +9,7 @@ final class OrderTest extends TestCase
 {
   public function testDefaultOrder()
   {
-    $query = new Builder();
+    $query = new Builder(false);
 
     $this->assertSame(
       'search?size=' . Builder::MAX_QUERY_SIZE,
@@ -19,7 +19,7 @@ final class OrderTest extends TestCase
 
   public function testCanOrderByField()
   {
-    $query = new Builder();
+    $query = new Builder(false);
     $query->orderBy('name');
 
     $this->assertSame(
@@ -30,7 +30,7 @@ final class OrderTest extends TestCase
 
   public function testCanOrderBySpecialEntitiesField()
   {
-    $query = new Builder();
+    $query = new Builder(false);
     $query->orderBy('should-encode');
 
     $this->assertSame(
@@ -41,7 +41,7 @@ final class OrderTest extends TestCase
 
   public function testCanSetSortingDirection()
   {
-    $query = new Builder();
+    $query = new Builder(false);
     $query->orderBy('name', Builder::DIR_DESC);
 
     $this->assertSame(
@@ -49,7 +49,7 @@ final class OrderTest extends TestCase
       $query->getRequest()
     );
 
-    $query = new Builder();
+    $query = new Builder(false);
     $query->orderBy('name', Builder::DIR_ASC);
 
     $this->assertSame(
@@ -60,7 +60,7 @@ final class OrderTest extends TestCase
 
   public function testCanSetSortingDirectionStandalone()
   {
-    $query = new Builder();
+    $query = new Builder(false);
     $query->orderBy('name');
     $query->orderDirection(Builder::DIR_DESC);
 
@@ -69,7 +69,7 @@ final class OrderTest extends TestCase
       $query->getRequest()
     );
 
-    $query = new Builder();
+    $query = new Builder(false);
     $query->orderBy('name');
     $query->orderDirection(Builder::DIR_ASC);
 
@@ -81,7 +81,7 @@ final class OrderTest extends TestCase
 
   public function testHandlesInvalidSortingDirection()
   {
-    $query = new Builder();
+    $query = new Builder(false);
 
     $this->expectException(InvalidSortingDirectionException::class);
     $query->orderDirection('invalid');

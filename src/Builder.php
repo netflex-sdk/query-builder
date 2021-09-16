@@ -3,10 +3,10 @@
 namespace Netflex\Query;
 
 use Closure;
-use DateTime;
+use DateTimeInterface;
 
 use GuzzleHttp\Exception\BadResponseException;
-
+use Illuminate\Support\Carbon;
 use Netflex\API\Contracts\APIClient;
 use Netflex\API\Facades\APIClientConnectionResolver;
 
@@ -243,7 +243,7 @@ class Builder
   }
 
   /**
-   * @param null|array|boolean|integer|string|DateTime $value
+   * @param null|array|boolean|integer|string|DateTimeInterface $value
    * @param string $operator
    * @return mixed
    */
@@ -262,7 +262,7 @@ class Builder
     }
 
     if (is_object($value)) {
-      if ($value instanceof DateTime) {
+      if ($value instanceof DateTimeInterface) {
         return $this->escapeValue($value->format('Y-m-d h:i:s'), $operator);
       }
     }
@@ -272,7 +272,7 @@ class Builder
 
   /**
    * @param string $field
-   * @param null|array|boolean|integer|string|DateTime $value
+   * @param null|array|boolean|integer|string|DateTimeInterface $value
    * @return string
    */
   protected function compileTermQuery(string $field, $value)
@@ -336,7 +336,7 @@ class Builder
   /**
    * @param string $field
    * @param string $operator|
-   * @param null|array|Collection|boolean|integer|QueryableModel|string|DateTime $value
+   * @param null|array|Collection|boolean|integer|QueryableModel|string|DateTimeInterface $value
    * @return string
    * @throws InvalidOperatorException If an invalid operator is passed
    */
@@ -613,7 +613,7 @@ class Builder
    *
    * @param Closure|string $field
    * @param string $operator
-   * @param null|array|boolean|integer|string|DateTime $value
+   * @param null|array|boolean|integer|string|DateTimeInterface $value
    * @return static
    */
   public function where(...$args)
@@ -653,8 +653,8 @@ class Builder
    * Queries where field is between $from and $to
    *
    * @param string $field
-   * @param null|array|boolean|integer|string|DateTime $from
-   * @param null|array|boolean|integer|string|DateTime $to
+   * @param null|array|boolean|integer|string|DateTimeInterface $from
+   * @param null|array|boolean|integer|string|DateTimeInterface $to
    * @return static
    */
   public function whereBetween(string $field, $from, $to)
@@ -670,8 +670,8 @@ class Builder
    * Queries where field is not between $from and $to
    *
    * @param string $field
-   * @param null|array|boolean|integer|string|DateTime $from
-   * @param null|array|boolean|integer|string|DateTime $to
+   * @param null|array|boolean|integer|string|DateTimeInterface $from
+   * @param null|array|boolean|integer|string|DateTimeInterface $to
    * @return static
    */
   public function whereNotBetween(string $field, $from, $to)
@@ -691,7 +691,7 @@ class Builder
    *
    * @param Closure|string $field
    * @param string $operator
-   * @param null|array|boolean|integer|string|DateTime $value
+   * @param null|array|boolean|integer|string|DateTimeInterface $value
    * @return static
    */
   public function whereNot(...$args)
@@ -723,7 +723,7 @@ class Builder
    *
    * @param Closure|string $field
    * @param string $operator
-   * @param null|array|boolean|integer|string|DateTime $value
+   * @param null|array|boolean|integer|string|DateTimeInterface $value
    * @return static
    * @throws InvalidAssignmentException If left hand side of query is not set
    */
@@ -745,7 +745,7 @@ class Builder
    *
    * @param Closure|string $field
    * @param string $operator
-   * @param null|array|boolean|integer|string|DateTime $value
+   * @param null|array|boolean|integer|string|DateTimeInterface $value
    * @return static
    * @throws InvalidAssignmentException If left hand side of query is not set
    */
@@ -1009,61 +1009,64 @@ class Builder
   }
 
   /**
+   * @param string|DateTimeInterface|null $date
+   */
+  function publishedAt ($date) {
+    $date = Carbon::parse($date);
+
+    $this->respectPublishingStatus(false);
+
+    $this->query[] = $this->compileScopedQuery([function (Builder $query) use ($date) {
+      return $query->where('published', true)
+        ->andWhere(function (Builder $query) use ($date) {
+          return $query->where('use_time', false)
+            ->orWhere(function (Builder $query) use ($date) {
+              return $query->where('use_time', true)
+                ->where(function (Builder $query) use ($date) {
+                  return $query->where('start', '!=', null)
+                    ->where('stop', '!=', null)
+                    ->where('start', '<=', $date->toDateTimeString())
+                    ->where('stop', '>=', $date->toDateTimeString());
+                })->orWhere(function (Builder $query) use ($date) {
+                  return $query->where('start', '!=', null)
+                    ->where('stop', '=', null)
+                    ->where('start', '<=', $date->toDateTimeString());
+                })->orWhere(function (Builder $query) use ($date) {
+                  return $query->where('start',  '=', null)
+                    ->where('stop', '!=', null)
+                    ->where('stop', '>=', $date->toDateTimeString());
+                })->orWhere(function (Builder $query) {
+                  return $query->where('start', '=', null)
+                    ->where('stop', '=', null);
+                });
+              });
+            });
+    }]);
+
+    return $this;
+  }
+
+  /**
    * @param bool $scoped
    * @return string
    */
   protected function compileQuery($scoped = false)
   {
+    if (!$scoped && $this->respectPublishingStatus) {
+      $this->publishedAt(Carbon::now());
+    }
+
     foreach ($this->appends as $append) {
       $append($this, $scoped);
     }
 
-    $query = $this->query;
+    if (!$scoped && $this->hasRelation('entry') && $this->relation_id) {
+      $this->where('directory_id', '=', $this->relation_id);
+    }
+
     $compiledQuery =  implode(' AND ', array_filter(array_map(function ($term) {
       return trim($term) === '()' ? null : $term;
-    }, $query)));
-
-    $respectPublishedQuery = null;
-
-    if (!$scoped && ($this->respectPublishingStatus && ($this->hasRelation('entry') || $this->hasRelation('page')))) {
-      $respectPublishedQuery = $this->compileScopedQuery([function ($query) {
-        return $query->where('published', true)
-          ->andWhere(function ($query) {
-            return $query->where('use_time', false)
-              ->orWhere(function ($query) {
-                return $query->where('use_time', true)
-                  ->where(function ($query) {
-                    return $query->where('start', '!=', null)
-                      ->where('stop', '!=', null)
-                      ->where('start', '<=', date('Y-m-d H:i:s', time()))
-                      ->where('stop', '>=', date('Y-m-d H:i:s', time()));
-                  })->orWhere(function ($query) {
-                    return $query->where('start', '!=', null)
-                      ->where('stop', '=', null)
-                      ->where('start', '<=', date('Y-m-d H:i:s', time()));
-                  })->orWhere(function ($query) {
-                    return $query->where('start',  '=', null)
-                      ->where('stop', '!=', null)
-                      ->where('stop', '>=', date('Y-m-d H:i:s', time()));
-                  })->orWhere(function ($query) {
-                    return $query->where('start', '=', null)
-                      ->where('stop', '=', null);
-                  });
-              });
-          });
-      }]);
-
-
-      $compiledQuery = '(' . implode(' AND ', array_filter([
-        ($this->hasRelation('entry') && $this->relation_id)
-          ? $this->compileWhereQuery('directory_id', '=', $this->relation_id)
-          : null,
-        $respectPublishedQuery,
-        $compiledQuery
-          ? "($compiledQuery)"
-          : $compiledQuery
-      ])) . ')';
-    }
+    }, $this->query)));
 
     return $compiledQuery;
   }
