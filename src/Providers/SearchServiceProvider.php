@@ -7,6 +7,7 @@ use Illuminate\Support\ServiceProvider;
 
 use Netflex\Query\Builder;
 
+use Netflex\Pages\Page;
 use Netflex\Structure\File;
 use Netflex\Structure\Image;
 
