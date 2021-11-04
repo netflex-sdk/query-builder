@@ -93,7 +93,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
   /**
    * The interal storage of the model data.
    *
-   * @var string
+   * @var array
    */
   protected $attributes = [];
 
