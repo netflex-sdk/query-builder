@@ -1,0 +1,54 @@
+{
+    "name": "netflex/query-builder",
+    "description": "Netflex QueryBuilder library",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["netflex", "query", "lucene"],
+    "authors": [
+        {
+            "name": "Thomas Alrek",
+            "email": "thomas@apility.no"
+        }
+    ],
+    "config": {
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "Netflex\\Query\\": ""
+        },
+        "files": [
+            "helpers.php"
+        ]
+    },
+    "require": {
+        "facade/ignition-contracts": "^1.0",
+        "illuminate/contracts": "^8.0",
+        "illuminate/database": "^8.0",
+        "illuminate/pagination": "^8.0",
+        "illuminate/support": "^8.0",
+        "larapack/dd": "^1.1",
+        "netflex/api": "^4.0"
+    },
+    "require-dev": {
+        "illuminate/cache": "^8.0",
+        "illuminate/filesystem": "^8.0",
+        "phpunit/phpunit": "^9.0"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Netflex\\Query\\Providers\\QueryBuilderServiceProvider",
+                "Netflex\\Query\\Providers\\SearchServiceProvider"
+            ],
+            "aliases": {
+                "Search": "Netflex\\Query\\Facades\\Search",
+                "Query": "Netflex\\Query\\Facades\\QueryBuilderFacade",
+                "QueryAssoc": "Netflex\\Query\\Facades\\QueryBuilderFacade"
+            }
+        }
+    },
+    "scripts": {
+        "tests": "vendor/bin/phpunit --testdox --colors=always"
+    }
+}
