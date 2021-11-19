@@ -3,7 +3,11 @@
     "description": "Netflex QueryBuilder library",
     "type": "library",
     "license": "MIT",
-    "keywords": ["netflex", "query", "lucene"],
+    "keywords": [
+        "netflex",
+        "query",
+        "lucene"
+    ],
     "authors": [
         {
             "name": "Thomas Alrek",
@@ -36,6 +40,9 @@
         "phpunit/phpunit": "^9.0"
     },
     "extra": {
+        "branch-alias": {
+            "dev-master": "5.0.x-dev"
+        },
         "laravel": {
             "providers": [
                 "Netflex\\Query\\Providers\\QueryBuilderServiceProvider",
