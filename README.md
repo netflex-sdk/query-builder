@@ -1,4 +1,6 @@
-# Netflex QueryBuilder
+# Netflex Query
+
+[READ ONLY] Subtree split of the Netflex Query component (see [netflex/framework](https://github.con/netflex-sdk/framework))
 
 A library for building complex search queries for the Netflex API using a fluent builder-pattern.
 
