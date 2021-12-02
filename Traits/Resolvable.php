@@ -14,6 +14,7 @@ use Netflex\Query\Exceptions\ResolutionFailedException;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\LazyCollection;
+use Netflex\Query\PaginatedResult;
 
 trait Resolvable
 {
@@ -118,20 +119,24 @@ trait Resolvable
     });
   }
 
-  public static function chunked($chunkSize = null)
+  public static function chunked($size = null)
   {
-    return static::resolvableContext(function ($resolvable) use ($chunkSize) {
-      $chunkSize = $chunkSize ?? $resolvable->perPage ?? 100;
-      return LazyCollection::make(
-        function () use ($chunkSize) {
-          $page = static::paginate($chunkSize);
-          do {
-            while ($item = $page->shift()) {
-              yield $item;
-            }
-          } while ($page = $page->next());
+    return static::resolvableContext(function ($resolvable) use ($size) {
+      $size = $size ?? $resolvable->perPage ?? 100;
+      return LazyCollection::make(function () use ($resolvable, $size) {
+        /** @var PaginatedResult $page */
+        $chunk = $resolvable::paginate($size);
+        foreach ($chunk->all() as $item) {
+          yield $item;
         }
-      );
+        while ($chunk->hasMorePages()) {
+          /** @var PaginatedResult $page */
+          $chunk = $resolvable::paginate($size, $chunk->currentPage() + 1);
+          foreach ($chunk->all() as $item) {
+            yield $item;
+          }
+        }
+      });
     });
   }
 
