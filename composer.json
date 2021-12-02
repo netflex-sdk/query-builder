@@ -3,11 +3,7 @@
     "description": "Netflex QueryBuilder library",
     "type": "library",
     "license": "MIT",
-    "keywords": [
-        "netflex",
-        "query",
-        "lucene"
-    ],
+    "keywords": ["netflex", "query", "lucene"],
     "authors": [
         {
             "name": "Thomas Alrek",
@@ -32,7 +28,7 @@
         "illuminate/pagination": "^8.0",
         "illuminate/support": "^8.0",
         "larapack/dd": "^1.1",
-        "netflex/api": "^4.1",
+        "netflex/api": "^4.0.14",
         "php": "^7.4|^8.0"
     },
     "require-dev": {
