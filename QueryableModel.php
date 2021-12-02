@@ -336,16 +336,6 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
     return $model;
   }
 
-  public function getPageSize()
-  {
-    return $this->perPage ?? 100;
-  }
-
-  public function usesChunking()
-  {
-    return $this->useChunking ?? false;
-  }
-
   /**
    * Create a new instance of the given model.
    *

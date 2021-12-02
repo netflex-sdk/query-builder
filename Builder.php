@@ -25,7 +25,6 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Facade;
-use Illuminate\Support\LazyCollection;
 use Illuminate\Support\Traits\Macroable;
 
 class Builder
@@ -163,7 +162,7 @@ class Builder
    * @param string|null $name
    * @return static
    */
-  public function connection($name)
+  public function connection ($name)
   {
     return $this->setConnectionName($name);
   }
@@ -172,13 +171,13 @@ class Builder
    * @param string|null $connection
    * @return static
    */
-  public function setConnectionName($connection)
+  public function setConnectionName ($connection)
   {
     $this->connection = $connection;
     return $this;
   }
 
-  public function getConnectionName()
+  public function getConnectionName ()
   {
     return $this->connection ?? 'default';
   }
@@ -186,7 +185,7 @@ class Builder
   /**
    * @return APIClient
    */
-  public function getConnection(): APIClient
+  public function getConnection (): APIClient
   {
     return APIClientConnectionResolver::resolve($this->getConnectionName());
   }
@@ -854,7 +853,7 @@ class Builder
    * @param callable $mapper
    * @return static
    */
-  public function setMapper(callable $mapper)
+  public function setMapper (callable $mapper)
   {
     $this->mapper = $mapper;
     return $this;
@@ -900,33 +899,10 @@ class Builder
 
   /**
    * Retrives all results for the given query, ignoring the query limit
-   * @return LazyCollection
+   * @return Collection
    */
   public function all()
   {
-    if ($this->model) {
-      /** @var QueryableModel */
-      $instance = new $this->model;
-      if ($instance->usesChunking()) {
-        $size = $instance->getPageSize() ?? 100;
-        return LazyCollection::make(
-          function () use ($size) {
-            $chunk = $this->paginate($size);
-            foreach ($chunk->all() as $item) {
-              yield $item;
-            }
-            while ($chunk->hasMorePages()) {
-              /** @var PaginatedResult $page */
-              $chunk = $this->paginate($size, $chunk->currentPage() + 1);
-              foreach ($chunk->all() as $item) {
-                yield $item;
-              }
-            }
-          }
-        );
-      }
-    }
-
     $size = $this->size;
     $this->size = static::MAX_QUERY_SIZE;
     $results = $this->get();
@@ -1035,8 +1011,7 @@ class Builder
   /**
    * @param string|DateTimeInterface|null $date
    */
-  function publishedAt($date)
-  {
+  function publishedAt ($date) {
     $date = Carbon::parse($date);
 
     $this->respectPublishingStatus(false);
@@ -1064,8 +1039,8 @@ class Builder
                   return $query->where('start', '=', null)
                     ->where('stop', '=', null);
                 });
+              });
             });
-        });
     }]);
 
     return $this;
