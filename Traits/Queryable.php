@@ -373,4 +373,17 @@ trait Queryable
   {
     return static::raw($query);
   }
+
+  /**
+   * @param boolean|Closure $clause
+   * @param Closure $then
+   * @param null|Closure $else
+   * @return Builder
+   * @throws NotQueryableException If object not queryable
+   * @see \Netflex\Query\Builder::if
+   */
+  public static function if(...$args)
+  {
+    return static::makeQueryBuilder()->if(...$args);
+  }
 }
