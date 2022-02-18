@@ -35,6 +35,9 @@ use Netflex\Query\Exceptions\ResolutionFailedException;
 use Illuminate\Support\Traits\Macroable;
 use Netflex\API\Contracts\APIClient;
 use Netflex\API\Facades\APIClientConnectionResolver;
+use Netflex\Files\File;
+use Netflex\Pages\Components\Image;
+use Netflex\Structure\File as StructureFile;
 
 abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonSerializable, UrlRoutable
 {
@@ -488,6 +491,13 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
     if ($this->autoPublishes && !array_key_exists('published', $this->getDirty())) {
       $attributes['published'] = true;
     }
+
+    // Special handling for inserting File, Image, or Entry objects
+    array_walk_recursive($attributes, function (&$item, $key) {
+      if ($item instanceof File || $item instanceof StructureFile || $item instanceof Image || $item instanceof QueryableModel) {
+        $item = $item->id;
+      }
+    });
 
     $this->attributes[$this->getKeyName()] = $this->performInsertRequest($this->getRelationId(), $attributes);
 
