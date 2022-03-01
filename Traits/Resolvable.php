@@ -205,7 +205,7 @@ trait Resolvable
     if (is_array($findBy) || $findBy instanceof Collection) {
       return Collection::make($findBy)->flatten()->map(function ($findBy) {
         return static::find($findBy);
-      });
+      })->filter()->values();
     }
 
     return static::resolvableContext(function ($resolvable) use ($findBy) {
