@@ -235,6 +235,36 @@ class Builder
   }
 
   /**
+   * Adds a score weight to the previous statement
+   *
+   * @param float $weight
+   * @return static
+   */
+  public function score(float $weight)
+  {
+    if ($query = array_pop($this->query)) {
+      $this->query[] = "($query)^$weight";
+    }
+
+    return $this->orderBy('_score');
+  }
+
+  /**
+   * Marks the previous statement as fuzzy
+   *
+   * @param integer|null $distance Distance to use for fuzzy matching
+   * @return static
+   */
+  public function fuzzy(?int $distance = null)
+  {
+    if ($query = array_pop($this->query)) {
+      $this->query[] = "($query)~" . ($distance ? $distance : null);
+    }
+
+    return $this;
+  }
+
+  /**
    * @param string $relation
    * @return bool
    */
