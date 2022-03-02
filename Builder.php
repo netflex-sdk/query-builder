@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\LazyCollection;
 use Illuminate\Support\Traits\Macroable;
+use Netflex\Query\Exceptions\NoSortableFieldToOrderByException;
 
 class Builder
 {
@@ -47,6 +48,8 @@ class Builder
   /** @var string The decending sort direction */
   const DIR_DESC = 'desc';
 
+  const DIR_DEFAULT = 'default';
+
   /** @var array The supported value types */
   const VALUE_TYPES = [
     'NULL',
@@ -63,6 +66,7 @@ class Builder
 
   /** @var array The valid sorting directions */
   const SORTING_DIRS = [
+    Builder::DIR_DEFAULT,
     Builder::DIR_ASC,
     Builder::DIR_DESC,
   ];
@@ -114,11 +118,11 @@ class Builder
   /** @var int */
   protected $size = self::MAX_QUERY_SIZE;
 
-  /** @var string */
-  protected $orderBy;
+  /** @var string[] */
+  protected $orderBy = [];
 
-  /** @var string */
-  protected $sortDir;
+  /** @var string[] */
+  protected $sortDir = [];
 
   /** @var array */
   protected $query;
@@ -146,6 +150,8 @@ class Builder
 
   /** @var string */
   protected $model;
+
+  protected $useScores = false;
 
   /**
    * @param bool $respectPublishingStatus
@@ -244,9 +250,10 @@ class Builder
   {
     if ($query = array_pop($this->query)) {
       $this->query[] = "($query)^$weight";
+      $this->useScores = true;
     }
 
-    return $this->orderBy('_score');
+    return $this;
   }
 
   /**
@@ -520,12 +527,14 @@ class Builder
    * @return static
    * @throws InvalidSortingDirectionException If an invalid $direction is passed
    */
-  public function orderBy($field, $direction = null)
+  public function orderBy($field, $direction = Builder::DIR_DEFAULT)
   {
-    $this->orderBy = $this->compileField($field);
+    $direction = $direction ?: static::DIR_DEFAULT;
+    $this->orderBy[] = $this->compileField($field);
+    $this->orderDirection($direction);
 
-    if ($direction) {
-      $this->orderDirection($direction);
+    if ($field === '_score') {
+      $this->useScores = true;
     }
 
     return $this;
@@ -537,6 +546,8 @@ class Builder
    * @param string $direction
    * @return static
    * @throws InvalidSortingDirectionException If an invalid $direction is passed
+   * @throws InvalidSortingFieldException If no orderBy field has been set
+   * @throws 
    */
   public function orderDirection($direction)
   {
@@ -544,7 +555,12 @@ class Builder
       throw new InvalidSortingDirectionException($direction);
     }
 
-    $this->sortDir = $direction;
+    $this->sortDir[] = $direction;
+
+    if (!count($this->orderBy)) {
+      throw new NoSortableFieldToOrderByException();
+    }
+
     return $this;
   }
 
@@ -633,6 +649,17 @@ class Builder
     $this->fields = $this->fields ?? [];
     $this->fields[] = $this->compileField($field);
     $this->fields = array_filter(array_unique($this->fields));
+
+    if ($field === '_score') {
+      $this->useScores = true;
+    }
+
+    return $this;
+  }
+
+  public function includeScores($includeScores = true)
+  {
+    $this->useScores = true;
     return $this;
   }
 
@@ -1006,7 +1033,7 @@ class Builder
     $this->query = [];
 
     $orderBy = $this->orderBy;
-    $this->orderBy = null;
+    $this->orderBy = [];
 
     $result = $this->where('id', $random)->get();
 
@@ -1132,15 +1159,15 @@ class Builder
   protected function compileRequest($size = null, $page = null)
   {
     $params = [
-      'order' => urlencode($this->orderBy),
-      'dir' => $this->sortDir,
+      'order' => urlencode(implode(',', $this->orderBy)),
+      'dir' => urlencode(implode(',', $this->sortDir)),
       'relation' => $this->relations ? implode(',', $this->relations) : null,
       'fields' => $this->fields ? implode(',', $this->fields) : null,
       'relation_id' => $this->relation_id,
       'size' => $size ?? $this->size,
       'page' => $page,
       'q' => urlencode($this->compileQuery()),
-      'scores' => $this->orderBy === '_score' ? 1 : false
+      'scores' => $this->useScores ? 1 : false
     ];
 
     if ($this->debug) {
