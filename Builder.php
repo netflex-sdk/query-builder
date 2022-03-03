@@ -547,7 +547,7 @@ class Builder
    * @return static
    * @throws InvalidSortingDirectionException If an invalid $direction is passed
    * @throws InvalidSortingFieldException If no orderBy field has been set
-   * @throws 
+   * @deprecated 4.4.1 Use orderBy() with direction argument instead
    */
   public function orderDirection($direction)
   {
