@@ -249,7 +249,9 @@ class Builder
   public function score(float $weight)
   {
     if ($query = array_pop($this->query)) {
-      $this->query[] = "($query)^$weight";
+      $matches = [];
+      $query = preg_match('/^\((.+)\)$/', $query, $matches) ? $matches[1] : $query;
+      $this->query[] = "$query^$weight";
       $this->useScores = true;
     }
 
@@ -265,7 +267,9 @@ class Builder
   public function fuzzy(?int $distance = null)
   {
     if ($query = array_pop($this->query)) {
-      $this->query[] = "($query)~" . ($distance ? $distance : null);
+      $matches = [];
+      $query = preg_match('/^\((.+)\)$/', $query, $matches) ? $matches[1] : $query;
+      $this->query[] = "$query~" . ($distance ? $distance : null);
     }
 
     return $this;
@@ -531,7 +535,12 @@ class Builder
   {
     $direction = $direction ?: static::DIR_DEFAULT;
     $this->orderBy[] = $this->compileField($field);
-    $this->orderDirection($direction);
+
+    if (!in_array($direction, static::SORTING_DIRS)) {
+      throw new InvalidSortingDirectionException($direction);
+    }
+
+    $this->sortDir[] = $direction;
 
     if ($field === '_score') {
       $this->useScores = true;
