@@ -409,6 +409,10 @@ class Builder
     }
 
     if (is_array($value)) {
+      if (!count($value)) {
+        return null;
+      }
+
       $queries = [];
       foreach ($value as $item) {
         $queries[] = $this->compileWhereQuery($field, $operator, $item);
