@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\LazyCollection;
 use Illuminate\Support\Traits\Macroable;
+use Netflex\Query\Exceptions\InvalidArrayValueException;
 use Netflex\Query\Exceptions\NoSortableFieldToOrderByException;
 
 class Builder
@@ -410,7 +411,7 @@ class Builder
 
     if (is_array($value)) {
       if (!count($value)) {
-        return null;
+        throw new InvalidArrayValueException();
       }
 
       $queries = [];
