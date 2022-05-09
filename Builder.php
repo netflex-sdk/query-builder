@@ -390,7 +390,7 @@ class Builder
     if (is_object($value) && $value instanceof Collection) {
       /** @var Collection */
       $value = $value;
-      $value = $value->toArray();
+      $value = $value->all();
     }
 
     if (is_object($value) && $value instanceof QueryableModel) {
