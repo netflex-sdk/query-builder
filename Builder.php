@@ -1092,12 +1092,9 @@ class Builder
    */
   public function count()
   {
-    $size = $this->size;
     $fields = $this->fields;
-    $this->size = static::MAX_QUERY_SIZE;
     $this->fields = ['id'];
-    $count = $this->get()->count();
-    $this->size = $size;
+    $count = $this->paginate(1, 1)->total();
     $this->fields = $fields;
 
     return $count;
