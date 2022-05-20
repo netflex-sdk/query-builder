@@ -189,14 +189,14 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    *
    * @var boolean
    */
-  protected static $publishingStatusChecksTemporarilyDisabled = false;
+  public static $publishingStatusChecksTemporarilyDisabled = false;
 
   /**
    * Temporarily disable caching for the model
    *
    * @var boolean
    */
-  protected static $cachingTemporarilyDisabled = false;
+  public static $cachingTemporarilyDisabled = false;
 
   /**
    * @param array $attributes
