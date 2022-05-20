@@ -98,8 +98,8 @@ trait Queryable
    */
   public function respectPublishingStatus()
   {
-    /** @var QueryableModel $this */
-    if (!static::$publishingStatusChecksTemporarilyDisabled) {
+    if ($this instanceof QueryableModel && !static::$publishingStatusChecksTemporarilyDisabled) {
+      /** @var QueryableModel $this */
       return $this->respectPublishingStatus ?? true;
     }
 
