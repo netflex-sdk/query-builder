@@ -185,6 +185,20 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
   const UPDATED_AT = 'updated';
 
   /**
+   * Temporarily disable publishing status checks for the model
+   *
+   * @var boolean
+   */
+  protected static $publishingStatusChecksTemporarilyDisabled = false;
+
+  /**
+   * Temporarily disable caching for the model
+   *
+   * @var boolean
+   */
+  protected static $cachingTemporarilyDisabled = false;
+
+  /**
    * @param array $attributes
    * @param bool $boot Should this model boot it's bootable traits and emit events?
    */
@@ -198,6 +212,18 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
     }
 
     $this->fill($attributes);
+  }
+
+  public static function disablePublishingStatus()
+  {
+    static::$cachingTemporarilyDisabled = true;
+    static::$publishingStatusChecksTemporarilyDisabled = true;
+  }
+
+  public static function enablePublishingStatus()
+  {
+    static::$cachingTemporarilyDisabled = false;
+    static::$publishingStatusChecksTemporarilyDisabled = false;
   }
 
   /**

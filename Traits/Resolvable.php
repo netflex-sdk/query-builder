@@ -223,6 +223,31 @@ trait Resolvable
   }
 
   /**
+   * Finds an instance by its primary field, ignoring any publishing status checks
+   *
+   * @param mixed|array|Colllection $findBy
+   * @return static|Collection|null
+   * @throws NotQueryableException If object not queryable
+   * @throws QueryException On invalid query
+   */
+  public static function forceFind($findBy)
+  {
+    return once(function () use ($findBy) {
+      static::disablePublishingStatus();
+
+      $result = static::resolvableContext(function ($resolvable) use ($findBy) {
+        return $resolvable->where($resolvable->getPrimaryField(), Builder::OP_EQ, $findBy)
+          ->limit(1)
+          ->first();
+      });
+
+      static::enablePublishingStatus();
+
+      return $result;
+    });
+  }
+
+  /**
    * Finds an instance by its primary field or throws an exception
    *
    * @param mixed|array $findBy
