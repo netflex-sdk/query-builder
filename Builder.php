@@ -1049,7 +1049,9 @@ class Builder
     $orderBy = $this->orderBy;
     $this->orderBy = [];
 
-    $result = $this->where('id', $random)->get();
+    $result = sizeof($random) > 0
+        ? $this->where('id', $random)->get()
+        : collect();
 
     $this->query = $query;
     $this->size = $size;
