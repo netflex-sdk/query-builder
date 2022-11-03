@@ -42,7 +42,7 @@ class SearchServiceProvider extends ServiceProvider
                 }
 
                 if (isset($item['group_id']) && isset($item['content'])) {
-                    $class = Page::class;
+                    $class = Config::get('pages.model', Page::class);
                 }
 
                 if (isset($item['folder_id']) && isset($item['path'])) {
@@ -68,5 +68,5 @@ class SearchServiceProvider extends ServiceProvider
 
         return $search;
     });
-  }   
+  }
 }
