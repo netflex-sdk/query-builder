@@ -28,7 +28,7 @@
         "illuminate/pagination": "^8.0",
         "illuminate/support": "^8.0",
         "larapack/dd": "^1.1",
-        "netflex/api": "^4.16",
+        "netflex/api": "^4.17",
         "php": "^7.4|^8.0"
     },
     "require-dev": {
