@@ -832,6 +832,12 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
 
     /** @var static */
     if ($model = $query->first()) {
+      if ($field !== 'url') {
+        return $model->{$field} == $rawValue
+          ? $model
+          : null;
+      }
+
       return $model;
     }
 

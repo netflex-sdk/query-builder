@@ -78,6 +78,9 @@ class Builder
   /** @var string The not equals operator */
   const OP_NEQ = '!=';
 
+  /** @var string The not equals operator (SQL syntax) */
+  const OP_NEQ_SQL = '<>';
+
   /** @var string The less than operator */
   const OP_LT = '<';
 
@@ -92,6 +95,9 @@ class Builder
 
   /** @var string The like operator */
   const OP_LIKE = 'like';
+
+  /** @var string The not like operator */
+  const OP_NOT_LIKE = 'not like';
 
   /** @var array The valid operators */
   const OPERATORS = [
@@ -425,10 +431,14 @@ class Builder
     $value = $this->escapeValue($value, $operator);
     $term = $value === null ? $this->compileNullQuery($field) : $this->compileTermQuery($field, $value);
 
+    $originalOperator = $operator;
+    $operator = strtolower($operator);
+
     switch ($operator) {
       case static::OP_EQ:
         return $term;
       case static::OP_NEQ:
+      case static::OP_NEQ_SQL:
         return "NOT $term";
       case static::OP_GT:
         if ($value === null) {
@@ -472,10 +482,12 @@ class Builder
         }
 
         return "$field:<=$value";
+      case static::OP_NOT_LIKE:
+        return "NOT ($term)";
       case static::OP_LIKE:
         return $term;
       default:
-        throw new InvalidOperatorException($operator);
+        throw new InvalidOperatorException($originalOperator);
         break;
     }
   }
@@ -1050,8 +1062,8 @@ class Builder
     $this->orderBy = [];
 
     $result = sizeof($random) > 0
-        ? $this->where('id', $random)->get()
-        : collect();
+      ? $this->where('id', $random)->get()
+      : collect();
 
     $this->query = $query;
     $this->size = $size;
