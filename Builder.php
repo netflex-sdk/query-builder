@@ -326,7 +326,7 @@ class Builder
    */
   protected function compileTermQuery(string $field, $value)
   {
-    return "${field}:$value";
+    return "{$field}:$value";
   }
 
   /**
