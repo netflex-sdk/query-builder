@@ -299,11 +299,18 @@ class Builder
   protected function escapeValue($value, $operator = null)
   {
     if (is_string($value)) {
+      if (preg_match('/(?P<date>(\d){4}-(\d){2}-(\d){2})(?P<time>[T ](\d){2}:(\d){2}(:(\d){2})?)/', $value)) {
+        $value = Carbon::parse($value)->toDateTimeString();
+      }
+
       if ($operator !== 'like') {
+        $value = addslashes($value);
         return "\"{$value}\"";
       }
 
-      return str_replace(' ', '*', $value);
+      $value = preg_replace("/(\\\)/", '*', $value);
+
+      return str_replace([' ', "\\", "\n", "\r", "\t"], '*', $value);
     }
 
     if (is_bool($value)) {
