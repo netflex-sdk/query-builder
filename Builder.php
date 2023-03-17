@@ -333,7 +333,11 @@ class Builder
    */
   protected function compileTermQuery(string $field, $value)
   {
-    return "{$field}:$value";
+    if ($field !== '*') {
+      return "{$field}:$value";
+    }
+
+    return $value;
   }
 
   /**
