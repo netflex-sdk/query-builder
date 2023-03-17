@@ -296,7 +296,7 @@ class Builder
    * @param string $operator
    * @return mixed
    */
-  protected function escapeValue($value, $operator = null)
+  public function escapeValue($value, $operator = null)
   {
     if (is_string($value)) {
       if (preg_match('/(?P<date>(\d){4}-(\d){2}-(\d){2})(?P<time>[T ](\d){2}:(\d){2}(:(\d){2})?)/', $value)) {
