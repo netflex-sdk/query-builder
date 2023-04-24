@@ -386,6 +386,11 @@ class Builder
    */
   protected function compileField($field)
   {
+    // Handle Stringable objects in a way that is backwards compatible with PHP 7.x
+    if (is_object($field) && method_exists($field, '__toString')) {
+      $field = (string) $field;
+    }
+
     foreach (static::REPLACEMENT_ENTITIES as $entity => $replacement) {
       $field = str_replace($entity, $replacement, $field);
     }
