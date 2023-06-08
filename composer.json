@@ -28,7 +28,7 @@
         "illuminate/pagination": "^8.0|^9.0|^10.0",
         "illuminate/support": "^8.0|^9.0|^10.0",
         "larapack/dd": "^1.1",
-        "netflex/api": "^4.32",
+        "netflex/api": "^4.33",
         "php": "^7.4|^8.0"
     },
     "require-dev": {
@@ -38,7 +38,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "4.32.x-dev"
+            "dev-master": "4.33.x-dev"
         },
         "laravel": {
             "providers": [
