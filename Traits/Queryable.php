@@ -4,12 +4,8 @@ namespace Netflex\Query\Traits;
 
 use Closure;
 
-use Illuminate\Support\Facades\Cache;
-
 use Netflex\Query\Builder;
 use Netflex\Query\QueryableModel;
-
-use Netflex\Query\Traits\HasRelation;
 
 use Netflex\Query\Exceptions\QueryException;
 use Netflex\Query\Exceptions\NotQueryableException;
@@ -108,7 +104,7 @@ trait Queryable
 
   /**
    * Override the publishing status for the model
-   * 
+   *
    * @param bool $disregarding
    * @return Builder
    */
@@ -297,25 +293,6 @@ trait Queryable
   }
 
   /**
-   * Perform an action and mutate the given key if $shouldCache is true
-   *
-   * @param string $key
-   * @param bool $shouldCache
-   * @param Closure $action
-   * @return mixed
-   */
-  public static function maybeMutatesCache($key, $shouldCache, Closure $action)
-  {
-    if (!static::$cachingTemporarilyDisabled) {
-      if ($shouldCache) {
-        Cache::forget($key);
-      }
-    }
-
-    $result = $action();
-  }
-
-  /**
    * Cache the results with the given key if $shouldCache is true
    *
    * @param string $key
@@ -361,7 +338,7 @@ trait Queryable
 
   /**
    * Picks random items
-   * 
+   *
    * @param int $amount
    * @return static|Collection
    */
@@ -373,9 +350,9 @@ trait Queryable
   }
 
   /**
-   * @param string $query 
-   * @return Builder 
-   * @throws NotQueryableException 
+   * @param string $query
+   * @return Builder
+   * @throws NotQueryableException
    */
   public static function query($query = '*')
   {

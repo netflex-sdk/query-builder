@@ -2,8 +2,8 @@
 
 namespace Netflex\Query;
 
-use Exception;
 use ArrayAccess;
+use Illuminate\Support\Facades\Cache;
 use JsonSerializable;
 
 use Netflex\Query\Traits\Queryable;
@@ -461,24 +461,26 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
       return false;
     }
 
-    static::maybeMutatesCache(
-      $this->getCacheIdentifier($this->getKey()),
-      $this->cachesResults,
-      function () {
-        $dirty = $this->getDirty();
+    $dirty = $this->getDirty();
 
-        if (count($dirty) > 0) {
-          $dirty['revision_publish'] = true;
-          $this->performUpdateRequest($this->getRelationId(), $this->getKey(), $dirty);
-        }
+    if (count($dirty) > 0) {
+      $dirty['revision_publish'] = true;
+      $this->performUpdateRequest($this->getRelationId(), $this->getKey(), $dirty);
+    }
 
-        $this->withIgnoredPublishingStatus(function () {
-          $this->attributes = $this->performRetrieveRequest($this->getRelationId(), $this->getKey());
-        });
-      }
-    );
+    $this->withIgnoredPublishingStatus(function () {
+      $this->attributes = $this->performRetrieveRequest($this->getRelationId(), $this->getKey());
+    });
 
     $this->fireModelEvent('updated', false);
+
+    if (!static::$cachingTemporarilyDisabled && $this->cachesResults) {
+      $entryCacheKey = $this->getCacheIdentifier($this->getKey());
+      $entriesCacheKey = $this->getAllCacheIdentifier();
+
+      Cache::forget($entryCacheKey);
+      Cache::forget($entriesCacheKey);
+    }
 
     return true;
   }
@@ -538,6 +540,12 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
     $this->fireModelEvent('created', false);
 
     $this->syncOriginal();
+
+    if (!static::$cachingTemporarilyDisabled && $this->cachesResults) {
+      $entriesCacheKey = $this->getAllCacheIdentifier();
+
+      Cache::forget($entriesCacheKey);
+    }
 
     return true;
   }
@@ -647,6 +655,15 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
   {
     if ($wasDeleted = $this->performDeleteRequest($this->getRelationId(), $this->getKey())) {
       $this->exists = false;
+
+      if (!static::$cachingTemporarilyDisabled && $this->cachesResults) {
+        $entryCacheKey = $this->getCacheIdentifier($this->getKey());
+        $entriesCacheKey = $this->getAllCacheIdentifier();
+
+        Cache::forget($entryCacheKey);
+        Cache::forget($entriesCacheKey);
+      }
+
       return $wasDeleted;
     }
 
