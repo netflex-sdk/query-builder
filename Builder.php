@@ -511,7 +511,7 @@ class Builder
   /**
    * Sets the debug flag of the query
    * Making the API reflect the compiled query in the output
-   *
+   * 
    * @return static
    */
   public function debug()
@@ -1103,7 +1103,7 @@ class Builder
   /**
    * Only include published results
    * Only applies to entry and page relations
-   *
+   * 
    * @param bool
    *
    * @return static
@@ -1139,7 +1139,7 @@ class Builder
 
     $this->respectPublishingStatus(false);
 
-    $this->query = [$this->compileScopedQuery([function (Builder $query) use ($date) {
+    $this->query[] = $this->compileScopedQuery([function (Builder $query) use ($date) {
       return $query->where('published', true)
         ->andWhere(function (Builder $query) use ($date) {
           return $query->where('use_time', false)
@@ -1164,7 +1164,7 @@ class Builder
                 });
             });
         });
-    }])];
+    }]);
 
     return $this;
   }
@@ -1229,9 +1229,9 @@ class Builder
   /**
    * Conditional query
    *
-   * @param boolean|Closure $clause
-   * @param Closure $then
-   * @param null|Closure $else
+   * @param boolean|Closure $clause 
+   * @param Closure $then 
+   * @param null|Closure $else 
    * @return static
    */
   public function if($clause, Closure $then, ?Closure $else = null)
