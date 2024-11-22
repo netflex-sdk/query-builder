@@ -912,7 +912,7 @@ class Builder
       return $fetch();
     } catch (ClientException $exception) {
       $response = $exception->getResponse();
-      $body = json_decode($response->getBody());
+      $body = json_decode($response->getBody(), true);
 
       if (isset($body['origin']) && $body['origin'] === 'ElasticSearch') {
         throw new QueryBuilderSearchException(
