@@ -5,12 +5,13 @@ namespace Netflex\Query;
 use Closure;
 use DateTimeInterface;
 
-use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\BadResponseException;
 use Illuminate\Support\Carbon;
 use Netflex\API\Contracts\APIClient;
 use Netflex\API\Facades\APIClientConnectionResolver;
 
-use Netflex\Query\Exceptions\QueryBuilderSearchException;
+use Netflex\Query\Exceptions\QueryException;
+use Netflex\Query\Exceptions\IndexNotFoundException;
 use Netflex\Query\Exceptions\InvalidAssignmentException;
 use Netflex\Query\Exceptions\InvalidOperatorException;
 use Netflex\Query\Exceptions\InvalidSortingDirectionException;
@@ -510,7 +511,7 @@ class Builder
   /**
    * Sets the debug flag of the query
    * Making the API reflect the compiled query in the output
-   *
+   * 
    * @return static
    */
   public function debug()
@@ -864,7 +865,7 @@ class Builder
    * @param int $size
    * @param int $page
    * @return PaginatedResult
-   * @throws QueryBuilderSearchException
+   * @throws QueryException
    */
   public function paginate($size = 100, $page = 1)
   {
@@ -893,7 +894,7 @@ class Builder
    * @param int $page
    * @param int $size
    * @return object
-   * @throws QueryBuilderSearchException
+   * @throws IndexNotFoundException|QueryException
    */
   public function fetch($size = null, $page = null)
   {
@@ -910,26 +911,26 @@ class Builder
       }
 
       return $fetch();
-    } catch (ClientException $exception) {
-      $response = $exception->getResponse();
-      $body = json_decode($response->getBody(), true);
+    } catch (BadResponseException $e) {
+      $response = $e->getResponse();
+      $index = $this->relations ? implode(',', $this->relations) : null;
+      $index .= $this->relation_id ? ('_' . $this->relation_id) : null;
 
-      if (isset($body['origin']) && $body['origin'] === 'ElasticSearch') {
-        throw new QueryBuilderSearchException(
-          $response,
-          $exception,
-        );
+      if ($response->getStatusCode() === 500) {
+        throw new IndexNotFoundException($index);
       }
 
-      throw $exception;
+      $error = json_decode($e->getResponse()->getBody());
+
+      throw new QueryException($this->getQuery(true), $error);
     }
   }
 
   /**
    * Retrieves the results of the query
    *
-   * @return Collection
-   * @throws QueryBuilderSearchException
+   * @return \Illuminate\Support\Collection
+   * @throws QueryException
    */
   public function get()
   {
@@ -962,7 +963,7 @@ class Builder
    * Retrieves the first result
    *
    * @return object|null
-   * @throws QueryBuilderSearchException
+   * @throws QueryException
    */
   public function first()
   {
@@ -979,7 +980,7 @@ class Builder
    *
    * @return object|null
    * @throws NotFoundException
-   * @throws QueryBuilderSearchException
+   * @throws QueryException
    */
   public function firstOrFail()
   {
@@ -1037,7 +1038,7 @@ class Builder
    * Returns random results for the given query
    * @param int|null $amount If not provided, will use the current query limit
    * @return Collection
-   * @throws QueryBuilderSearchException
+   * @throws QueryException
    */
   public function random($amount = null)
   {
@@ -1102,7 +1103,7 @@ class Builder
   /**
    * Only include published results
    * Only applies to entry and page relations
-   *
+   * 
    * @param bool
    *
    * @return static
@@ -1117,7 +1118,7 @@ class Builder
    * Get the count of items matching the current query
    *
    * @return int
-   * @throws QueryBuilderSearchException
+   * @throws QueryException
    */
   public function count()
   {
@@ -1138,7 +1139,7 @@ class Builder
 
     $this->respectPublishingStatus(false);
 
-    $this->query = [$this->compileScopedQuery([function (Builder $query) use ($date) {
+    $this->query[] = $this->compileScopedQuery([function (Builder $query) use ($date) {
       return $query->where('published', true)
         ->andWhere(function (Builder $query) use ($date) {
           return $query->where('use_time', false)
@@ -1163,7 +1164,7 @@ class Builder
                 });
             });
         });
-    }])];
+    }]);
 
     return $this;
   }
@@ -1228,9 +1229,9 @@ class Builder
   /**
    * Conditional query
    *
-   * @param boolean|Closure $clause
-   * @param Closure $then
-   * @param null|Closure $else
+   * @param boolean|Closure $clause 
+   * @param Closure $then 
+   * @param null|Closure $else 
    * @return static
    */
   public function if($clause, Closure $then, ?Closure $else = null)
