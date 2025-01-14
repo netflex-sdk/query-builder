@@ -266,7 +266,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param mixed $key
    * @return array|null
    */
-  protected function performRetrieveRequest(?int $relationId = null, mixed $key = null)
+  protected function performRetrieveRequest(?int $relationId = null, $key)
   {
     //
   }
@@ -291,7 +291,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param array $attributes
    * @return void
    */
-  protected function performUpdateRequest(?int $relationId = null, mixed $key = null, array $attributes = [])
+  protected function performUpdateRequest(?int $relationId = null, $key, $attributes = [])
   {
     //
   }
@@ -303,7 +303,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param mixed $key
    * @return bool
    */
-  protected function performDeleteRequest(?int $relationId = null, mixed $key = null)
+  protected function performDeleteRequest(?int $relationId = null, $key)
   {
     //
   }
@@ -701,7 +701,6 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    *
    * @return array
    */
-  #[\ReturnTypeWillChange]
   public function jsonSerialize()
   {
     return $this->toArray();
@@ -871,6 +870,8 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param mixed $resolveBy
    * @param  string|null $field
    * @return static|Collection|null
+   * @throws NotQueryableException If object not queryable
+   * @throws QueryException On invalid query
    */
   public static function resolve($rawValue, $field = null)
   {
@@ -911,7 +912,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param mixed $offset
    * @return bool
    */
-  public function offsetExists(mixed $offset): bool
+  public function offsetExists($offset)
   {
     return !is_null($this->getAttribute($offset));
   }
@@ -920,7 +921,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param mixed $offset
    * @return mixed
    */
-  public function offsetGet(mixed $offset): mixed
+  public function offsetGet($offset)
   {
     return $this->getAttribute($offset);
   }
@@ -930,7 +931,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param mixed $value
    * @return void
    */
-  public function offsetSet(mixed $offset, mixed $value): void
+  public function offsetSet($offset, $value)
   {
     $this->setAttribute($offset, $value);
   }
@@ -939,7 +940,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param mixed $offset
    * @return void
    */
-  public function offsetUnset(mixed $offset): void
+  public function offsetUnset($offset)
   {
     unset($this->attributes[$offset]);
   }
