@@ -7,8 +7,7 @@ use Closure;
 use Illuminate\Support\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-use JsonSerializable;
-use Illuminate\Contracts\Support\Jsonable;
+use Netflex\Query\Exceptions\QueryBuilderSearchException;
 
 /**
  * @method void setPath(string $path)
@@ -40,6 +39,7 @@ class PaginatedResult extends LengthAwarePaginator
     $this->onEachSide($onEachSide);
   }
 
+  /** @throws QueryBuilderSearchException */
   public static function fromBuilder(Builder $query, $page = 1, $onEachSide = 0)
   {
     $result = $query->fetch($query->getSize(), $page);
