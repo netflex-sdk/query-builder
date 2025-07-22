@@ -13,9 +13,7 @@ class QueryBuilderServiceProvider extends ServiceProvider
    */
   public function register()
   {
-    $this->app->bind(Builder::class, fn () => (
-      new Builder(false)
-    ));
+    $this->app->bind(Builder::class, Builder::class);
   }
 
   public function boot()
