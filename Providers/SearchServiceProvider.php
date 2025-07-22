@@ -29,7 +29,7 @@ class SearchServiceProvider extends ServiceProvider
         $defaultMapper = $search->getMapper();
 
         $search = $search->orderBy('id')
-            ->respectPublishingStatus(true)
+            ->respectPublishingStatus()
             ->assoc(true)
             ->setMapper(function ($item) use ($defaultMapper) {
                 /** @var QueryableModel|null $model */
