@@ -4,6 +4,7 @@ namespace Netflex\Query\Traits;
 
 use Closure;
 
+use Illuminate\Support\Facades\App;
 use Netflex\Query\Builder;
 use Netflex\Query\QueryableModel;
 
@@ -55,7 +56,9 @@ trait Queryable
       return $item;
     };
 
-    $builder = (new Builder($respectPublishingStatus, null, $mapper, $appends))
+    $builder = App::makeWith(Builder::class, ['appends' => $appends])
+      ->respectPublishingStatus($respectPublishingStatus)
+      ->setMapper($mapper)
       ->relation($relation, $relationId)
       ->assoc($hasMapper);
 
