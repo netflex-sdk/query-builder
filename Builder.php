@@ -111,11 +111,11 @@ class Builder
 
   protected string $connection;
 
-  protected array $fields;
+  protected array $fields = [];
 
-  protected array $relations;
+  protected array $relations = [];
 
-  protected int $relation_id;
+  protected int|null $relation_id = null;
 
   protected int $size = self::MAX_QUERY_SIZE;
 
@@ -123,7 +123,7 @@ class Builder
 
   protected array $sortDir = [];
 
-  protected array $query;
+  protected array $query = [];
 
   protected bool $respectPublishingStatus = true;
 
