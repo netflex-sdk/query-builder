@@ -4,8 +4,11 @@ namespace Netflex\Query\Traits;
 
 use Closure;
 
+use DateTimeInterface;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 use Netflex\Query\Builder;
+use Netflex\Query\Exceptions\InvalidSortingDirectionException;
 use Netflex\Query\QueryableModel;
 
 use Netflex\Query\Exceptions\QueryBuilderSearchException;

@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 
+use Netflex\Commerce\Order;
 use Netflex\Query\Builder;
 
 use Netflex\Pages\Page;

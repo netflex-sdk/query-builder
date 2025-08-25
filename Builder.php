@@ -34,24 +34,24 @@ class Builder
   use Macroable;
 
   /** @var int The minimum allowed results per query */
-  const MIN_QUERY_SIZE = 1;
+  const int MIN_QUERY_SIZE = 1;
 
   /** @var int The maximum allowed results per query */
-  const MAX_QUERY_SIZE = 10000;
+  const int MAX_QUERY_SIZE = 10000;
 
   /** @var array Special characters that must be escaped */
-  const SPECIAL_CHARS = ['"', '\\'];
+  const array SPECIAL_CHARS = ['"', '\\'];
 
   /** @var string The ascending sort direction */
-  const DIR_ASC = 'asc';
+  const string DIR_ASC = 'asc';
 
   /** @var string The decending sort direction */
-  const DIR_DESC = 'desc';
+  const string DIR_DESC = 'desc';
 
-  const DIR_DEFAULT = 'default';
+  const string DIR_DEFAULT = 'default';
 
   /** @var array The supported value types */
-  const VALUE_TYPES = [
+  const array VALUE_TYPES = [
     'NULL',
     'array',
     'boolean',
@@ -60,46 +60,46 @@ class Builder
     'DateTime'
   ];
 
-  const REPLACEMENT_ENTITIES = [
+  const array REPLACEMENT_ENTITIES = [
     '-' => '##D##'
   ];
 
   /** @var array The valid sorting directions */
-  const SORTING_DIRS = [
+  const array SORTING_DIRS = [
     Builder::DIR_DEFAULT,
     Builder::DIR_ASC,
     Builder::DIR_DESC,
   ];
 
   /** @var string The equals operator */
-  const OP_EQ = '=';
+  const string OP_EQ = '=';
 
   /** @var string The not equals operator */
-  const OP_NEQ = '!=';
+  const string OP_NEQ = '!=';
 
   /** @var string The not equals operator (SQL syntax) */
-  const OP_NEQ_SQL = '<>';
+  const string OP_NEQ_SQL = '<>';
 
   /** @var string The less than operator */
-  const OP_LT = '<';
+  const string OP_LT = '<';
 
   /** @var string The less than or equals operator */
-  const OP_LTE = '<=';
+  const string OP_LTE = '<=';
 
   /** @var string The greater than operator */
-  const OP_GT = '>';
+  const string OP_GT = '>';
 
   /** @var string The greater than or equals operator */
-  const OP_GTE = '>=';
+  const string OP_GTE = '>=';
 
   /** @var string The like operator */
-  const OP_LIKE = 'like';
+  const string OP_LIKE = 'like';
 
   /** @var string The not like operator */
-  const OP_NOT_LIKE = 'not like';
+  const string OP_NOT_LIKE = 'not like';
 
   /** @var array The valid operators */
-  const OPERATORS = [
+  const array OPERATORS = [
     Builder::OP_EQ,
     Builder::OP_NEQ,
     Builder::OP_LT,
@@ -109,55 +109,39 @@ class Builder
     Builder::OP_LIKE
   ];
 
-  /** @var APIClient */
-  protected $connection;
+  protected string $connection;
 
-  /** @var array */
-  protected $fields;
+  protected array $fields;
 
-  /** @var array */
-  protected $relations;
+  protected array $relations;
 
-  /** @var int */
-  protected $relation_id;
+  protected int $relation_id;
 
-  /** @var int */
-  protected $size = self::MAX_QUERY_SIZE;
+  protected int $size = self::MAX_QUERY_SIZE;
 
-  /** @var string[] */
-  protected $orderBy = [];
+  protected array $orderBy = [];
 
-  /** @var string[] */
-  protected $sortDir = [];
+  protected array $sortDir = [];
 
-  /** @var array */
-  protected $query;
+  protected array $query;
 
-  /** @var bool */
-  protected $respectPublishingStatus = true;
+  protected bool $respectPublishingStatus = true;
 
-  /** @var Closure */
-  protected $mapper;
+  protected ?Closure $mapper;
 
-  /** @var bool */
-  protected $assoc = false;
+  protected bool $assoc = false;
 
-  /** @var bool */
-  protected $shouldCache = false;
+  protected bool $shouldCache = false;
 
-  /** @var string */
-  protected $cacheKey;
+  protected string $cacheKey;
 
-  /** @var bool */
-  protected $debug = false;
+  protected bool $debug = false;
 
-  /** @var callable[] */
-  protected $appends = [];
+  protected mixed $appends = [];
 
-  /** @var string */
-  protected $model;
+  protected string $model;
 
-  protected $useScores = false;
+  protected bool $useScores = false;
 
   /**
    * @param bool $respectPublishingStatus
@@ -175,7 +159,7 @@ class Builder
    * @param string|null $name
    * @return static
    */
-  public function connection($name)
+  public function connection(string|null $name): static
   {
     return $this->setConnectionName($name);
   }
@@ -187,6 +171,7 @@ class Builder
   public function setConnectionName($connection)
   {
     $this->connection = $connection;
+
     return $this;
   }
 
@@ -409,20 +394,14 @@ class Builder
     $field = $this->compileField($field);
 
     if (is_object($value) && $value instanceof Collection) {
-      /** @var Collection */
-      $value = $value;
       $value = $value->all();
     }
 
     if (is_object($value) && $value instanceof QueryableModel) {
-      /** @var QueryableModel */
-      $value = $value;
       $value = $value->getKey();
     }
 
     if (is_object($value) && method_exists($value, '__toString')) {
-      /** @var object */
-      $value = $value;
       $value = $value->__toString();
     }
 
@@ -503,7 +482,6 @@ class Builder
         return $term;
       default:
         throw new InvalidOperatorException($originalOperator);
-        break;
     }
   }
 
@@ -587,7 +565,7 @@ class Builder
    * @param string $direction
    * @return static
    * @throws InvalidSortingDirectionException If an invalid $direction is passed
-   * @throws InvalidSortingFieldException If no orderBy field has been set
+   * @throws NoSortableFieldToOrderByException If no orderBy field has been set
    * @deprecated 4.4.1 Use orderBy() with direction argument instead
    */
   public function orderDirection($direction)

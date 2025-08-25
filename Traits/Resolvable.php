@@ -14,6 +14,7 @@ use Netflex\Query\Exceptions\ResolutionFailedException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\LazyCollection;
 use Netflex\Query\PaginatedResult;
+use Netflex\Query\QueryableModel;
 
 trait Resolvable
 {
@@ -224,7 +225,7 @@ trait Resolvable
   /**
    * Finds an instance by its primary field, ignoring any publishing status checks
    *
-   * @param mixed|array|Colllection $findBy
+   * @param mixed|array|Collection $findBy
    * @return static|Collection|null
    * @throws NotQueryableException If object not queryable
    * @throws QueryBuilderSearchException On any ElasticSearch error
