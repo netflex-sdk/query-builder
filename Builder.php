@@ -48,7 +48,7 @@ class Builder
   /** @var string The decending sort direction */
   const string DIR_DESC = 'desc';
 
-  const string DIR_DEFAULT = 'default';
+  const string|null DIR_DEFAULT = 'default';
 
   /** @var array The supported value types */
   const array VALUE_TYPES = [
