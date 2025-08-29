@@ -2,6 +2,8 @@
 
 namespace Netflex\Query\Exceptions;
 
+use Netflex\Query\Builder;
+
 class InvalidArrayValueException extends QueryBuilderException
 {
     /**

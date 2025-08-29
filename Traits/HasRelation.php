@@ -7,11 +7,6 @@ use Netflex\Query\QueryableModel;
 
 trait HasRelation
 {
-  public function relationResolver($class, $key)
-  {
-    return null;
-  }
-
   /**
    * Gets the relation
    *
@@ -72,7 +67,7 @@ trait HasRelation
     }
 
     $cacheKey = array_filter([$prefix, $relation, $relationId]);
-
+    
     return implode('/', $cacheKey);
   }
 }

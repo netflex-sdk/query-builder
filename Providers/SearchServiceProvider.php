@@ -2,15 +2,12 @@
 
 namespace Netflex\Query\Providers;
 
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 
-use Netflex\Commerce\Order;
 use Netflex\Query\Builder;
 
 use Netflex\Pages\Page;
-use Netflex\Query\QueryableModel;
 use Netflex\Structure\File;
 use Netflex\Structure\Image;
 
@@ -26,11 +23,11 @@ class SearchServiceProvider extends ServiceProvider
   {
     $this->app->bind('Search', function () {
         /** @var Builder $search */
-        $search = App::make(Builder::class);
+        $search = (new Builder());
         $defaultMapper = $search->getMapper();
 
         $search = $search->orderBy('id')
-            ->respectPublishingStatus()
+            ->respectPublishingStatus(true)
             ->assoc(true)
             ->setMapper(function ($item) use ($defaultMapper) {
                 /** @var QueryableModel|null $model */

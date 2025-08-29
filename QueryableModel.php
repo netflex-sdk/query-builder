@@ -3,7 +3,6 @@
 namespace Netflex\Query;
 
 use ArrayAccess;
-use Closure;
 use Illuminate\Support\Facades\Cache;
 use JsonSerializable;
 
@@ -81,25 +80,18 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
   public $wasRecentlyCreated = false;
 
   /**
-   * The array of booted models.
-   *
-   * @var array
-   */
-  protected static $booted = [];
-
-  /**
-   * The callbacks that should be executed after the model has booted.
-   *
-   * @var array
-   */
-  protected static $bootedCallbacks = [];
-
-  /**
    * The array of trait initializers that will be called on each new instance.
    *
    * @var array
    */
   protected static $traitInitializers = [];
+
+  /**
+   * The array of booted models.
+   *
+   * @var array
+   */
+  protected static $booted = [];
 
   /**
    * The interal storage of the model data.
@@ -207,20 +199,6 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
   public static $cachingTemporarilyDisabled = false;
 
   /**
-   * Indicates if an exception should be thrown instead of silently discarding non-fillable attributes.
-   *
-   * @var bool
-   */
-  protected static $modelsShouldPreventSilentlyDiscardingAttributes = false;
-
-  /**
-   * Indicates if an exception should be thrown when trying to access a missing attribute on a retrieved model.
-   *
-   * @var bool
-   */
-  protected static $modelsShouldPreventAccessingMissingAttributes = false;
-
-  /**
    * @param array $attributes
    * @param bool $boot Should this model boot it's bootable traits and emit events?
    */
@@ -232,8 +210,6 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
       $this->bootIfNotBooted();
       $this->initializeTraits();
     }
-
-    $this->syncOriginal();
 
     $this->fill($attributes);
   }
@@ -290,7 +266,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param mixed $key
    * @return array|null
    */
-  protected function performRetrieveRequest(?int $relationId = null, mixed $key = null)
+  protected function performRetrieveRequest(?int $relationId = null, $key)
   {
     //
   }
@@ -315,7 +291,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param array $attributes
    * @return void
    */
-  protected function performUpdateRequest(?int $relationId = null, mixed $key = null, array $attributes = [])
+  protected function performUpdateRequest(?int $relationId = null, $key, $attributes = [])
   {
     //
   }
@@ -327,7 +303,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param mixed $key
    * @return bool
    */
-  protected function performDeleteRequest(?int $relationId = null, mixed $key = null)
+  protected function performDeleteRequest(?int $relationId = null, $key)
   {
     //
   }
@@ -526,27 +502,6 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
   }
 
   /**
-   * Prevent non-fillable attributes from being silently discarded.
-   *
-   * @param  bool  $value
-   * @return void
-   */
-  public static function preventSilentlyDiscardingAttributes($value = true)
-  {
-    static::$modelsShouldPreventSilentlyDiscardingAttributes = $value;
-  }
-
-  /**
-   * Determine if accessing missing attributes is disabled.
-   *
-   * @return bool
-   */
-  public static function preventsAccessingMissingAttributes()
-  {
-    return static::$modelsShouldPreventAccessingMissingAttributes;
-  }
-
-  /**
    * Perform a model insert operation.
    *
    * @return bool
@@ -721,7 +676,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param  array|null $except
    * @return static
    */
-  public function replicate(array|null $except = null)
+  public function replicate(array $except = null)
   {
     $defaults = [
       $this->getKeyName(),
@@ -746,7 +701,6 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    *
    * @return array
    */
-  #[\ReturnTypeWillChange]
   public function jsonSerialize()
   {
     return $this->toArray();
@@ -916,6 +870,8 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param mixed $resolveBy
    * @param  string|null $field
    * @return static|Collection|null
+   * @throws NotQueryableException If object not queryable
+   * @throws QueryException On invalid query
    */
   public static function resolve($rawValue, $field = null)
   {
@@ -956,7 +912,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param mixed $offset
    * @return bool
    */
-  public function offsetExists(mixed $offset): bool
+  public function offsetExists($offset)
   {
     return !is_null($this->getAttribute($offset));
   }
@@ -965,7 +921,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param mixed $offset
    * @return mixed
    */
-  public function offsetGet(mixed $offset): mixed
+  public function offsetGet($offset)
   {
     return $this->getAttribute($offset);
   }
@@ -975,7 +931,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param mixed $value
    * @return void
    */
-  public function offsetSet(mixed $offset, mixed $value): void
+  public function offsetSet($offset, $value)
   {
     $this->setAttribute($offset, $value);
   }
@@ -984,7 +940,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param mixed $offset
    * @return void
    */
-  public function offsetUnset(mixed $offset): void
+  public function offsetUnset($offset)
   {
     unset($this->attributes[$offset]);
   }
@@ -1000,15 +956,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
       static::$booted[static::class] = true;
       $this->fireModelEvent('booting', false);
 
-      static::booting();
       static::boot();
-      static::booted();
-
-      static::$bootedCallbacks[static::class] ??= [];
-
-      foreach (static::$bootedCallbacks[static::class] as $callback) {
-        $callback();
-      }
 
       $this->fireModelEvent('booted', false);
     }
@@ -1183,36 +1131,29 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
   }
 
   /**
-   * Perform any actions required before the model boots.
+   * Register a booting model event with the dispatcher.
    *
+   * @param  \Closure|string  $callback
    * @return void
    */
-  protected static function booting()
+  protected static function booting($callback)
   {
-    //
+    if (has_trait(static::class, HasEvents::class)) {
+      static::registerModelEvent('booting', $callback);
+    }
   }
 
   /**
-   * Perform any actions required after the model boots.
+   * Register a booted model event with the dispatcher.
    *
+   * @param  \Closure|string  $callback
    * @return void
    */
-  protected static function booted()
+  protected static function booted($callback)
   {
-    //
-  }
-
-  /**
-   * Register a closure to be executed after the model has booted.
-   *
-   * @param  \Closure  $callback
-   * @return void
-   */
-  protected static function whenBooted(Closure $callback)
-  {
-    static::$bootedCallbacks[static::class] ??= [];
-
-    static::$bootedCallbacks[static::class][] = $callback;
+    if (has_trait(static::class, HasEvents::class)) {
+      static::registerModelEvent('booted', $callback);
+    }
   }
 
   /**

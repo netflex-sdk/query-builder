@@ -4,14 +4,10 @@ namespace Netflex\Query\Traits;
 
 use Closure;
 
-use DateTimeInterface;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\App;
 use Netflex\Query\Builder;
-use Netflex\Query\Exceptions\InvalidSortingDirectionException;
 use Netflex\Query\QueryableModel;
 
-use Netflex\Query\Exceptions\QueryBuilderSearchException;
+use Netflex\Query\Exceptions\QueryException;
 use Netflex\Query\Exceptions\NotQueryableException;
 use Illuminate\Contracts\Pagination\Paginator;
 
@@ -59,9 +55,7 @@ trait Queryable
       return $item;
     };
 
-    $builder = App::makeWith(Builder::class, ['appends' => $appends])
-      ->respectPublishingStatus($respectPublishingStatus)
-      ->setMapper($mapper)
+    $builder = (new Builder($respectPublishingStatus, null, $mapper, $appends))
       ->relation($relation, $relationId)
       ->assoc($hasMapper);
 
@@ -287,7 +281,7 @@ trait Queryable
    * @param int $page
    * @return Paginator
    * @throws NotQueryableException If object not queryable
-   * @throws QueryBuilderSearchException On any ElasticSearch error
+   * @throws QueryException On invalid query
    * @see \Netflex\Query\Builder::paginate
    */
   public static function paginate(...$args)
@@ -334,7 +328,7 @@ trait Queryable
    *
    * @return int
    * @throws NotQueryableException If object not queryable
-   * @throws QueryBuilderSearchException On any ElasticSearch error
+   * @throws QueryException On invalid query
    * @see \Netflex\Query\Builder::count
    */
   public static function count(...$args)

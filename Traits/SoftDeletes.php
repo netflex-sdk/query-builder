@@ -2,9 +2,14 @@
 
 namespace Netflex\Query\Traits;
 
+use Closure;
 use Netflex\Query\Builder;
-use Netflex\Query\QueryableModel;
 
+/**
+ * @method static static|\Netflex\Query\Builder withTrashed()
+ * @method static static|\Netflex\Query\Builder onlyTrashed()
+ * @method static static|\Netflex\Query\Builder withoutTrashed()
+ */
 trait SoftDeletes
 {
     /**

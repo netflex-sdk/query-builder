@@ -5,12 +5,13 @@ namespace Netflex\Query;
 use Closure;
 use DateTimeInterface;
 
-use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\BadResponseException;
 use Illuminate\Support\Carbon;
 use Netflex\API\Contracts\APIClient;
 use Netflex\API\Facades\APIClientConnectionResolver;
 
-use Netflex\Query\Exceptions\QueryBuilderSearchException;
+use Netflex\Query\Exceptions\QueryException;
+use Netflex\Query\Exceptions\IndexNotFoundException;
 use Netflex\Query\Exceptions\InvalidAssignmentException;
 use Netflex\Query\Exceptions\InvalidOperatorException;
 use Netflex\Query\Exceptions\InvalidSortingDirectionException;
@@ -34,24 +35,24 @@ class Builder
   use Macroable;
 
   /** @var int The minimum allowed results per query */
-  const int MIN_QUERY_SIZE = 1;
+  const MIN_QUERY_SIZE = 1;
 
   /** @var int The maximum allowed results per query */
-  const int MAX_QUERY_SIZE = 10000;
+  const MAX_QUERY_SIZE = 10000;
 
   /** @var array Special characters that must be escaped */
-  const array SPECIAL_CHARS = ['"', '\\'];
+  const SPECIAL_CHARS = ['"', '\\'];
 
   /** @var string The ascending sort direction */
-  const string DIR_ASC = 'asc';
+  const DIR_ASC = 'asc';
 
   /** @var string The decending sort direction */
-  const string DIR_DESC = 'desc';
+  const DIR_DESC = 'desc';
 
-  const string|null DIR_DEFAULT = 'default';
+  const DIR_DEFAULT = 'default';
 
   /** @var array The supported value types */
-  const array VALUE_TYPES = [
+  const VALUE_TYPES = [
     'NULL',
     'array',
     'boolean',
@@ -60,46 +61,46 @@ class Builder
     'DateTime'
   ];
 
-  const array REPLACEMENT_ENTITIES = [
+  const REPLACEMENT_ENTITIES = [
     '-' => '##D##'
   ];
 
   /** @var array The valid sorting directions */
-  const array SORTING_DIRS = [
+  const SORTING_DIRS = [
     Builder::DIR_DEFAULT,
     Builder::DIR_ASC,
     Builder::DIR_DESC,
   ];
 
   /** @var string The equals operator */
-  const string OP_EQ = '=';
+  const OP_EQ = '=';
 
   /** @var string The not equals operator */
-  const string OP_NEQ = '!=';
+  const OP_NEQ = '!=';
 
   /** @var string The not equals operator (SQL syntax) */
-  const string OP_NEQ_SQL = '<>';
+  const OP_NEQ_SQL = '<>';
 
   /** @var string The less than operator */
-  const string OP_LT = '<';
+  const OP_LT = '<';
 
   /** @var string The less than or equals operator */
-  const string OP_LTE = '<=';
+  const OP_LTE = '<=';
 
   /** @var string The greater than operator */
-  const string OP_GT = '>';
+  const OP_GT = '>';
 
   /** @var string The greater than or equals operator */
-  const string OP_GTE = '>=';
+  const OP_GTE = '>=';
 
   /** @var string The like operator */
-  const string OP_LIKE = 'like';
+  const OP_LIKE = 'like';
 
   /** @var string The not like operator */
-  const string OP_NOT_LIKE = 'not like';
+  const OP_NOT_LIKE = 'not like';
 
   /** @var array The valid operators */
-  const array OPERATORS = [
+  const OPERATORS = [
     Builder::OP_EQ,
     Builder::OP_NEQ,
     Builder::OP_LT,
@@ -109,39 +110,55 @@ class Builder
     Builder::OP_LIKE
   ];
 
-  protected string $connection;
+  /** @var APIClient */
+  protected $connection;
 
-  protected array $fields = [];
+  /** @var array */
+  protected $fields;
 
-  protected array $relations = [];
+  /** @var array */
+  protected $relations;
 
-  protected int|null $relation_id = null;
+  /** @var int */
+  protected $relation_id;
 
-  protected int $size = self::MAX_QUERY_SIZE;
+  /** @var int */
+  protected $size = self::MAX_QUERY_SIZE;
 
-  protected array $orderBy = [];
+  /** @var string[] */
+  protected $orderBy = [];
 
-  protected array $sortDir = [];
+  /** @var string[] */
+  protected $sortDir = [];
 
-  protected array $query = [];
+  /** @var array */
+  protected $query;
 
-  protected bool $respectPublishingStatus = true;
+  /** @var bool */
+  protected $respectPublishingStatus = true;
 
-  protected ?Closure $mapper;
+  /** @var Closure */
+  protected $mapper;
 
-  protected bool $assoc = false;
+  /** @var bool */
+  protected $assoc = false;
 
-  protected bool $shouldCache = false;
+  /** @var bool */
+  protected $shouldCache = false;
 
-  protected string $cacheKey;
+  /** @var string */
+  protected $cacheKey;
 
-  protected bool $debug = false;
+  /** @var bool */
+  protected $debug = false;
 
-  protected mixed $appends = [];
+  /** @var callable[] */
+  protected $appends = [];
 
-  protected string $model;
+  /** @var string */
+  protected $model;
 
-  protected bool $useScores = false;
+  protected $useScores = false;
 
   /**
    * @param bool $respectPublishingStatus
@@ -159,7 +176,7 @@ class Builder
    * @param string|null $name
    * @return static
    */
-  public function connection(string|null $name): static
+  public function connection($name)
   {
     return $this->setConnectionName($name);
   }
@@ -171,7 +188,6 @@ class Builder
   public function setConnectionName($connection)
   {
     $this->connection = $connection;
-
     return $this;
   }
 
@@ -394,14 +410,20 @@ class Builder
     $field = $this->compileField($field);
 
     if (is_object($value) && $value instanceof Collection) {
+      /** @var Collection */
+      $value = $value;
       $value = $value->all();
     }
 
     if (is_object($value) && $value instanceof QueryableModel) {
+      /** @var QueryableModel */
+      $value = $value;
       $value = $value->getKey();
     }
 
     if (is_object($value) && method_exists($value, '__toString')) {
+      /** @var object */
+      $value = $value;
       $value = $value->__toString();
     }
 
@@ -482,13 +504,14 @@ class Builder
         return $term;
       default:
         throw new InvalidOperatorException($originalOperator);
+        break;
     }
   }
 
   /**
    * Sets the debug flag of the query
    * Making the API reflect the compiled query in the output
-   *
+   * 
    * @return static
    */
   public function debug()
@@ -565,7 +588,7 @@ class Builder
    * @param string $direction
    * @return static
    * @throws InvalidSortingDirectionException If an invalid $direction is passed
-   * @throws NoSortableFieldToOrderByException If no orderBy field has been set
+   * @throws InvalidSortingFieldException If no orderBy field has been set
    * @deprecated 4.4.1 Use orderBy() with direction argument instead
    */
   public function orderDirection($direction)
@@ -842,7 +865,7 @@ class Builder
    * @param int $size
    * @param int $page
    * @return PaginatedResult
-   * @throws QueryBuilderSearchException
+   * @throws QueryException
    */
   public function paginate($size = 100, $page = 1)
   {
@@ -871,7 +894,7 @@ class Builder
    * @param int $page
    * @param int $size
    * @return object
-   * @throws QueryBuilderSearchException
+   * @throws IndexNotFoundException|QueryException
    */
   public function fetch($size = null, $page = null)
   {
@@ -888,26 +911,26 @@ class Builder
       }
 
       return $fetch();
-    } catch (ClientException $exception) {
-      $response = $exception->getResponse();
-      $body = json_decode($response->getBody(), true);
+    } catch (BadResponseException $e) {
+      $response = $e->getResponse();
+      $index = $this->relations ? implode(',', $this->relations) : null;
+      $index .= $this->relation_id ? ('_' . $this->relation_id) : null;
 
-      if (isset($body['origin']) && $body['origin'] === 'ElasticSearch') {
-        throw new QueryBuilderSearchException(
-          $response,
-          $exception,
-        );
+      if ($response->getStatusCode() === 500) {
+        throw new IndexNotFoundException($index);
       }
 
-      throw $exception;
+      $error = json_decode($e->getResponse()->getBody());
+
+      throw new QueryException($this->getQuery(true), $error);
     }
   }
 
   /**
    * Retrieves the results of the query
    *
-   * @return Collection
-   * @throws QueryBuilderSearchException
+   * @return \Illuminate\Support\Collection
+   * @throws QueryException
    */
   public function get()
   {
@@ -940,7 +963,7 @@ class Builder
    * Retrieves the first result
    *
    * @return object|null
-   * @throws QueryBuilderSearchException
+   * @throws QueryException
    */
   public function first()
   {
@@ -957,7 +980,7 @@ class Builder
    *
    * @return object|null
    * @throws NotFoundException
-   * @throws QueryBuilderSearchException
+   * @throws QueryException
    */
   public function firstOrFail()
   {
@@ -1015,7 +1038,7 @@ class Builder
    * Returns random results for the given query
    * @param int|null $amount If not provided, will use the current query limit
    * @return Collection
-   * @throws QueryBuilderSearchException
+   * @throws QueryException
    */
   public function random($amount = null)
   {
@@ -1080,7 +1103,7 @@ class Builder
   /**
    * Only include published results
    * Only applies to entry and page relations
-   *
+   * 
    * @param bool
    *
    * @return static
@@ -1095,7 +1118,7 @@ class Builder
    * Get the count of items matching the current query
    *
    * @return int
-   * @throws QueryBuilderSearchException
+   * @throws QueryException
    */
   public function count()
   {
@@ -1116,7 +1139,7 @@ class Builder
 
     $this->respectPublishingStatus(false);
 
-    $this->query = [$this->compileScopedQuery([function (Builder $query) use ($date) {
+    $this->query[] = $this->compileScopedQuery([function (Builder $query) use ($date) {
       return $query->where('published', true)
         ->andWhere(function (Builder $query) use ($date) {
           return $query->where('use_time', false)
@@ -1141,7 +1164,7 @@ class Builder
                 });
             });
         });
-    }])];
+    }]);
 
     return $this;
   }
@@ -1206,9 +1229,9 @@ class Builder
   /**
    * Conditional query
    *
-   * @param boolean|Closure $clause
-   * @param Closure $then
-   * @param null|Closure $else
+   * @param boolean|Closure $clause 
+   * @param Closure $then 
+   * @param null|Closure $else 
    * @return static
    */
   public function if($clause, Closure $then, ?Closure $else = null)

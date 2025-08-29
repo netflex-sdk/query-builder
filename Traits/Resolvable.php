@@ -5,8 +5,9 @@ namespace Netflex\Query\Traits;
 use Closure;
 
 use Netflex\Query\Builder;
+use Netflex\Query\Traits\Queryable;
 
-use Netflex\Query\Exceptions\QueryBuilderSearchException;
+use Netflex\Query\Exceptions\QueryException;
 use Netflex\Query\Exceptions\NotFoundException;
 use Netflex\Query\Exceptions\NotQueryableException;
 use Netflex\Query\Exceptions\ResolutionFailedException;
@@ -14,7 +15,6 @@ use Netflex\Query\Exceptions\ResolutionFailedException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\LazyCollection;
 use Netflex\Query\PaginatedResult;
-use Netflex\Query\QueryableModel;
 
 trait Resolvable
 {
@@ -51,7 +51,7 @@ trait Resolvable
    *
    * @return static|null
    * @throws NotQueryableException If object not queryable
-   * @throws QueryBuilderSearchException On any ElasticSearch error
+   * @throws QueryException On invalid query
    */
   public static function first()
   {
@@ -67,7 +67,7 @@ trait Resolvable
    * @return static
    * @throws NotFoundException If not found
    * @throws NotQueryableException If object not queryable
-   * @throws QueryBuilderSearchException On any ElasticSearch error
+   * @throws QueryException On invalid query
    */
   public static function firstOrFail()
   {
@@ -86,7 +86,7 @@ trait Resolvable
    *
    * @return static|null
    * @throws NotQueryableException If object not queryable
-   * @throws QueryBuilderSearchException On any ElasticSearch error
+   * @throws QueryException On invalid query
    */
   public static function last()
   {
@@ -101,7 +101,7 @@ trait Resolvable
    *
    * @return Collection|LazyCollection Returns LazyCollection if chunking is enabled on the model.
    * @throws NotQueryableException If object not queryable
-   * @throws QueryBuilderSearchException On any ElasticSearch error
+   * @throws QueryException On invalid query
    */
   public static function all()
   {
@@ -147,7 +147,7 @@ trait Resolvable
    * @param  string|null $field
    * @return static|Collection|null
    * @throws NotQueryableException If object not queryable
-   * @throws QueryBuilderSearchException On any ElasticSearch error
+   * @throws QueryException On invalid query
    */
   public static function resolve($resolveBy, $field = null)
   {
@@ -168,7 +168,7 @@ trait Resolvable
    * @return static|Collection
    * @throws ResolutionFailedException If the instance(s) could not be resolved
    * @throws NotQueryableException If object not queryable
-   * @throws QueryBuilderSearchException On any ElasticSearch error
+   * @throws QueryException On invalid query
    */
   public static function resolveOrFail($resolveBy)
   {
@@ -185,7 +185,7 @@ trait Resolvable
    * @param array $findBy
    * @return Collection
    * @throws NotQueryableException If object not queryable
-   * @throws QueryBuilderSearchException On any ElasticSearch error
+   * @throws QueryException On invalid query
    */
   public static function resolveMany(array $resolveBy)
   {
@@ -198,7 +198,7 @@ trait Resolvable
    * @param mixed|array|Collection $findBy
    * @return static|Collection|null
    * @throws NotQueryableException If object not queryable
-   * @throws QueryBuilderSearchException On any ElasticSearch error
+   * @throws QueryException On invalid query
    */
   public static function find($findBy)
   {
@@ -225,10 +225,10 @@ trait Resolvable
   /**
    * Finds an instance by its primary field, ignoring any publishing status checks
    *
-   * @param mixed|array|Collection $findBy
+   * @param mixed|array|Colllection $findBy
    * @return static|Collection|null
    * @throws NotQueryableException If object not queryable
-   * @throws QueryBuilderSearchException On any ElasticSearch error
+   * @throws QueryException On invalid query
    */
   public static function forceFind($findBy)
   {
@@ -254,7 +254,7 @@ trait Resolvable
    * @return static|Collection
    * @throws NotFoundException If the instance(s) could not be found
    * @throws NotQueryableException If object not queryable
-   * @throws QueryBuilderSearchException On any ElasticSearch error
+   * @throws QueryException On invalid query
    */
   public static function findOrFail($findBy)
   {
@@ -274,7 +274,7 @@ trait Resolvable
    * @param array $findBy
    * @return Collection
    * @throws NotQueryableException If object not queryable
-   * @throws QueryBuilderSearchException On any ElasticSearch error
+   * @throws QueryException On invalid query
    */
   public static function findMany(array $findBy)
   {
