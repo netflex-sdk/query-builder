@@ -2,8 +2,8 @@
 
 namespace Netflex\Query;
 
+use Exception;
 use ArrayAccess;
-use Illuminate\Support\Facades\Cache;
 use JsonSerializable;
 
 use Netflex\Query\Traits\Queryable;
@@ -266,7 +266,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param mixed $key
    * @return array|null
    */
-  protected function performRetrieveRequest(?int $relationId = null, $key)
+  protected function performRetrieveRequest(?int $relationId = null, mixed $key = null)
   {
     //
   }
@@ -291,7 +291,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param array $attributes
    * @return void
    */
-  protected function performUpdateRequest(?int $relationId = null, $key, $attributes = [])
+  protected function performUpdateRequest(?int $relationId = null, mixed $key = null, array $attributes = [])
   {
     //
   }
@@ -303,7 +303,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param mixed $key
    * @return bool
    */
-  protected function performDeleteRequest(?int $relationId = null, $key)
+  protected function performDeleteRequest(?int $relationId = null, mixed $key = null)
   {
     //
   }
@@ -461,26 +461,24 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
       return false;
     }
 
-    $dirty = $this->getDirty();
+    static::maybeMutatesCache(
+      $this->getCacheIdentifier($this->getKey()),
+      $this->cachesResults,
+      function () {
+        $dirty = $this->getDirty();
 
-    if (count($dirty) > 0) {
-      $dirty['revision_publish'] = true;
-      $this->performUpdateRequest($this->getRelationId(), $this->getKey(), $dirty);
-    }
+        if (count($dirty) > 0) {
+          $dirty['revision_publish'] = true;
+          $this->performUpdateRequest($this->getRelationId(), $this->getKey(), $dirty);
+        }
 
-    $this->withIgnoredPublishingStatus(function () {
-      $this->attributes = $this->performRetrieveRequest($this->getRelationId(), $this->getKey());
-    });
+        $this->withIgnoredPublishingStatus(function () {
+          $this->attributes = $this->performRetrieveRequest($this->getRelationId(), $this->getKey());
+        });
+      }
+    );
 
     $this->fireModelEvent('updated', false);
-
-    if (!static::$cachingTemporarilyDisabled && $this->cachesResults) {
-      $entryCacheKey = $this->getCacheIdentifier($this->getKey());
-      $entriesCacheKey = $this->getAllCacheIdentifier();
-
-      Cache::forget($entryCacheKey);
-      Cache::forget($entriesCacheKey);
-    }
 
     return true;
   }
@@ -540,12 +538,6 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
     $this->fireModelEvent('created', false);
 
     $this->syncOriginal();
-
-    if (!static::$cachingTemporarilyDisabled && $this->cachesResults) {
-      $entriesCacheKey = $this->getAllCacheIdentifier();
-
-      Cache::forget($entriesCacheKey);
-    }
 
     return true;
   }
@@ -655,15 +647,6 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
   {
     if ($wasDeleted = $this->performDeleteRequest($this->getRelationId(), $this->getKey())) {
       $this->exists = false;
-
-      if (!static::$cachingTemporarilyDisabled && $this->cachesResults) {
-        $entryCacheKey = $this->getCacheIdentifier($this->getKey());
-        $entriesCacheKey = $this->getAllCacheIdentifier();
-
-        Cache::forget($entryCacheKey);
-        Cache::forget($entriesCacheKey);
-      }
-
       return $wasDeleted;
     }
 
@@ -701,6 +684,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    *
    * @return array
    */
+  #[\ReturnTypeWillChange]
   public function jsonSerialize()
   {
     return $this->toArray();
@@ -912,7 +896,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param mixed $offset
    * @return bool
    */
-  public function offsetExists($offset)
+  public function offsetExists(mixed $offset): bool
   {
     return !is_null($this->getAttribute($offset));
   }
@@ -921,7 +905,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param mixed $offset
    * @return mixed
    */
-  public function offsetGet($offset)
+  public function offsetGet(mixed $offset): mixed
   {
     return $this->getAttribute($offset);
   }
@@ -931,7 +915,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param mixed $value
    * @return void
    */
-  public function offsetSet($offset, $value)
+  public function offsetSet(mixed $offset, mixed $value): void
   {
     $this->setAttribute($offset, $value);
   }
@@ -940,7 +924,7 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
    * @param mixed $offset
    * @return void
    */
-  public function offsetUnset($offset)
+  public function offsetUnset(mixed $offset): void
   {
     unset($this->attributes[$offset]);
   }
