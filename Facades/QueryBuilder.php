@@ -3,9 +3,9 @@
 namespace Netflex\Query\Facades;
 
 use Illuminate\Contracts\Pagination\Paginator;
+use Illuminate\Support\Facades\Facade;
 use Netflex\Query\Builder;
 use Netflex\Query\QueryableModel;
-use Illuminate\Support\Facades\Facade;
 
 /**
  * @method static QueryableModel|null first()
@@ -49,25 +49,10 @@ use Illuminate\Support\Facades\Facade;
  *
  * @see Builder
  */
-class Search extends Facade
+class QueryBuilder extends Facade
 {
-  /**
-   * Get the registered name of the component.
-   *
-   * @return string
-   */
-  protected static function getFacadeAccessor()
+  protected static function getFacadeAccessor(): string
   {
-    return 'Search';
-  }
-
-  public function __toString()
-  {
-    return $this->compileQuery();
-  }
-
-  public function getSize()
-  {
-    return $this->size;
+    return Builder::class;
   }
 }

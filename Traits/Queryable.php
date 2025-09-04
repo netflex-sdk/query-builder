@@ -4,14 +4,14 @@ namespace Netflex\Query\Traits;
 
 use Closure;
 
-use Illuminate\Support\Facades\Cache;
-
+use DateTimeInterface;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\App;
 use Netflex\Query\Builder;
+use Netflex\Query\Exceptions\InvalidSortingDirectionException;
 use Netflex\Query\QueryableModel;
 
-use Netflex\Query\Traits\HasRelation;
-
-use Netflex\Query\Exceptions\QueryException;
+use Netflex\Query\Exceptions\QueryBuilderSearchException;
 use Netflex\Query\Exceptions\NotQueryableException;
 use Illuminate\Contracts\Pagination\Paginator;
 
@@ -59,7 +59,9 @@ trait Queryable
       return $item;
     };
 
-    $builder = (new Builder($respectPublishingStatus, null, $mapper, $appends))
+    $builder = App::makeWith(Builder::class, ['appends' => $appends])
+      ->respectPublishingStatus($respectPublishingStatus)
+      ->setMapper($mapper)
       ->relation($relation, $relationId)
       ->assoc($hasMapper);
 
@@ -108,7 +110,7 @@ trait Queryable
 
   /**
    * Override the publishing status for the model
-   * 
+   *
    * @param bool $disregarding
    * @return Builder
    */
@@ -285,7 +287,7 @@ trait Queryable
    * @param int $page
    * @return Paginator
    * @throws NotQueryableException If object not queryable
-   * @throws QueryException On invalid query
+   * @throws QueryBuilderSearchException On any ElasticSearch error
    * @see \Netflex\Query\Builder::paginate
    */
   public static function paginate(...$args)
@@ -294,25 +296,6 @@ trait Queryable
     $maxSize = Builder::MAX_QUERY_SIZE;
     $args[0] = $args[0] < 0 ? ($maxSize + ($args[0] + 1)) : $args[0];
     return static::makeQueryBuilder()->paginate(...$args);
-  }
-
-  /**
-   * Perform an action and mutate the given key if $shouldCache is true
-   *
-   * @param string $key
-   * @param bool $shouldCache
-   * @param Closure $action
-   * @return mixed
-   */
-  public static function maybeMutatesCache($key, $shouldCache, Closure $action)
-  {
-    if (!static::$cachingTemporarilyDisabled) {
-      if ($shouldCache) {
-        Cache::forget($key);
-      }
-    }
-
-    $result = $action();
   }
 
   /**
@@ -351,7 +334,7 @@ trait Queryable
    *
    * @return int
    * @throws NotQueryableException If object not queryable
-   * @throws QueryException On invalid query
+   * @throws QueryBuilderSearchException On any ElasticSearch error
    * @see \Netflex\Query\Builder::count
    */
   public static function count(...$args)
@@ -361,7 +344,7 @@ trait Queryable
 
   /**
    * Picks random items
-   * 
+   *
    * @param int $amount
    * @return static|Collection
    */
@@ -373,9 +356,9 @@ trait Queryable
   }
 
   /**
-   * @param string $query 
-   * @return Builder 
-   * @throws NotQueryableException 
+   * @param string $query
+   * @return Builder
+   * @throws NotQueryableException
    */
   public static function query($query = '*')
   {
