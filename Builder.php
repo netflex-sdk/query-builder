@@ -29,6 +29,9 @@ use Illuminate\Support\Traits\Macroable;
 use Netflex\Query\Exceptions\InvalidArrayValueException;
 use Netflex\Query\Exceptions\NoSortableFieldToOrderByException;
 
+/**
+ * @template T
+ */
 class Builder
 {
   use Macroable;
