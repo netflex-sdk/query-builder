@@ -204,7 +204,7 @@ class Builder
   }
 
   /**
-   * @param string $model
+   * @param class-string<T> $model
    * @return void
    */
   public function setModel($model)
@@ -213,7 +213,7 @@ class Builder
   }
 
   /**
-   * @return string|null
+   * @return class-string<T>|null
    */
   public function getModel()
   {
@@ -844,7 +844,7 @@ class Builder
    *
    * @param int $size
    * @param int $page
-   * @return PaginatedResult
+   * @return PaginatedResult<T>
    * @throws QueryBuilderSearchException
    */
   public function paginate($size = 100, $page = 1)
@@ -909,7 +909,7 @@ class Builder
   /**
    * Retrieves the results of the query
    *
-   * @return Collection
+   * @return Collection<int, T>
    * @throws QueryBuilderSearchException
    */
   public function get()
@@ -942,7 +942,7 @@ class Builder
   /**
    * Retrieves the first result
    *
-   * @return object|null
+   * @return T|null
    * @throws QueryBuilderSearchException
    */
   public function first()
@@ -958,7 +958,7 @@ class Builder
   /**
    * Retrieves the first result
    *
-   * @return object|null
+   * @return T
    * @throws NotFoundException
    * @throws QueryBuilderSearchException
    */
@@ -979,7 +979,7 @@ class Builder
 
   /**
    * Retrives all results for the given query, ignoring the query limit
-   * @return LazyCollection
+   * @return LazyCollection<int, T>|Collection<int, T>
    */
   public function all()
   {
@@ -1017,7 +1017,7 @@ class Builder
   /**
    * Returns random results for the given query
    * @param int|null $amount If not provided, will use the current query limit
-   * @return Collection
+   * @return Collection<int, T>
    * @throws QueryBuilderSearchException
    */
   public function random($amount = null)

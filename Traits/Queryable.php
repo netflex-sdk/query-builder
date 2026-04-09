@@ -33,7 +33,7 @@ trait Queryable
 
   /**
    * @param Closure[]
-   * @return Builder
+   * @return Builder<static>
    * @throws NotQueryableException If object not queryable
    */
   protected static function makeQueryBuilder($appends = [])
@@ -112,7 +112,7 @@ trait Queryable
    * Override the publishing status for the model
    *
    * @param bool $disregarding
-   * @return Builder
+   * @return Builder<static>
    */
   public static function disregardingPublishingStatus($disregarding = true)
   {
@@ -124,7 +124,7 @@ trait Queryable
    * Adds a field that should be retrieved
    *
    * @param string $field
-   * @return Builder
+   * @return Builder<static>
    * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::field
    */
@@ -137,7 +137,7 @@ trait Queryable
    * Sets which fields to retrieve (default: All fields)
    *
    * @param array $fields
-   * @return Builder
+   * @return Builder<static>
    * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::fields
    */
@@ -150,7 +150,7 @@ trait Queryable
    * Limits the results to $limit amount of hits
    *
    * @param int $limit
-   * @return Builder
+   * @return Builder<static>
    * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::limit
    */
@@ -164,7 +164,7 @@ trait Queryable
    *
    * @param string $field
    * @param string $direction
-   * @return Builder
+   * @return Builder<static>
    * @throws InvalidSortingDirectionException If an invalid $direction is passed
    * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::orderBy
@@ -178,7 +178,7 @@ trait Queryable
    * Performs a raw query, use carefully.
    *
    * @param string $query
-   * @return Builder
+   * @return Builder<static>
    * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::raw
    */
@@ -191,7 +191,7 @@ trait Queryable
    * Performs a 'publishedAt' query
    *
    * @param string|DateTimeInterface|null $date
-   * @return Builder
+   * @return Builder<static>
    * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::publishedAt
    */
@@ -209,7 +209,7 @@ trait Queryable
    * @param Closure|string $field
    * @param string $operator
    * @param null|array|boolean|integer|string|DateTimeInterface $value
-   * @return Builder
+   * @return Builder<static>
    * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::where
    */
@@ -223,7 +223,7 @@ trait Queryable
    *
    * @param string $field
    * @param array $values
-   * @return Builder
+   * @return Builder<static>
    * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::whereIn
    */
@@ -241,7 +241,7 @@ trait Queryable
    * @param Closure|string $field
    * @param string $operator
    * @param null|array|boolean|integer|string|DateTimeInterface $value
-   * @return Builder
+   * @return Builder<static>
    * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::whereNot
    */
@@ -256,7 +256,7 @@ trait Queryable
    * @param string $field
    * @param @param null|array|boolean|integer|string|DateTimeInterface $from
    * @param @param null|array|boolean|integer|string|DateTimeInterface $to
-   * @return Builder
+   * @return Builder<static>
    * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::whereBetween
    */
@@ -271,7 +271,7 @@ trait Queryable
    * @param string $field
    * @param @param null|array|boolean|integer|string|DateTimeInterface $from
    * @param @param null|array|boolean|integer|string|DateTimeInterface $to
-   * @return Builder
+   * @return Builder<static>
    * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::whereNotBetween
    */
@@ -303,7 +303,7 @@ trait Queryable
    *
    * @param string $key
    * @param bool $shouldCache
-   * @return Builder
+   * @return Builder<static>
    * @see \Netflex\Query\Builder::cacheResultsWithKey
    */
   public static function maybeCacheResults($key, $shouldCache)
@@ -321,7 +321,7 @@ trait Queryable
    * Cache the results with the given key
    *
    * @param string $key
-   * @return Builder
+   * @return Builder<static>
    * @see \Netflex\Query\Builder::cacheResultsWithKey
    */
   public static function cacheResults($key)
@@ -346,7 +346,7 @@ trait Queryable
    * Picks random items
    *
    * @param int $amount
-   * @return static|Collection
+   * @return static|Collection<int, static>
    */
   public static function random(int $amount = 1)
   {
@@ -357,7 +357,7 @@ trait Queryable
 
   /**
    * @param string $query
-   * @return Builder
+   * @return Builder<static>
    * @throws NotQueryableException
    */
   public static function query($query = '*')
@@ -369,7 +369,7 @@ trait Queryable
    * @param boolean|Closure $clause
    * @param Closure $then
    * @param null|Closure $else
-   * @return Builder
+   * @return Builder<static>
    * @throws NotQueryableException If object not queryable
    * @see \Netflex\Query\Builder::if
    */

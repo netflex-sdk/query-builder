@@ -99,7 +99,7 @@ trait Resolvable
   /**
    * Retrieves all instances
    *
-   * @return Collection|LazyCollection Returns LazyCollection if chunking is enabled on the model.
+   * @return Collection<int, static>|LazyCollection<int, static>
    * @throws NotQueryableException If object not queryable
    * @throws QueryBuilderSearchException On any ElasticSearch error
    */
@@ -119,6 +119,10 @@ trait Resolvable
     });
   }
 
+  /**
+   * @param int|null $size
+   * @return LazyCollection<int, static>
+   */
   public static function chunked($size = null)
   {
     return static::resolvableContext(function ($resolvable) use ($size) {
@@ -145,7 +149,7 @@ trait Resolvable
    *
    * @param mixed $resolveBy
    * @param  string|null $field
-   * @return static|Collection|null
+   * @return static|Collection<int, static>|null
    * @throws NotQueryableException If object not queryable
    * @throws QueryBuilderSearchException On any ElasticSearch error
    */
@@ -165,7 +169,7 @@ trait Resolvable
    * Resolves an instance or throws an exception
    *
    * @param mixed $resolveBy
-   * @return static|Collection
+   * @return static|Collection<int, static>
    * @throws ResolutionFailedException If the instance(s) could not be resolved
    * @throws NotQueryableException If object not queryable
    * @throws QueryBuilderSearchException On any ElasticSearch error
@@ -183,7 +187,7 @@ trait Resolvable
    * Resolves multiple instances by their primary fields
    *
    * @param array $findBy
-   * @return Collection
+   * @return Collection<int, static>
    * @throws NotQueryableException If object not queryable
    * @throws QueryBuilderSearchException On any ElasticSearch error
    */
@@ -196,7 +200,7 @@ trait Resolvable
    * Finds an instance by its primary field
    *
    * @param mixed|array|Collection $findBy
-   * @return static|Collection|null
+   * @return static|Collection<int, static>|null
    * @throws NotQueryableException If object not queryable
    * @throws QueryBuilderSearchException On any ElasticSearch error
    */
@@ -251,7 +255,7 @@ trait Resolvable
    * Finds an instance by its primary field or throws an exception
    *
    * @param mixed|array $findBy
-   * @return static|Collection
+   * @return static|Collection<int, static>
    * @throws NotFoundException If the instance(s) could not be found
    * @throws NotQueryableException If object not queryable
    * @throws QueryBuilderSearchException On any ElasticSearch error
@@ -272,7 +276,7 @@ trait Resolvable
    * Finds multiple instances by their primary fields
    *
    * @param array $findBy
-   * @return Collection
+   * @return Collection<int, static>
    * @throws NotQueryableException If object not queryable
    * @throws QueryBuilderSearchException On any ElasticSearch error
    */

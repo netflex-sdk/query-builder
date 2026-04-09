@@ -10,6 +10,8 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Netflex\Query\Exceptions\QueryBuilderSearchException;
 
 /**
+ * @template T
+ * @extends LengthAwarePaginator<int, T>
  * @method void setPath(string $path)
  */
 class PaginatedResult extends LengthAwarePaginator
@@ -39,7 +41,14 @@ class PaginatedResult extends LengthAwarePaginator
     $this->onEachSide($onEachSide);
   }
 
-  /** @throws QueryBuilderSearchException */
+  /**
+   * @template TModel
+   * @param Builder<TModel> $query
+   * @param int $page
+   * @param int $onEachSide
+   * @return PaginatedResult<TModel>
+   * @throws QueryBuilderSearchException
+   */
   public static function fromBuilder(Builder $query, $page = 1, $onEachSide = 0)
   {
     $result = $query->fetch($query->getSize(), $page);
