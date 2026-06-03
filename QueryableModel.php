@@ -221,6 +221,11 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
   protected static $modelsShouldPreventAccessingMissingAttributes = false;
 
   /**
+   * @var array<string, mixed>
+   */
+  protected static array $classAttributes = [];
+
+  /**
    * @param array $attributes
    * @param bool $boot Should this model boot it's bootable traits and emit events?
    */
@@ -1241,5 +1246,43 @@ abstract class QueryableModel implements Arrayable, ArrayAccess, Jsonable, JsonS
   public function __debugInfo()
   {
     return $this->attributes;
+  }
+
+  /**
+   * @param  class-string  $attributeClass
+   * @param  string|null  $property
+   * @param  string|null  $class
+   * @return mixed
+   */
+  protected static function resolveClassAttribute(
+    string $attributeClass,
+    ?string $property = null,
+    ?string $class = null,
+  ) {
+    $class ??= static::class;
+
+    $cacheKey = $class . '@' . $attributeClass;
+
+    if (array_key_exists($cacheKey, static::$classAttributes)) {
+      return static::$classAttributes[$cacheKey];
+    }
+
+    try {
+      $reflection = new \ReflectionClass($class);
+
+      do {
+        $attributes = $reflection->getAttributes($attributeClass);
+
+        if (count($attributes) > 0) {
+          $instance = $attributes[0]->newInstance();
+
+          return static::$classAttributes[$cacheKey]
+            = $property ? $instance->{$property} : $instance;
+        }
+      } while ($reflection = $reflection->getParentClass());
+    } catch (\Exception) {
+    }
+
+    return static::$classAttributes[$cacheKey] = null;
   }
 }

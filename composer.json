@@ -27,21 +27,21 @@
     },
     "require": {
         "facade/ignition-contracts": "^1.0",
-        "illuminate/contracts": "^12.0",
-        "illuminate/database": "^12.0",
-        "illuminate/pagination": "^12.0",
-        "illuminate/support": "^12.0",
-        "netflex/api": "^6.0",
-        "php": "^8.2"
+        "illuminate/contracts": "^13.0",
+        "illuminate/database": "^13.0",
+        "illuminate/pagination": "^13.0",
+        "illuminate/support": "^13.0",
+        "netflex/api": "^7.0",
+        "php": "^8.4"
     },
     "require-dev": {
-        "illuminate/cache": "^12.0",
-        "illuminate/filesystem": "^12.0",
-        "phpunit/phpunit": "^9.0|^10.0"
+        "illuminate/cache": "^13.0",
+        "illuminate/filesystem": "^13.0",
+        "phpunit/phpunit": "^12.0"
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "6.0.x-dev"
+            "dev-master": "7.0.x-dev"
         },
         "laravel": {
             "providers": [
@@ -56,6 +56,6 @@
         }
     },
     "scripts": {
-        "tests": "vendor/bin/phpunit --testdox --colors=always"
+        "tests": "vendor/bin/phpunit --configuration phpunit.xml --testdox --colors=always"
     }
 }

@@ -23,7 +23,7 @@ final class OrderTest extends TestCase
     $query->orderBy('name');
 
     $this->assertSame(
-      'search?order=name&size=' . Builder::MAX_QUERY_SIZE,
+      'search?order=name&dir=' . Builder::DIR_DEFAULT . '&size=' . Builder::MAX_QUERY_SIZE,
       $query->getRequest()
     );
   }
@@ -34,7 +34,8 @@ final class OrderTest extends TestCase
     $query->orderBy('should-encode');
 
     $this->assertSame(
-      'search?order=should%23%23D%23%23encode&size=' . Builder::MAX_QUERY_SIZE,
+      'search?order=should%23%23D%23%23encode&dir=' . Builder::DIR_DEFAULT
+        . '&size=' . Builder::MAX_QUERY_SIZE,
       $query->getRequest()
     );
   }
@@ -65,7 +66,8 @@ final class OrderTest extends TestCase
     $query->orderDirection(Builder::DIR_DESC);
 
     $this->assertSame(
-      'search?order=name&dir=' . Builder::DIR_DESC . '&size=' . Builder::MAX_QUERY_SIZE,
+      'search?order=name&dir=' . urlencode(Builder::DIR_DEFAULT . ',' . Builder::DIR_DESC)
+        . '&size=' . Builder::MAX_QUERY_SIZE,
       $query->getRequest()
     );
 
@@ -74,7 +76,8 @@ final class OrderTest extends TestCase
     $query->orderDirection(Builder::DIR_ASC);
 
     $this->assertSame(
-      'search?order=name&dir=' . Builder::DIR_ASC . '&size=' . Builder::MAX_QUERY_SIZE,
+      'search?order=name&dir=' . urlencode(Builder::DIR_DEFAULT . ',' . Builder::DIR_ASC)
+        . '&size=' . Builder::MAX_QUERY_SIZE,
       $query->getRequest()
     );
   }

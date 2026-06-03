@@ -62,7 +62,7 @@ final class RequestTest extends TestCase
     $query->orderBy('id');
 
     $this->assertSame(
-      'search?order=id&size=' . Builder::MAX_QUERY_SIZE,
+      'search?order=id&dir=' . Builder::DIR_DEFAULT . '&size=' . Builder::MAX_QUERY_SIZE,
       $query->getRequest()
     );
 
